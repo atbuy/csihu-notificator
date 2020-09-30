@@ -29,25 +29,31 @@ async def last_id(ctx, id_num=None):
 async def run_bot(ctx):
     global last_id
     await ctx.send("```Started```")
-    print(last_id)
 
     while True:
         req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id+1}")
         soup = BeautifulSoup(req.text, "html.parser")
         paragraphs = soup.find_all("p")
+
         try:
-            for i in range(3):
+            for i in range(5):
                 paragraphs.pop()
         except IndexError as e:
             print(e)
             await asyncio.sleep(120)
             continue
-        final_text = ""
-        for index, item in enumerate(paragraphs):
-            if index == len(paragraphs):
-                final_text += item.get_text()
-            else:
-                final_text += item.get_text() + "\n"
+        
+        if len(paragraphs) == 1:
+            for item in paragraphs:
+                final_text = item.get_text().replace("\n", "")
+        else:
+            final_text = ""
+            for index, item in enumerate(paragraphs):
+                print(repr(item.get_text()))
+                if index == len(paragraphs):
+                    final_text += item.get_text().replace("\n", "")
+                else:
+                    final_text += item.get_text() + "\n"
 
         if final_text.replace("\n", "") != "":
             new_announce = True
