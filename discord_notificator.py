@@ -1,4 +1,5 @@
 import time
+import asyncio
 import discord
 import requests
 from bs4 import BeautifulSoup
@@ -8,13 +9,12 @@ from discord.ext import commands
 TOKEN = "NzYwNDczOTMyNDM5ODc5NzAw.X3Mkig.ie5GTEVbJjnHXuJ9M7Q2ZwWi9WM"
 client = commands.Bot(command_prefix=".")
 
-last_id = 188
+last_id = 189
 last_message = None
 
 @client.command()
 async def test(ctx):
-    print("Hello, World!")
-    await ctx.send("Hello, World!")
+    await ctx.send("```Hello, World!```")
 
 @client.command()
 async def last_id(ctx, id_num=None):
@@ -28,7 +28,7 @@ async def last_id(ctx, id_num=None):
 @client.command(aliases=["run"])
 async def run_bot(ctx):
     global last_id
-    await ctx.send("Started")
+    await ctx.send("```Started```")
     print(last_id)
 
     while True:
@@ -40,7 +40,7 @@ async def run_bot(ctx):
                 paragraphs.pop()
         except IndexError as e:
             print(e)
-            time.sleep(30)
+            await asyncio.sleep(120)
             continue
         final_text = ""
         for index, item in enumerate(paragraphs):
@@ -59,7 +59,7 @@ async def run_bot(ctx):
             link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id}"
             final_text_msg = final_text.replace("""$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31",toolbarVisible:false,readOnly:true});});""", "")
             await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text_msg} ```")
-        time.sleep(30)
+        await asyncio.sleep(120)
 
 
 
@@ -71,7 +71,7 @@ async def on_ready():
 
 
 
-last_id = 188
+last_id = 189
 last_message = None
 
 @client.event
