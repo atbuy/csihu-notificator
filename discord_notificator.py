@@ -12,6 +12,10 @@ client = commands.Bot(command_prefix=".")
 last_id = 189
 last_message = None
 
+@client.command(brief="Shows your discord id")
+async def show_id(ctx):
+    await ctx.send(f"{ctx.author.id}")
+    
 @client.command(brief="Search for an announcement", aliases=["search-id"])
 async def search_by_id(ctx, ann_id: int):
     req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}")
@@ -61,7 +65,7 @@ async def last_id(ctx, id_num=None):
     else:
         await ctx.send(f"Last ID is {last_id}")
 
-@client.command(aliases=["run"])
+@client.command(brief="Starts the bot", aliases=["run"])
 async def run_bot(ctx):
     global last_id
     await ctx.send("```Started```")
