@@ -13,7 +13,7 @@ last_id = 189
 last_message = None
 
 @client.command(brief="Search for an announcement", aliases=["search-id"])
-def search_by_id(ctx, ann_id: int):
+async def search_by_id(ctx, ann_id: int):
     req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}")
     soup = BeautifulSoup(req.text, "html.parser")
     paragraphs = soup.find_all("p")
