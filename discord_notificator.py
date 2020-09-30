@@ -22,9 +22,7 @@ async def search_by_id(ctx, ann_id: int):
         for i in range(5):
             paragraphs.pop()
     except IndexError as e:
-        print(e)
-        await asyncio.sleep(120)
-        continue
+        pass
     
     if len(paragraphs) == 1:
         for item in paragraphs:
@@ -32,7 +30,6 @@ async def search_by_id(ctx, ann_id: int):
     else:
         final_text = ""
         for index, item in enumerate(paragraphs):
-            print(repr(item.get_text()))
             if index == len(paragraphs):
                 final_text += item.get_text().replace("\n", "")
             else:
@@ -78,7 +75,6 @@ async def run_bot(ctx):
             for i in range(5):
                 paragraphs.pop()
         except IndexError as e:
-            print(e)
             await asyncio.sleep(120)
             continue
         
