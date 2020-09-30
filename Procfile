@@ -1,1 +1,1 @@
-"worker: python discord_botifier_bot.py" 
+"worker: python discord_notificator.py" 
