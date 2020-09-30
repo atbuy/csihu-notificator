@@ -8,3 +8,4 @@ multidict==4.7.6
 typing-extensions==3.7.4.3
 yarl==1.6.0
 requests==2.23.0
+beautifulsoup4==4.9.1
