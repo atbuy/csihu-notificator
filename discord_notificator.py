@@ -52,7 +52,7 @@ async def search_by_id(ctx, ann_id: int):
 
 @client.command(brief="Check if the bot is working.")
 async def test(ctx):
-    await ctx.send("```Hello, World!```")
+    await ctx.send(f"```Hello, World! {ctx.author} your id is {ctx.author.id}```")
 
 
 @client.command()
