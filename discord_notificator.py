@@ -12,7 +12,46 @@ client = commands.Bot(command_prefix=".")
 last_id = 189
 last_message = None
 
-@client.command()
+@client.command(brief="Search for an announcement", aliases=["search-id"])
+def search_by_id(ctx, ann_id: int):
+    req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}")
+    soup = BeautifulSoup(req.text, "html.parser")
+    paragraphs = soup.find_all("p")
+
+    try:
+        for i in range(5):
+            paragraphs.pop()
+    except IndexError as e:
+        print(e)
+        await asyncio.sleep(120)
+        continue
+    
+    if len(paragraphs) == 1:
+        for item in paragraphs:
+            final_text = item.get_text().replace("\n", "")
+    else:
+        final_text = ""
+        for index, item in enumerate(paragraphs):
+            print(repr(item.get_text()))
+            if index == len(paragraphs):
+                final_text += item.get_text().replace("\n", "")
+            else:
+                final_text += item.get_text() + "\n"
+
+    if final_text.replace("\n", "") != "":
+        found = True
+    else:
+        found = False
+
+    if found:
+        link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}"
+        final_text_msg = final_text.replace("""$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31",toolbarVisible:false,readOnly:true});});""", "")
+        await ctx.send(f"Announcement found.\nLink: <{link}>\n```{final_text_msg} ```")
+    else:
+        await ctx.send("```Couldn't find announcement.```")
+
+
+@client.command(brief="Check if the bot is working.")
 async def test(ctx):
     await ctx.send("```Hello, World!```")
 
