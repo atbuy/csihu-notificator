@@ -32,6 +32,7 @@ async def run_bot(ctx):
     print(last_id)
 
     while True:
+        await ctx.send("test")
         req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id+1}")
         soup = BeautifulSoup(req.text, "html.parser")
         paragraphs = soup.find_all("p")
