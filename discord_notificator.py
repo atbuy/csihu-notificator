@@ -53,6 +53,7 @@ async def search_by_id(ctx, ann_id: int):
 @client.command(brief="Check if the bot is working.")
 async def test(ctx):
     await ctx.send(f"```Hello, World! {ctx.author} your id is {ctx.author.id}```")
+    await ctx.send(f"{type(ctx.autor.id)}")
 
 
 @client.command()
@@ -65,7 +66,7 @@ async def last_id(ctx, id_num=None):
         else:
             await ctx.send(f"Last ID is {last_id}")
     else:
-        await ctx.send(f"{ctx.author} you dont have enough permissions")
+        await ctx.send(f"`{ctx.author}` you dont have enough permissions")
 
 
 @client.command(brief="Starts the bot", aliases=["run"])
