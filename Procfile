@@ -1,1 +1,1 @@
-worker: python discord_notificator.py 
+worker: python3.7 discord_notificator.py 
