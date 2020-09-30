@@ -52,14 +52,13 @@ async def search_by_id(ctx, ann_id: int):
 
 @client.command(brief="Check if the bot is working.")
 async def test(ctx):
-    await ctx.send(f"```Hello, World! {ctx.author} your id is {ctx.author.id}```")
-    await ctx.send(f"{type(ctx.autor.id)}")
+    await ctx.send(f"```Hello, World! {ctx.author} your id is {ctx.author.id}.```")
 
 
 @client.command()
 async def last_id(ctx, id_num=None):
     global last_id
-    if ctx.author.id == myid:
+    if str(ctx.author.id) == myid:
         if id_num:
             last_id = id_num
             await ctx.send(f"ID Changed to {last_id}")
@@ -72,7 +71,7 @@ async def last_id(ctx, id_num=None):
 @client.command(brief="Starts the bot", aliases=["run"])
 async def run_bot(ctx):
     global last_id
-    if ctx.author.id == myid:
+    if str(ctx.author.id) == myid:
         await ctx.send("```Started```")
 
         while True:
