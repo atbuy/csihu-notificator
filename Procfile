@@ -1,1 +1,1 @@
-"worker: python discord_notificator.py" 
+"web: python discord_notificator.py" 
