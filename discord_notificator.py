@@ -9,10 +9,22 @@ TOKEN = "NzYwNDczOTMyNDM5ODc5NzAw.X3Mkig.ie5GTEVbJjnHXuJ9M7Q2ZwWi9WM"
 intents = discord.Intents.default()
 client = commands.Bot(command_prefix=".", intents=intents)
 client.latest_announcement = {"text": "", "link": ""}
+client.dolias_laugh_counter = 0
 myid = "222950176770228225"
 
 last_id = 189
 last_message = None
+
+
+@client.command(aliases=["dolias-laugh-counter", "dolias-counter"])
+async def dolias_laugh(ctx):
+    await ctx.send(f"```Dolias has laughed {client.dolias_laugh_counter} times```")
+
+
+@client.command(name="dolias+1")
+async def dolias(ctx):
+    client.dolias_laugh_counter += 1
+    await ctx.send(f"```Dolias has laughed {client.dolias_laugh_counter} times```")
 
 
 @client.command(brief="Show latest announcement")
