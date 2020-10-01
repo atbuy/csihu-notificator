@@ -12,7 +12,7 @@ client.latest_announcement = {"text": "", "link": ""}
 client.dolias_laugh_counter = 0
 myid = "222950176770228225"
 
-last_id = 189
+last_id = 191
 last_message = None
 
 
@@ -48,12 +48,16 @@ async def search_by_id(ctx, ann_id: int):
         for item in paragraphs:
             final_text = item.get_text().replace("\n", "")
     else:
+        try:
+            paragraphs.pop(0)
+        except IndexError:
+            pass
         final_text = ""
         for index, item in enumerate(paragraphs):
             if index == len(paragraphs):
                 final_text += item.get_text().replace("\n", "")
             else:
-                final_text += item.get_text() + "\n"
+                final_text += item.get_text()
 
     if final_text.replace("\n", "") != "":
         found = True
@@ -111,13 +115,17 @@ async def run_bot(ctx):
                 for item in paragraphs:
                     final_text = item.get_text().replace("\n", "")
             else:
+                try:
+                    paragraphs.pop(0)
+                except IndexError:
+                    pass
                 final_text = ""
                 for index, item in enumerate(paragraphs):
                     print(repr(item.get_text()))
                     if index == len(paragraphs):
-                        final_text += item.get_text().replace("\n", "")
+                        final_text += item.get_text().replace("\xa0", "\n")
                     else:
-                        final_text += item.get_text() + "\n"
+                        final_text += item.get_text()
 
             if final_text.replace("\n", "") != "":
                 new_announce = True
@@ -148,7 +156,7 @@ async def on_ready():
 
 
 
-last_id = 189
+last_id = 191
 last_message = None
 
 
