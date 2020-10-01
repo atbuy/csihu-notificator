@@ -8,13 +8,19 @@ from discord.ext import commands
 TOKEN = "NzYwNDczOTMyNDM5ODc5NzAw.X3Mkig.ie5GTEVbJjnHXuJ9M7Q2ZwWi9WM"
 intents = discord.Intents.default()
 client = commands.Bot(command_prefix=".", intents=intents)
+client.latest_announcement = {"text": "", "link": ""}
 myid = "222950176770228225"
 
-last_id = 190
+last_id = 189
 last_message = None
 
 
-@client.command(brief="Search for an announcement", aliases=["search-id"])
+@client.command(brief="Show latest announcement")
+async def latest(ctx):
+    await ctx.send(f"Latest announcement link: <{client.latest_announcement['link']}>\n```{client.latest_announcement['text']} ```")
+
+
+@client.command(brief="Search for an announcement", name="search-id")
 async def search_by_id(ctx, ann_id: int):
     req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}")
     soup = BeautifulSoup(req.text, "html.parser")
@@ -110,6 +116,7 @@ async def run_bot(ctx):
                 last_id += 1
                 link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id}"
                 final_text_msg = final_text.replace("""$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31",toolbarVisible:false,readOnly:true});});""", "")
+                client.latest_announcement = {"text": final_text_msg, "link": link}
                 try:
                     await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text_msg} ```")
                 except discord.errors.HTTPException:
@@ -129,7 +136,7 @@ async def on_ready():
 
 
 
-last_id = 190
+last_id = 189
 last_message = None
 
 
