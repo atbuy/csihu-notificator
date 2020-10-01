@@ -1,4 +1,3 @@
-import time
 import asyncio
 import discord
 import requests
@@ -7,10 +6,11 @@ from discord.ext import commands
 
 
 TOKEN = "NzYwNDczOTMyNDM5ODc5NzAw.X3Mkig.ie5GTEVbJjnHXuJ9M7Q2ZwWi9WM"
-client = commands.Bot(command_prefix=".")
+intents = discord.Intents.default()
+client = commands.Bot(command_prefix=".", intents=intents)
 myid = "222950176770228225"
 
-last_id = 189
+last_id = 190
 last_message = None
 
 
@@ -45,7 +45,10 @@ async def search_by_id(ctx, ann_id: int):
     if found:
         link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}"
         final_text_msg = final_text.replace("""$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31",toolbarVisible:false,readOnly:true});});""", "")
-        await ctx.send(f"Announcement found.\nLink: <{link}>\n```{final_text_msg} ```")
+        try:
+            await ctx.send(f"Announcement found.\nLink: <{link}>\n```{final_text_msg} ```")
+        except discord.errors.HTTPException as e:
+            await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
     else:
         await ctx.send("```Couldn't find announcement.```")
 
@@ -107,7 +110,11 @@ async def run_bot(ctx):
                 last_id += 1
                 link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id}"
                 final_text_msg = final_text.replace("""$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31",toolbarVisible:false,readOnly:true});});""", "")
-                await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text_msg} ```")
+                try:
+                    await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text_msg} ```")
+                except discord.errors.HTTPException:
+                    await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
+
             await asyncio.sleep(120)
     else:
         await ctx.send(f"{ctx.author} you don't have enough permissions")
@@ -122,7 +129,7 @@ async def on_ready():
 
 
 
-last_id = 189
+last_id = 190
 last_message = None
 
 
