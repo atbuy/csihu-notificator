@@ -16,6 +16,23 @@ last_id = 191
 last_message = None
 
 
+@client.command(name="timer", brief="Set a timer")
+async def timer(ctx, value: str):
+    mult = 1
+    time_type = "seconds"
+    if value.endswith("s"):
+        mult = 1
+        time_type = "seconds"
+    elif value.endswith("m"):
+        mult = 60
+        time_type = "minutes"
+    elif value.endswith("h"):
+        mult = 60*60
+        time_type = "hours"
+    time = int(value[:len(value)-1])
+    await asyncio.sleep(time*mult)
+    await ctx.send(f"{ctx.mention} you set a timer for {time} {time_type}")
+    
 @client.command(aliases=["dolias-laugh-counter", "dolias-counter"])
 async def dolias(ctx):
     await ctx.send(f"```Dolias has laughed {client.dolias_laugh_counter} times```")
