@@ -21,7 +21,7 @@ async def dolias_laugh(ctx):
     await ctx.send(f"```Dolias has laughed {client.dolias_laugh_counter} times```")
 
 
-@client.command(aliases=["dolias+1"])
+@client.command(aliases=["dolias+1", "dolias+"])
 async def dolias(ctx, amount=1):
     if amount > 1:
         client.dolias_laugh_counter += amount
