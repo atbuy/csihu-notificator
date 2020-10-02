@@ -16,14 +16,17 @@ last_id = 191
 last_message = None
 
 
-@client.command(aliases=["dolias-laugh-counter", "dolias-counter"])
+@client.command(aliases=["dolias-laugh-counter", "dolias-counter", "dolias"])
 async def dolias_laugh(ctx):
     await ctx.send(f"```Dolias has laughed {client.dolias_laugh_counter} times```")
 
 
-@client.command(name="dolias+1")
-async def dolias(ctx):
-    client.dolias_laugh_counter += 1
+@client.command(aliases=["dolias+1"])
+async def dolias(ctx, amount=1):
+    if amount > 1:
+        client.dolias_laugh_counter += amount
+    else:
+        client.dolias_laugh_counter += 1
     await ctx.send(f"```Dolias has laughed {client.dolias_laugh_counter} times```")
 
 
