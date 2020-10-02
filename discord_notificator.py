@@ -29,10 +29,13 @@ async def timer(ctx, value: str):
     elif value.endswith("h"):
         mult = 60*60
         time_type = "hours"
-    time = int(value[:len(value)-1])
+    try:
+        time = int(value[:len(value)-1])
+    except ValueError:
+        await ctx.send("Invalid time input")
     await asyncio.sleep(time*mult)
-    await ctx.send(f"{ctx.mention} you set a timer for {time} {time_type}")
-    
+    await ctx.send(f"{ctx.author.mention} you set a timer for {time} {time_type}")
+
 @client.command(aliases=["dolias-laugh-counter", "dolias-counter"])
 async def dolias(ctx):
     await ctx.send(f"```Dolias has laughed {client.dolias_laugh_counter} times```")
