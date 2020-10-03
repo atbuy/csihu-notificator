@@ -15,6 +15,13 @@ myid = "222950176770228225"
 last_id = 191
 last_message = None
 
+@client.command(name="class-start", brief="Reminder after 45 minutes")
+async def class_start(ctx):
+    await asyncio.sleep(1)
+    embed = discord.Embed(title="Class Timer", description="Called after 45 minutes")
+    embed.add_field(title="Time for break.")
+    await ctx.send("@everyone", embed=embed)
+
 
 @client.command(name="timer", brief="Set a timer")
 async def timer(ctx, value: str):
