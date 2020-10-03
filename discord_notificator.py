@@ -34,7 +34,11 @@ async def timer(ctx, value: str):
     except ValueError:
         await ctx.send("Invalid time input")
     await asyncio.sleep(time*mult)
-    await ctx.send(f"{ctx.author.mention} you set a timer for {time} {time_type}")
+
+    embed = discord.Embed(title="Timer", description="Mention the author after a specified time", color=0xff0000)
+    embed.add_field(name="{ctx.author.mention}", value="Time is up!", inline=True)
+    await ctx.send(embed=embed)
+    # f"{ctx.author.mention} you set a timer for {time} {time_type}"
 
 @client.command(aliases=["dolias-laugh-counter", "dolias-counter"])
 async def dolias(ctx):
