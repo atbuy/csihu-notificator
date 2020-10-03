@@ -17,7 +17,7 @@ last_message = None
 
 @client.command(name="class-start", brief="Reminder after 45 minutes")
 async def class_start(ctx):
-    await asyncio.sleep(1)
+    await asyncio.sleep(45*60)
     embed = discord.Embed(title="Class Timer", description="Called after 45 minutes")
     embed.add_field(name="@everyone", value="Break time")
     await ctx.send("@everyone", embed=embed)
