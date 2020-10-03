@@ -36,8 +36,8 @@ async def timer(ctx, value: str):
     await asyncio.sleep(time*mult)
 
     embed = discord.Embed(title="Timer", description="Mention the author after a specified time", color=0xff0000)
-    embed.add_field(name=f"{ctx.author.mention}", value="Time is up!", inline=True)
-    await ctx.send(embed=embed)
+    embed.add_field(name=f"{ctx.author}", value="Time is up!", inline=True)
+    await ctx.send(f"{ctx.author.mentio}", embed=embed)
     # f"{ctx.author.mention} you set a timer for {time} {time_type}"
 
 @client.command(aliases=["dolias-laugh-counter", "dolias-counter"])
