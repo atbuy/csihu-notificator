@@ -19,7 +19,7 @@ last_message = None
 async def class_start(ctx):
     await asyncio.sleep(1)
     embed = discord.Embed(title="Class Timer", description="Called after 45 minutes")
-    embed.add_field(title="Time for break.")
+    embed.add_field(name="Time for break.")
     await ctx.send("@everyone", embed=embed)
 
 
