@@ -1,3 +1,4 @@
+import json
 import asyncio
 import discord
 import requests
@@ -6,14 +7,17 @@ from discord.ext import commands
 
 
 TOKEN = "NzYwNDczOTMyNDM5ODc5NzAw.X3Mkig.ie5GTEVbJjnHXuJ9M7Q2ZwWi9WM"
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 client = commands.Bot(command_prefix=".", intents=intents)
 client.latest_announcement = {"text": "", "link": ""}
 client.dolias_laugh_counter = 0
 myid = "222950176770228225"
 
-last_id = 191
-last_message = None
+with open("info.txt") as file:
+    info = json.load(file)
+
+last_id = info["last_id"]
+last_message = info["last_message"]
 
 @client.command(name="class-start", brief="Reminder after 45 minutes")
 async def class_start(ctx):
@@ -155,7 +159,6 @@ async def run_bot(ctx):
                     pass
                 final_text = ""
                 for index, item in enumerate(paragraphs):
-                    print(repr(item.get_text()))
                     if index == len(paragraphs):
                         final_text += item.get_text().replace("\xa0", "\n")
                     else:
@@ -171,6 +174,12 @@ async def run_bot(ctx):
                 link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id}"
                 final_text_msg = final_text.replace("""$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31",toolbarVisible:false,readOnly:true});});""", "")
                 client.latest_announcement = {"text": final_text_msg, "link": link}
+
+                info["last_id"] = last_id
+                info["last_message"] = final_text_msg
+                with open("info.txt", "w") as file:
+                    json.dump(info, file, indent=4)
+
                 try:
                     await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text_msg} ```")
                 except discord.errors.HTTPException:
@@ -190,22 +199,17 @@ async def on_ready():
 
 
 
-last_id = 191
-last_message = None
+last_id = info["last_id"]
+last_message = info["last_message"]
 
 
 @client.event
 async def on_message(msg: discord.Message):
     global last_message
 
-    last_message = msg
-
+    if msg.author == client.user:
+        return
     content = msg.content.lower()
-    if msg.author.id == "760473932439879700":
-        await msg.edit(content, suppress=True)
-
-    if content == f"{client.command_prefix}run_bot":
-        await msg.channel.send("Hello")
 
     await client.process_commands(msg)
 
