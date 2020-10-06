@@ -34,12 +34,12 @@ async def plus_one_point(ctx, person: discord.Member):
         points[str(person)] += 1
         info["points"] = points
         with open("info.txt", "w") as file:
-            json.dump(info, file)
+            json.dump(info, file, indent=4)
     else:
         points[str(person)] = 1
         info["points"] = points
         with open("info.txt", "w") as file:
-            json.dump(info, file)
+            json.dump(info, file, indent=4)
     
 
 @client.command(name="class-start", brief="Reminder after 45 minutes")
