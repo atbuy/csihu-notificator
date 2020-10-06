@@ -16,8 +16,31 @@ myid = "222950176770228225"
 with open("info.txt") as file:
     info = json.load(file)
 
+points = info["points"]
 last_id = info["last_id"]
 last_message = info["last_message"]
+
+
+@client.command(name="points")
+async def view_points(ctx):
+    global points
+    author_points = points[str(ctx.author)]
+    await ctx.send(f"{ctx.author.mention} you have {author_points} points.")
+
+@client.command(name="+1")
+async def plus_one_point(ctx, person: discord.Member):
+    global points, info
+    if str(person) in points:
+        points[str(person)] += 1
+        info["points"] = points
+        with open("info.txt", "w") as file:
+            json.dump(info, file)
+    else:
+        points[str(person)] = 1
+        info["points"] = points
+        with open("info.txt", "w") as file:
+            json.dump(info, file)
+    
 
 @client.command(name="class-start", brief="Reminder after 45 minutes")
 async def class_start(ctx):
