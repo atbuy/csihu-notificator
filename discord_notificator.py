@@ -6,19 +6,21 @@ from bs4 import BeautifulSoup
 from discord.ext import commands
 
 
-TOKEN = "NzYwNDczOTMyNDM5ODc5NzAw.X3Mkig.ie5GTEVbJjnHXuJ9M7Q2ZwWi9WM"
-intents = discord.Intents.all()
-client = commands.Bot(command_prefix=".", intents=intents)
-client.latest_announcement = {"text": "", "link": ""}
-client.dolias_laugh_counter = 0
-myid = "222950176770228225"
-
 with open("info.txt") as file:
     info = json.load(file)
 
 points = info["points"]
 last_id = info["last_id"]
+last_link = info["last_link"]
 last_message = info["last_message"]
+
+
+TOKEN = "NzYwNDczOTMyNDM5ODc5NzAw.X3Mkig.ie5GTEVbJjnHXuJ9M7Q2ZwWi9WM"
+intents = discord.Intents.all()
+client = commands.Bot(command_prefix=".", intents=intents)
+client.latest_announcement = {"text": last_message, "link": last_link}
+client.dolias_laugh_counter = 0
+myid = "222950176770228225"
 
 
 @client.command(name="points")
@@ -67,6 +69,7 @@ async def timer(ctx, value: str):
         time = int(value[:len(value)-1])
     except ValueError:
         await ctx.send("Invalid time input")
+        return
     await asyncio.sleep(time*mult)
 
     embed = discord.Embed(title="Timer", description="Mention the author after a specified time", color=0xff0000)
@@ -200,7 +203,8 @@ async def run_bot(ctx):
 
                 info["last_id"] = last_id
                 info["last_message"] = final_text_msg
-                with open("info.txt", "w") as file:
+                info["last_link"] = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id}"
+                with open("info.txt", "w", encoding="utf8") as file:
                     json.dump(info, file, indent=4)
 
                 try:
@@ -210,7 +214,7 @@ async def run_bot(ctx):
 
             await asyncio.sleep(120)
     else:
-        await ctx.send(f"{ctx.author} you don't have enough permissions")
+        await ctx.send(f"{ctx.author.mention} you don't have enough permissions")
 
 
 
