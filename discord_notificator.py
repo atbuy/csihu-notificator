@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import json
 import asyncio
 import discord
@@ -13,6 +14,7 @@ points = info["points"]
 last_id = info["last_id"]
 last_link = info["last_link"]
 last_message = info["last_message"]
+members_in_waiting_room = info["waiting_room"]
 
 
 TOKEN = "NzYwNDczOTMyNDM5ODc5NzAw.X3Mkig.ie5GTEVbJjnHXuJ9M7Q2ZwWi9WM"
@@ -21,6 +23,12 @@ client = commands.Bot(command_prefix=".", intents=intents)
 client.latest_announcement = {"text": last_message, "link": last_link}
 client.dolias_laugh_counter = 0
 myid = "222950176770228225"
+moderator_id = "760078403264184341"
+owner_id = "760085688133222420"
+waiting_room_id = "763090286372585522"
+bot_id = "760473932439879700"
+panepisthmio_id = "760047749482807327"
+
 
 
 @client.command(name="points")
@@ -217,12 +225,46 @@ async def run_bot(ctx):
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions")
 
 
+@client.command(brief="", aliases=["waiting_room"])
+async def waiting_list(ctx, user_id: int):
+    global members_in_waiting_room
+
+    execute = False
+    for role in ctx.author.roles:
+        if str(role.id) == moderator_id or str(role.id) == owner_id or str(role.id) == bot_id:
+            execute = True
+
+    if execute:
+        member: discord.Member = ctx.guild.get_member(user_id)
+        waiting_room_role = ctx.guild.get_role(int(waiting_room_id))
+        if not member.id in members_in_waiting_room:
+            members_in_waiting_room.append(member.id)
+            info["waiting_room"] = members_in_waiting_room
+            with open("info.txt", "w", encoding="utf8") as file:
+                json.dump(info, file, indent=4)
+            await member.add_roles(waiting_room_role)
+            await ctx.send(f"{member.mention} has been moved to the waiting room")
+        else:
+            member_index = members_in_waiting_room.index(member.id)
+            members_in_waiting_room.pop(member_index)
+            info["waiting_room"] = members_in_waiting_room
+            with open("info.txt", "w", encoding="utf8") as file:
+                json.dump(info, file, indent=4)
+            await member.remove_roles(waiting_room_role)
+            await ctx.send(f"{member.mention} has be removed from the waiting room")
+    else:
+        await ctx.send(f"{ctx.author.mention}, you don't have enough permissions to perform this action")
+
+            
+
 
 @client.event
 async def on_ready():
-    global last_id
+    global last_id, members_in_waiting_room
     await client.change_presence(status=discord.Status.online, activity=discord.Game(f"Commands with '{client.command_prefix}'"))
     print("NotificatorBot ready")
+    
+        
 
 
 
