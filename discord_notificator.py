@@ -22,6 +22,7 @@ intents = discord.Intents.all()
 client = commands.Bot(command_prefix=".", intents=intents)
 client.latest_announcement = {"text": last_message, "link": last_link}
 client.dolias_laugh_counter = 0
+client.is_running = False
 myid = "222950176770228225"
 moderator_id = "760078403264184341"
 owner_id = "760085688133222420"
@@ -169,6 +170,7 @@ async def last_id(ctx, id_num=None):
 async def run_bot(ctx):
     global last_id
     if str(ctx.author.id) == myid:
+        client.is_running = True
         await ctx.send("```Started```")
 
         while True:
@@ -255,7 +257,14 @@ async def waiting_list(ctx, user_id: int):
     else:
         await ctx.send(f"{ctx.author.mention}, you don't have enough permissions to perform this action")
 
-            
+
+@client.command(brief="Check if the bot is looking for new announcements")
+async def is_running(ctx):
+    if client.is_running:
+        await ctx.send("The bot is running")
+    else:
+        await ctx.send("The bot is not running")
+
 
 
 @client.event
