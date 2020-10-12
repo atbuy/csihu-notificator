@@ -1,0 +1,4 @@
+file_from_the_server = open('python_output.txt', 'a')
+for i in range(100): print("<3", file=file_from_the_server)
+
+file_from_the_server.close()

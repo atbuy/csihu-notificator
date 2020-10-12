@@ -1,4 +1,6 @@
 # -*- coding: UTF-8 -*-
+import os
+import re
 import json
 import asyncio
 import discord
@@ -287,8 +289,70 @@ async def on_message(msg: discord.Message):
 
     if msg.author == client.user:
         return
-    content = msg.content.lower()
 
+    cwd = os.getcwd()
+    check_msg = msg.content.lower()
+    if check_msg.startswith(f"{client.command_prefix}python"):
+        try:
+            script = str(msg.content).replace(f"{client.command_prefix}python ", "")
+        except:
+            await msg.channel.send("`Can't parse python script. Use '!python <code>'. Separate lines with ';'.`")
+        try:
+            script = script.replace(";", "\n")
+        except:
+            pass
+
+        if "import os" in script or ("os." in script):
+            await msg.channel.send("`You are not allowed to do that :)\nNot allowed to use 'os'`")
+        elif "import subprocess" in script or ("subprocess." in script):
+            await msg.channel.send("`You are not allowed to do that :)\nNot allowed to use 'subprocess'`")
+        elif "import sys" in script or ("sys." in script):
+            await msg.channel.send("`You are not allowed to do that :)\nNot allowed to use 'sys'`")
+        elif "open" in script:
+            await msg.channel.send("`You are not allowed to do that :)\nNot allowed to use 'open()'`")
+        else:
+            print("here")
+            path = os.path.join(cwd, "curr_script.txt")
+            with open(path, "w") as file:
+                file.write(script)
+
+            with open(path, "r") as file:
+                line = file.readline()
+                lines_to_write = []
+                lines_to_write.append("file_from_the_server = open('python_output.txt', 'a')\n")
+                while line:
+                    prints = re.findall("print\(.*\s*\S*.*\)$", line)
+                    if prints:
+                        for item in prints:
+                            write_it = item[::-1].replace(")", ", file=file_from_the_server)\n"[::-1], 1)[::-1]
+                            lines_to_write.append(line.replace(item, write_it))
+                    else:
+                        lines_to_write.append(line)
+                    line = file.readline()
+                lines_to_write.append("\nfile_from_the_server.close()")
+            with open(path, "w") as file:
+                for item in lines_to_write:
+                    file.write(item)
+            with open(path, "r") as file:
+                program = file.read()
+                try:
+                    exec(program)
+                except:
+                    pass
+            path2 = os.path.join(cwd, "python_output.txt")
+            with open(path2, "r") as outfile:
+                output = outfile.read()
+                if output:
+                    try:
+                        await msg.channel.send(f"*Your output was:*\n```{output} ```")
+                    except discord.errors.HTTPException as e:
+                        await msg.channel.send(f"{e}")
+
+                elif not output:
+                    await msg.channel.send("*There was no output*")
+
+            with open(path2, "w") as outfile:
+                outfile.write("")
     await client.process_commands(msg)
 
 
