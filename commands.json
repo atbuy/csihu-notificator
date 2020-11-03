@@ -1,0 +1,133 @@
+{
+    "commands": {
+        "allowedfiles": {
+            "brief": "View allowed file types",
+            "aliases": [],
+            "parameters": []
+        },
+        "delete": {
+            "brief": "Delete messages",
+            "aliases": [
+                "del"
+            ],
+            "parameters": [
+                "<number>",
+                "[message]",
+                "[member]"
+            ]
+        },
+        "f": {
+            "brief": "Quick slow mode in the current channel",
+            "aliases": [
+                "fmode",
+                "f-mode"
+            ],
+            "parameters": []
+        },
+        "filip": {
+            "brief": "Add someone to the cult",
+            "aliases": [],
+            "parameters": [
+                "<member>"
+            ]
+        },
+        "is_running": {
+            "brief": "Check if the bot is looking for new announcements",
+            "aliases": [],
+            "parameters": []
+        },
+        "last_id": {
+            "brief": "View last announcement's ID",
+            "aliases": [],
+            "parameters": [
+                "[id]"
+            ]
+        },
+        "latest": {
+            "brief": "Show the latest announcement",
+            "aliases": [],
+            "parameters": []
+        },
+        "pog": {
+            "brief": "POG a message",
+            "aliases": [],
+            "parameters": [
+                "<message>"
+            ]
+        },
+        "pog?": {
+            "brief": "POG? a message",
+            "aliases": [],
+            "parameters": [
+                "<message>"
+            ]
+        },
+        "react": {
+            "brief": "React emojis to a message",
+            "aliases": [],
+            "parameters": [
+                "<message>",
+                "<text>"
+            ]
+        },
+        "rr": {
+            "brief": "Remove reactions from messages",
+            "aliases": [],
+            "parameters": [
+                "<amount>",
+                "[start_message]"
+            ]
+        },
+        "say": {
+            "brief": "Say something in emojis",
+            "aliases": [],
+            "parameters": [
+                "<say>"
+            ]
+        },
+        "search-id": {
+            "brief": "Search for an announcement",
+            "aliases": [],
+            "parameters": [
+                "<announcement_id>"
+            ]
+        },
+        "slow": {
+            "brief": "Change slow mode duration in a channel",
+            "aliases": [
+                "sm",
+                "slowmode"
+            ],
+            "parameters": [
+                "<delay>"
+            ]
+        },
+        "timer": {
+            "brief": "Set a timer",
+            "aliases": [],
+            "parameters": [
+                "<time>"
+            ]
+        },
+        "translate": {
+            "brief": "Translate from a language to greek",
+            "aliases": [
+                "tr",
+                "trans"
+            ],
+            "parameters": [
+                "<text>"
+            ]
+        },
+        "waiting_list": {
+            "brief": "Add/Remove someone from the waiting list",
+            "aliases": [
+                "waiting_room"
+            ],
+            "parameters": [
+                "<member>"
+            ]
+        }
+    },
+    "prefix": "."
+}

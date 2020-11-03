@@ -6,15 +6,18 @@ import time
 import asyncio
 import discord
 import requests
+import textblob
 import threading
 import subprocess
 from bs4 import BeautifulSoup
 from discord.ext import commands
+from jishaku.repl.compilation import AsyncCodeExecutor
+from jishaku.codeblocks import codeblock_converter
 
 
 class StoppableThread(threading.Thread):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(StoppableThread, self).__init__(*args, **kwargs)
         self._stop_event = threading.Event()
 
     def stop(self):
@@ -41,10 +44,14 @@ members_in_waiting_room = info["waiting_room"]
 
 TOKEN = "NzYwNDczOTMyNDM5ODc5NzAw.X3Mkig.ie5GTEVbJjnHXuJ9M7Q2ZwWi9WM"
 intents = discord.Intents.all()
-client = commands.Bot(command_prefix=".", intents=intents)
+client = commands.Bot(command_prefix=".", intents=intents, help_command=None)
 client.latest_announcement = {"text": last_message, "link": last_link}
-client.dolias_laugh_counter = 0
+client.remove_command("help")
 client.is_running = False
+with open("commands.json") as file:
+    client.commands_dict = json.load(file)
+
+
 myid = "222950176770228225"
 moderator_id = "760078403264184341"
 owner_id = "760085688133222420"
@@ -57,7 +64,7 @@ panepisthmio_id = "760047749482807327"
 allowed_files = [
     "txt", "doc", "docx", "odf", "xlsx", "pptx", "mp4", "mp3", "wav",
     "py", "pyw", "java", "js", "cpp", "c", "h", "html", "css", "csv",
-    "png", "jpg", "jpeg", "webm", "flv", "mkv", "cs"
+    "cs", "png", "jpg", "jpeg", "webm", "flv", "mkv", "gif", "manga"
 ]
 
 
@@ -80,6 +87,9 @@ special_characters = [
     '\n'
 ]
 
+
+"""
+Deprecated
 @client.command(name="points")
 async def view_points(ctx):
     global points
@@ -110,6 +120,43 @@ async def class_start(ctx):
     await ctx.send("@everyone", embed=embed)
 
 
+@client.command(aliases=["dolias-laugh-counter", "dolias-counter"])
+async def dolias(ctx):
+    await ctx.send(f"```Dolias has laughed {client.dolias_laugh_counter} times```")
+
+
+@client.command(name="dolias+", aliases=["dolias+1"])
+async def dolias_increase(ctx, amount=1):
+    if amount > 1:
+        client.dolias_laugh_counter += amount
+    else:
+        client.dolias_laugh_counter += 1
+    await ctx.send(f"```Dolias has laughed {client.dolias_laugh_counter} times```")
+
+@client.command(brief="Check if the bot is working.")
+async def test(ctx):
+    await ctx.send(f"```Hello, World! {ctx.author} your id is {ctx.author.id}.```")
+
+async def execute_python(msg):
+    cwd = os.getcwd()
+
+    t = StoppableThread(target=run_file, args=(os.path.join(cwd, "script_runner.py"),))
+    t.start()
+    start_time = time.time()
+    while not t.stopped() and t.is_alive():
+        if time.time()-start_time > 5:
+            t.stop()
+            await msg.channel.send(f"{msg.author.mention}. The process timed out.")
+            break
+    t.join()
+    print("Thread is dead" if not t.is_alive() else "Thread is alive")
+    if not t.is_alive():
+        return True
+    return False
+    # run_file(os.path.join(cwd, "script_runner.py"))
+"""
+
+
 @client.command(name="timer", brief="Set a timer")
 async def timer(ctx, value: str):
     mult = 1
@@ -134,20 +181,6 @@ async def timer(ctx, value: str):
     embed.add_field(name=f"{ctx.author}", value="Time is up!", inline=True)
     await ctx.send(f"{ctx.author.mention}", embed=embed)
     # f"{ctx.author.mention} you set a timer for {time} {time_type}"
-
-
-@client.command(aliases=["dolias-laugh-counter", "dolias-counter"])
-async def dolias(ctx):
-    await ctx.send(f"```Dolias has laughed {client.dolias_laugh_counter} times```")
-
-
-@client.command(name="dolias+", aliases=["dolias+1"])
-async def dolias_increase(ctx, amount=1):
-    if amount > 1:
-        client.dolias_laugh_counter += amount
-    else:
-        client.dolias_laugh_counter += 1
-    await ctx.send(f"```Dolias has laughed {client.dolias_laugh_counter} times```")
 
 
 @client.command(brief="Show latest announcement")
@@ -194,11 +227,6 @@ async def search_by_id(ctx, ann_id: int):
             await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
     else:
         await ctx.send("```Couldn't find announcement.```")
-
-
-@client.command(brief="Check if the bot is working.")
-async def test(ctx):
-    await ctx.send(f"```Hello, World! {ctx.author} your id is {ctx.author.id}.```")
 
 
 @client.command(name="last_id", brief="View last announcement's id")
@@ -373,7 +401,7 @@ async def say(ctx, *, text):
         else:
             await ctx.send(f"{ctx.author.mention} There was a runtime error")
     else:
-        await ctx.send(f"{ctx.author.mention} You can't use this command outside <#766177228198903808>")
+        await ctx.send(f"{ctx.author.mention} You can't use this command in <#760047749482807330>")
 
 
 @client.command(brief="Delete messages", aliases=["del"])
@@ -502,6 +530,65 @@ async def filip(ctx, person: discord.Member):
         await ctx.send("You don't have enough permission to filip someone")
 
 
+@client.command(name="translate", aliases=["trans", "tr"])
+async def translate(ctx, *, text):
+    blob = textblob.TextBlob(text)
+    translate_from = blob.detect_language()
+    translate_to = "el"
+    try:
+        text = str(blob.translate(to=translate_to))
+    except textblob.exceptions.NotTranslated:
+        print("Text was in 'el'")
+
+    if text:
+        await ctx.send(f"{ctx.author.mention} Translation from {translate_from} to {translate_to}: ```{text} ```")
+    else:
+        await ctx.send(f"{ctx.author.mention}. Couldn't translate")
+
+
+@client.command(name="f", aliases=["fmode", "f-mode"])
+async def slowmode_f(ctx):
+    execute = False
+    for role in ctx.author.roles:
+        if str(role.id) in (moderator_id, owner_id, bot_id):
+            execute = True
+
+    if execute:
+        delay = 6000
+        await ctx.channel.edit(slowmode_delay=delay)
+    else:
+        await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
+
+
+@client.command()
+async def help(ctx, group=None):
+    if group:
+        if group in client.commands_dict["commands"]:
+            help_text = f"{client.command_prefix}"
+            aliases = client.commands_dict["commands"][group]["aliases"]
+            if aliases:
+                help_text += f"[{group}"
+                for alias in aliases:
+                    help_text += f"|{alias}"
+                help_text += "] "
+            else:
+                help_text += f"{group} "
+
+            parameters = client.commands_dict["commands"][group]["parameters"]
+            for parameter in parameters:
+                help_text += f"{parameter} "
+
+            await ctx.send(f"```{help_text} ```")
+        else:
+            await ctx.send(f"Couldn't find command `{group}`")
+        return
+        
+    embed=discord.Embed(title="Commands", url='https://csihu.pythonanywhere.com', description="View all the available commands for the CSIHU Notificator Bot!", color=0xff9500)
+    embed.set_author(name="CSIHU Notificator", icon_url='https://csihu.pythonanywhere.com/static/images/csihu_icon.png')
+    await ctx.send(embed=embed)
+
+
+
 @client.event
 async def on_ready():
     global last_id, members_in_waiting_room
@@ -513,23 +600,7 @@ last_id = info["last_id"]
 last_message = info["last_message"]
 
 
-async def execute_python(msg):
-    cwd = os.getcwd()
 
-    t = StoppableThread(target=run_file, args=(os.path.join(cwd, "script_runner.py"),))
-    t.start()
-    start_time = time.time()
-    while not t.stopped() and t.is_alive():
-        if time.time()-start_time > 5:
-            t.stop()
-            await msg.channel.send(f"{msg.author.mention}. The process timed out.")
-            break
-    t.join()
-    print("Thread is dead" if not t.is_alive() else "Thread is alive")
-    if not t.is_alive():
-        return True
-    return False
-    # run_file(os.path.join(cwd, "script_runner.py"))
 
 
 def valid_message(msg):
@@ -568,7 +639,7 @@ async def on_message(msg: discord.Message):
     attachments = msg.attachments
     if attachments:
         for attach in attachments:
-            extention = attach.filename.split(".")[1]
+            extention = attach.filename.split(".")[1].lower()
             if extention not in allowed_files:
                 await msg.delete()
                 await msg.channel.send(f"{msg.author.mention} you are not allowed to upload `.{extention}` files\nUse `{client.command_prefix}allowedfiles` to view all allowed file types.")
@@ -579,6 +650,7 @@ async def on_message(msg: discord.Message):
         if not valid_message(check_msg):
             await asyncio.sleep(0.5)
             await msg.delete()
+
 
     if check_msg.startswith(f"{client.command_prefix}e"):
         if str(msg.channel.id) == "760047749482807330":  # general ID
@@ -607,6 +679,23 @@ async def on_message(msg: discord.Message):
             if script.startswith("python"):
                 script = script[6:]
 
+        async with msg.channel.typing():
+            output = ""
+            timeout = 10
+            start_time = time.time()
+            async for x in AsyncCodeExecutor(script):
+                if time.time() - start_time < timeout:
+                    output += str(x)
+                else:
+                    await msg.channel.send("Error: Process timed out.")
+                    break
+            else:
+                await msg.channel.send(f"```{output} ```")
+        
+        return
+
+
+        """
         if "import os" in script or ("os." in script):
             await msg.channel.send("`You are not allowed to do that :)\nNot allowed to use 'os'`")
         elif "import subprocess" in script or ("subprocess." in script):
@@ -692,8 +781,13 @@ async def on_message(msg: discord.Message):
 
             with open(path2, "w") as outfile:
                 outfile.write("")
+        """
 
     await client.process_commands(msg)
 
 
-client.run(TOKEN)
+extensions = ["jishaku"]
+for extension in extensions:
+    client.load_extension(extension)
+
+client.run(TOKEN, reconnect=True)
