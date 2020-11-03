@@ -7,6 +7,7 @@ import asyncio
 import discord
 import requests
 import textblob
+import traceback
 import threading
 import subprocess
 from bs4 import BeautifulSoup
@@ -59,7 +60,8 @@ waiting_room_id = "763090286372585522"
 bot_id = "760473932439879700"
 filip_role_id = "770328364913131621"
 panepisthmio_id = "760047749482807327"
-
+TICK_EMOJI = "\U00002705"
+X_EMOJI = "\U0000274c"
 
 allowed_files = [
     "txt", "doc", "docx", "odf", "xlsx", "pptx", "mp4", "mp3", "wav",
@@ -678,19 +680,32 @@ async def on_message(msg: discord.Message):
             script = script.split("```")[-2]
             if script.startswith("python"):
                 script = script[6:]
+            elif script.startswith("py"):
+                script = script[2:]
 
         async with msg.channel.typing():
             output = ""
             timeout = 10
             start_time = time.time()
-            async for x in AsyncCodeExecutor(script):
-                if time.time() - start_time < timeout:
-                    output += str(x)
+            try:
+                async for x in AsyncCodeExecutor(script):
+                    if time.time() - start_time < timeout:
+                        output += str(x)
+                    else:
+                        await msg.add_reaction(X_EMOJI)
+                        await msg.channel.send("Error: Process timed out.")
+                        break
                 else:
-                    await msg.channel.send("Error: Process timed out.")
-                    break
-            else:
-                await msg.channel.send(f"```{output} ```")
+                    await msg.add_reaction(TICK_EMOJI)
+
+                    if safe_output:
+                        await msg.channel.send(f"{msg.author.mention}\n{output}")
+                    else:
+                        await msg.channel.send(f"{msg.author.mention}```python\n{output} ```")
+            except Exception as e:
+                await msg.add_reaction(X_EMOJI)
+                trace = traceback.format_exc()
+                await msg.channel.send(f"{msg.author.mention} Error:\n```python\n{trace} ```")
         
         return
 
