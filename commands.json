@@ -127,6 +127,39 @@
             "parameters": [
                 "<member>"
             ]
+        },
+        "mute": {
+            "brief": "Mute a member",
+            "aliases": [],
+            "parameters": [
+                "<member>",
+                "<minutes>"
+            ]
+        },
+        "unmute": {
+            "brief": "Unmute a member",
+            "aliases": [],
+            "parameters": [
+                "<member>"
+            ]
+        },
+        "github": {
+            "brief": "Github Link",
+            "aliases": [
+                "gh",
+                "git"
+            ],
+            "parameters": []
+        },
+        "moodle": {
+            "brief": "Moodle Link",
+            "aliases": [],
+            "parameters": []
+        },
+        "courses": {
+            "brief": "Courses Link",
+            "aliases": [],
+            "parameters": []
         }
     },
     "prefix": "."

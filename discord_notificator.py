@@ -745,14 +745,31 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float) ->
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
 
 
-@client.command(brief="GitHub Link")
+@client.command(brief="GitHub Link", aliases=["gh", "git"])
 async def github(ctx: commands.Context) -> None:
     """
-    Send the github repo link to the channel the command came from
+    Send the github repo link to the author's channel
     """
     await ctx.send(f"GitHub Link: <https://github.com/Vitaman02/CS-IHU-NotifierBot>")
 
-@client.command(brief="Webpage link to help commands")
+
+@client.command(brief="Moodle Link")
+async def moodle(ctx: commands.Context) -> None:
+    """
+    Send the moodle link to the author's channel
+    """
+    await ctx.send("Moodle Link: <https://moodle.cs.ihu.gr/moodle/>")
+
+
+@client.command(brief="Courses Link")
+async def courses(ctx: commands.Context) -> None:
+    """
+    Send the Courses link to the author's channel
+    """
+    await ctx.send("Courses Link: <https://courses.cs.ihu.gr/>")
+
+
+@client.command(brief="Webpage link to help commands", aliases=["commands"])
 async def help(ctx, group=None) -> None:
     """
     Send an embed with the link to the csihu help page
