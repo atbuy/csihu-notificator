@@ -162,7 +162,14 @@ Deprecated:
 
 
 @client.command(name="timer", brief="Set a timer")
-async def timer(ctx, value: str):
+async def timer(ctx: commands.Context, value: str) -> None:
+    """
+    Sleeps for the amount of time passed from the user.
+    There is no maximun value, user's can only set a timer
+    either for seconds, minutes or hours.
+
+    :return: None
+    """
     mult = 1
     time_type = "seconds"
     if value.endswith("s"):
@@ -188,12 +195,23 @@ async def timer(ctx, value: str):
 
 
 @client.command(brief="Show latest announcement")
-async def latest(ctx):
+async def latest(ctx: commands.Context) -> None:
+    """
+    Send the latest announcement to the channel the command was ran from
+
+    :return: None
+    """
     await ctx.send(f"Latest announcement link: <{client.latest_announcement['link']}>\n```{client.latest_announcement['text']} ```")
 
 
 @client.command(brief="Search for an announcement", name="search-id")
-async def search_by_id(ctx, ann_id: int):
+async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
+    """
+    Searches the announcements webpage for the ID given
+    and send the text in the channel the command was ran from.
+
+    :return: None
+    """
     req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}")
     soup = BeautifulSoup(req.text, "html.parser")
     paragraphs = soup.find_all("p")
@@ -234,7 +252,13 @@ async def search_by_id(ctx, ann_id: int):
 
 
 @client.command(name="last_id", brief="View last announcement's id")
-async def change_last_id(ctx, id_num: int=None):
+async def change_last_id(ctx: commands.Context, id_num: int=None) -> None:
+    """
+    Shows or changes the announcement's last ID.
+    `last_id` is the ID of the latest posted announcement
+
+    :return: None
+    """
     global last_id
     if ctx.author.id == MY_ID:
         if id_num:
@@ -250,7 +274,14 @@ async def change_last_id(ctx, id_num: int=None):
 
 
 @client.command(brief="Starts the bot", aliases=["run"])
-async def run_bot(ctx):
+async def run_bot(ctx: commands.Context) -> None:
+    """
+    Starts pinging the announcements webpage
+    to see if there are any new announcements posted.
+    If there are it sends them to the channel the command was ran from.
+    
+    :return: None
+    """
     global last_id
     if ctx.author.id == MY_ID:
         client.is_running = True
@@ -308,7 +339,12 @@ async def run_bot(ctx):
 
 
 @client.command(brief="Move/Remove someone to the waiting list", aliases=["waiting_room"])
-async def waiting_list(ctx, user_id: int):
+async def waiting_list(ctx: commands.Context, user_id: int) -> None:
+    """
+    Fucked up
+
+    Should be deprecated.
+    """
     global members_in_waiting_room
 
     execute = False
@@ -339,7 +375,14 @@ async def waiting_list(ctx, user_id: int):
 
 
 @client.command(brief="Check if the bot is looking for new announcements")
-async def is_running(ctx):
+async def is_running(ctx: commands.Context) -> None:
+    """
+    Check if the bot is looking for new announcements or not
+
+    .. note::
+        The global `client.is_running` is only set to True
+        inside the `run_bot` function (when the `run` command is sent).
+    """
     if client.is_running:
         await ctx.send("The bot is running")
     else:
@@ -347,24 +390,37 @@ async def is_running(ctx):
 
 
 @client.command(brief="POG a message")
-async def pog(ctx, msg_id: int):
-    msg = await ctx.fetch_message(msg_id)
+async def pog(ctx: commands.Context, msg: discord.Message) -> None:
+    """
+    Add the reactions "p", "o" and "p" to the specified message object
+
+    :param msg: The message to add the reactions to
+    """
     p_o_g_reactions = ["\U0001f1f5", "\U0001f1f4", "\U0001f1ec"]
     for reaction in p_o_g_reactions:
         await msg.add_reaction(reaction)
 
 
 @client.command(name="pog?", brief="POG? a message")
-async def _pog(ctx, msg_id: int):
-    msg = await ctx.fetch_message(msg_id)
+async def _pog(ctx: commands.Context, msg: discord.Message) -> None:
+    """
+    Add the reactions "p", "o", "g" and "?" to the specified `msg`
+
+    :param msg: The message object to add the reactions to
+    """
     pog_reactions = ["\U0001f1f5", "\U0001f1f4", "\U0001f1ec", "\U00002753"]
     for reaction in pog_reactions:
         await msg.add_reaction(reaction)
 
 
 @client.command(brief="React text to a message")
-async def react(ctx, msg_id, *, text):
-    msg = await ctx.fetch_message(msg_id)
+async def react(ctx: commands.Context, msg: discord.Message, *, text: str) -> None:
+    """
+    React each character in `text` with emojis
+
+    :param msg: The message to add the reactions to
+    :param text: The text to add reactions to
+    """
     for char in text:
         if char.isalpha():
             await msg.add_reaction(f"{characters[char.lower()]}")
@@ -373,7 +429,12 @@ async def react(ctx, msg_id, *, text):
 
 
 @client.command(brief="Say something in emojis")
-async def say(ctx, *, text):
+async def say(ctx: commands.Context, *, text: str) -> None:
+    """
+    Send the emoji unicode of each character in the text provided
+
+    :param text: The text to be converted to emojis
+    """
     execute = False
     if ctx.guild.id == PANEPISTHMIO_ID:  # Panephstimio ID
         for role in ctx.author.roles:
@@ -404,7 +465,20 @@ async def say(ctx, *, text):
 
 
 @client.command(brief="Delete messages", aliases=["del"])
-async def delete(ctx, number: int, message: discord.Message=None, member: discord.Member=None):
+async def delete(ctx: commands.Context, number: int, message: discord.Message=None, member: discord.Member=None) -> None:
+    """
+    Delete an ammount of messages from the author's channel
+
+    :param number: The amount of messages to remove
+    :param message: The messagge to get message history from
+    :param member: Delete only this member's messages
+
+    .. note::
+        If :param message: is not specified then the default message is the last message sent
+        If :param member: is not specified then all the messages of all members are deleted
+        If :param member: is specified the amount of messages doesn't change and the bot checks
+        the history of `number` messages. This doesn't delete `number` messages of specified `member`
+    """
     def check(message):
         return message.author == member
 
@@ -438,7 +512,17 @@ async def delete(ctx, number: int, message: discord.Message=None, member: discor
 
 
 @client.command(name="rr", brief="Remove reactions from messages")
-async def remove_reactions(ctx, amount: int, message: discord.Message=None):
+async def remove_reactions(ctx: commands.Context, amount: int, message: discord.Message=None) -> None:
+    """
+    Removes all reactions from the previous messages.
+    The amount of messages
+
+    :param amount: The amount of previous messages to check
+    :param message: The starting message object to get `amount` messages from
+
+    .. note::
+        The command the member sent, the `message` object and the previous `amount` messages are accounted for
+    """
     if amount < 0: return
 
     if amount > 10:
@@ -464,7 +548,16 @@ async def remove_reactions(ctx, amount: int, message: discord.Message=None):
 
 
 @client.command(name="slow", brief="Change slow mode duration in a channel", aliases=["slowmode", "sm"])
-async def slow(ctx, time: str):
+async def slow(ctx: commands.Context, time: str) -> None:
+    """
+    Change the slow mode delay of a channel to the specified `time`
+
+    :param time: The amount of time to change the delay to
+
+    .. note:: 
+        The `time` parameter looks either like this e.g. "15m" (stands for 15 minutes)
+        or like `15` where the time type is defaulted to seconds
+    """
     execute = False
     for role in ctx.author.roles:
         if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
@@ -497,7 +590,10 @@ async def slow(ctx, time: str):
 
 
 @client.command(name="allowedfiles", brief="View allowed file types")
-async def view_allowed_file_extentions(ctx):
+async def view_allowed_file_extentions(ctx: commands.Context) -> None:
+    """
+    Send a list of all the allowed file types to the channel the command was ran from
+    """
     output = ""
     for file in allowed_files:
         output += f".{file} "
@@ -506,7 +602,12 @@ async def view_allowed_file_extentions(ctx):
 
 
 @client.command(brief="Add someone to the cult")
-async def filip(ctx, person: discord.Member):
+async def filip(ctx: commands.Context, person: discord.Member) -> None:
+    """
+    Add the filip role to the specified member (`person`)
+
+    :param person: The member to add the `filip` role to
+    """
     execute = False
     for role in ctx.author.roles:
         if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
@@ -530,7 +631,12 @@ async def filip(ctx, person: discord.Member):
 
 
 @client.command(name="translate", aliases=["trans", "tr"])
-async def translate(ctx, *, text):
+async def translate(ctx: commands.Context, *, text: str) -> None:
+    """
+    Trasnlate text from the detected language to greek
+
+    :param text: The text to translate to greek
+    """
     blob = textblob.TextBlob(text)
     translate_from = blob.detect_language()
     translate_to = "el"
@@ -546,7 +652,10 @@ async def translate(ctx, *, text):
 
 
 @client.command(name="f", aliases=["fmode", "f-mode"])
-async def slowmode_f(ctx):
+async def slowmode_f(ctx: commands.Context) -> None:
+    """
+    Change the slow mode of the channel
+    """
     execute = False
     for role in ctx.author.roles:
         if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
@@ -559,7 +668,13 @@ async def slowmode_f(ctx):
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
 
 
-async def mute_timer(ctx: commands.Context, member: discord.Member, minutes: float):
+async def mute_timer(ctx: commands.Context, member: discord.Member, minutes: float) -> None:
+    """
+    Timer until the specified time, to remove the `mute` role
+
+    :param member: The member to add the `mute` role to
+    :param minutes: The amount of minutes to mute the member for
+    """
     counter = minutes*60
     while counter > 0:
         muted = False
@@ -577,8 +692,18 @@ async def mute_timer(ctx: commands.Context, member: discord.Member, minutes: flo
         await ctx.send(f"{member.mention} is now unmuted")
 
 
-@client.command()
-async def unmute(ctx: commands.Context, member: discord.Member):
+@client.command(brief="Unmute a muted member")
+async def unmute(ctx: commands.Context, member: discord.Member) -> None:
+    """
+    Unmute the specified member
+
+    :param member: The member to unmute
+
+    .. note::
+        This command will work if the member has already the `mute` role.
+        If the member doesn't have the role an exception is thrown and
+        an error message is sent to the channel.
+    """
     try:
         muted_role = ctx.guild.get_role(MUTED_ROLE_ID)
         await member.remove_roles(muted_role)
@@ -589,8 +714,14 @@ async def unmute(ctx: commands.Context, member: discord.Member):
     await ctx.send(f"{ctx.author.mention} unmuted {member.mention}")
 
 
-@client.command()
-async def mute(ctx, member: discord.Member, minutes: float):
+@client.command(brief="Mute a member", description="Mute a member for the specified amount of minutes")
+async def mute(ctx: commands.Context, member: discord.Member, minutes: float) -> None:
+    """
+    Mutes a member for the specified amount of minutes
+
+    :param member: The member to mute
+    :param minutes: The amount of minutes to mute for
+    """
     if  minutes > 60:
         await ctx.send(f"{ctx.author.mention} you can't mute someone for more than 1 hour.")
         return
@@ -614,8 +745,20 @@ async def mute(ctx, member: discord.Member, minutes: float):
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
 
 
-@client.command()
-async def help(ctx, group=None):
+@client.command(brief="GitHub Link")
+async def github(ctx: commands.Context) -> None:
+    """
+    Send the github repo link to the channel the command came from
+    """
+    await ctx.send(f"GitHub Link: <https://github.com/Vitaman02/CS-IHU-NotifierBot>")
+
+@client.command(brief="Webpage link to help commands")
+async def help(ctx, group=None) -> None:
+    """
+    Send an embed with the link to the csihu help page
+
+    :param group: The command to get help from
+    """
     if group:
         if group in client.commands_dict["commands"]:
             help_text = f"{client.command_prefix}"
@@ -637,13 +780,16 @@ async def help(ctx, group=None):
             await ctx.send(f"Couldn't find command `{group}`")
         return
         
-    embed=discord.Embed(title="Commands", url='https://csihu.pythonanywhere.com', description="View all the available commands for the CSIHU Notificator Bot!", color=0xff9500)
+    embed = discord.Embed(title="Commands", url='https://csihu.pythonanywhere.com', description="View all the available commands for the CSIHU Notificator Bot!", color=0xff9500)
     embed.set_author(name="CSIHU Notificator", icon_url='https://csihu.pythonanywhere.com/static/images/csihu_icon.png')
     await ctx.send(embed=embed)
 
 
 @client.event
 async def on_ready():
+    """
+    This is an event listener. Changes the bot's presence when the bot is ready
+    """
     global last_id, members_in_waiting_room
     await client.change_presence(status=discord.Status.online, activity=discord.Game(f"Commands with '{client.command_prefix}'"))
     print("NotificatorBot ready")
@@ -653,7 +799,14 @@ last_id = info["last_id"]
 last_message = info["last_message"]
 
 
-def valid_message(msg):
+def valid_message(msg: discord.Message) -> bool:
+    """
+    Filter the message sent and return True if it should be allowed
+    or False if it should be deleted
+
+    :param msg: The message to filter
+    :return: bool
+    """
     # exceptions = ["gg", "kk", "xxx", "nn", ':o)', '', '8)', 'X‑P', '<:‑|', '*\x00/*', ':b', '>:)', ':‑p', '‑J', '0:3', '>;)', ':‑Þ', 'o_O', ':‑)', ':>', ':S', ':->', ':‑þ', 'x‑D', '( ͡° ͜ʖ ͡°)', ':-]', ':]', '=p', ':×', "',:-|", ':‑#', 'x‑p', ':###..', ';‑]', '0:)', ':E', ';‑)', '8D', 'O-O', 'XD', ':þ', ':‑X', '>:‑)', ':X', '}', ':‑)', '*-)', ';D', '(╯°□°）╯︵ ┻━┻┬──┬', '(ノಠ益ಠ)ノ彡┻━┻', '>:O', '8‑D', ':o', '}:)', ':‑###..', ':‑O', 'd:', ':3', ':L', '3:)', '=L', '>:3', '|;‑)', 'D=', 'D:<', ':‑|', "D‑':", '8‑0', '://)', ':#', '%‑)', ":'(", '://3', '%)', ':}', '=3', ':‑/', '=)', ':D', ':‑P', 'xp', ':‑&', 'ヽ(´ー｀)┌¯\\_(ツ)_/¯', ':‑.', ':P', 'O_o', 'O:)', '0:‑3', ':Þ', '3:‑)', ':‑b', ':-))', ':O', '0;^)', 'D;', 'D8', ':-*', ':-0', ';3', 'O:‑)', '//0‑0\\', "',:-l", ';^)', '*)', '=/', 'B^D', 'X‑D', ':‑D', ':-3', ';)', ':p', '|‑O', ':$', 'O_O', ':&', 'DX', '8-)', ":'‑)", ':*', ':|', 'D:', ":'‑(", ':‑o', ':c)', ':)', '0:‑)', ':/', 'o‑o', ':‑,', 'xD', '=\\', '>:\\', 'o_o', ';]', '=D', ':-}', ':^)', '>:P', '=]', '>:/', '#‑)', ":')", ':\\', 'XP']
     # if msg in exceptions: return True
     characters = list(filter(lambda x: x in msg, special_characters))
@@ -676,6 +829,9 @@ def valid_message(msg):
 
 @client.event
 async def on_message(msg: discord.Message):
+    """
+    This is an event listener. This is run whenever a member sends a message to a channel.
+    """
     global last_message
 
     if msg.author == client.user:
@@ -848,8 +1004,10 @@ async def on_message(msg: discord.Message):
     await client.process_commands(msg)
 
 
+# Load the `jishaku` extension
 extensions = ["jishaku"]
 for extension in extensions:
     client.load_extension(extension)
 
+# Run the bot
 client.run(TOKEN, reconnect=True)
