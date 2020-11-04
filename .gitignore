@@ -1,3 +1,4 @@
 Procfile
 *.txt
 add_commands.py
+deprecated.py

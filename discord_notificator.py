@@ -15,32 +15,17 @@ from discord.ext import commands
 from jishaku.repl.compilation import AsyncCodeExecutor
 
 
-class StoppableThread(threading.Thread):
-    def __init__(self, *args, **kwargs):
-        super(StoppableThread, self).__init__(*args, **kwargs)
-        self._stop_event = threading.Event()
-
-    def stop(self):
-        self._stop_event.set()
-
-    def stopped(self):
-        return self._stop_event.is_set()
-
-
-def run_file(filename):
-    opener = "python3.7"
-    subprocess.call([opener, filename])
-
-
-with open("info.txt") as file:
+with open("info.json") as file:
     info = json.load(file)
 
 
-points = info["points"]
 last_id = info["last_id"]
 last_link = info["last_link"]
 last_message = info["last_message"]
 members_in_waiting_room = info["waiting_room"]
+allowed_files = info["allowed_files"]
+characters = info["emoji_characters"]
+special_characters = info["special_characters"]
 
 
 TOKEN = os.environ.get("CSIHU_NOTIFICATOR_BOT_TOKEN")
@@ -63,102 +48,6 @@ PANEPISTHMIO_ID = 760047749482807327
 MUTED_ROLE_ID = 773396782129348610
 TICK_EMOJI = "\U00002705"
 X_EMOJI = "\U0000274c"
-
-
-allowed_files = [
-    "txt", "doc", "docx", "odf", "xlsx", "pptx", "mp4", "mp3", "wav",
-    "py", "pyw", "java", "js", "cpp", "c", "h", "html", "css", "csv",
-    "cs", "png", "jpg", "jpeg", "webm", "flv", "mkv", "gif", "manga"
-]
-
-
-characters = {
-    "a": "\U0001f1e6", "b": "\U0001f1e7", "c": "\U0001f1e8",
-    "d": "\U0001f1e9", "e": "\U0001f1ea", "f": "\U0001f1eb",
-    "g": "\U0001f1ec", "h": "\U0001f1ed", "i": "\U0001f1ee",
-    "j": "\U0001f1ef", "k": "\U0001f1f0", "l": "\U0001f1f1",
-    "m": "\U0001f1f2", "n": "\U0001f1f3", "o": "\U0001f1f4",
-    "p": "\U0001f1f5", "q": "\U0001f1f6", "r": "\U0001f1f7",
-    "s": "\U0001f1f8", "t": "\U0001f1f9", "u": "\U0001f1fa",
-    "v": "\U0001f1fb", "w": "\U0001f1fc", "x": "\U0001f1fd",
-    "y": "\U0001f1fe", "z": "\U0001f1ff"
-}
-
-special_characters = [
-    '!', '"', '#', '$', '%', '&', "'", '(', ')', '*',
-    '+', ',', '-', '.', '/', ';', '<', '=', '>', '?',
-    '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~', ' ',
-    '\n'
-]
-
-
-"""
-Deprecated:
-    @client.command(name="points")
-    async def view_points(ctx):
-        global points
-        author_points = points[str(ctx.author)]
-        await ctx.send(f"{ctx.author.mention} you have {author_points} points.")
-
-
-    @client.command(name="+1")
-    async def plus_one_point(ctx, person: discord.Member):
-        global points, info
-        if str(person) in points:
-            points[str(person)] += 1
-            info["points"] = points
-            with open("info.txt", "w") as file:
-                json.dump(info, file, indent=4)
-        else:
-            points[str(person)] = 1
-            info["points"] = points
-            with open("info.txt", "w") as file:
-                json.dump(info, file, indent=4)
-
-
-    @client.command(name="class-start", brief="Reminder after 45 minutes")
-    async def class_start(ctx):
-        await asyncio.sleep(45*60)
-        embed = discord.Embed(title="Class Timer", description="Called after 45 minutes", color=0xff0000)
-        embed.add_field(name="@everyone", value="Break time")
-        await ctx.send("@everyone", embed=embed)
-
-
-    @client.command(aliases=["dolias-laugh-counter", "dolias-counter"])
-    async def dolias(ctx):
-        await ctx.send(f"```Dolias has laughed {client.dolias_laugh_counter} times```")
-
-
-    @client.command(name="dolias+", aliases=["dolias+1"])
-    async def dolias_increase(ctx, amount=1):
-        if amount > 1:
-            client.dolias_laugh_counter += amount
-        else:
-            client.dolias_laugh_counter += 1
-        await ctx.send(f"```Dolias has laughed {client.dolias_laugh_counter} times```")
-
-    @client.command(brief="Check if the bot is working.")
-    async def test(ctx):
-        await ctx.send(f"```Hello, World! {ctx.author} your id is {ctx.author.id}.```")
-
-    async def execute_python(msg):
-    cwd = os.getcwd()
-
-    t = StoppableThread(target=run_file, args=(os.path.join(cwd, "script_runner.py"),))
-    t.start()
-    start_time = time.time()
-    while not t.stopped() and t.is_alive():
-        if time.time()-start_time > 5:
-            t.stop()
-            await msg.channel.send(f"{msg.author.mention}. The process timed out.")
-            break
-    t.join()
-    print("Thread is dead" if not t.is_alive() else "Thread is alive")
-    if not t.is_alive():
-        return True
-    return False
-    # run_file(os.path.join(cwd, "script_runner.py"))
-"""
 
 
 @client.command(name="timer", brief="Set a timer")
@@ -769,7 +658,7 @@ async def courses(ctx: commands.Context) -> None:
     await ctx.send("Courses Link: <https://courses.cs.ihu.gr/>")
 
 
-@client.command(brief="Webpage link to help commands", aliases=["commands"])
+@client.command(brief="Webpage embed to help commands", aliases=["commands"])
 async def help(ctx, group=None) -> None:
     """
     Send an embed with the link to the csihu help page
@@ -845,7 +734,7 @@ def valid_message(msg: discord.Message) -> bool:
 
 
 @client.event
-async def on_message(msg: discord.Message):
+async def on_message(msg: discord.Message) -> None:
     """
     This is an event listener. This is run whenever a member sends a message to a channel.
     """
