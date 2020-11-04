@@ -1,6 +1,5 @@
 # -*- coding: UTF-8 -*-
 import os
-import re
 import json
 import time
 import asyncio
@@ -32,7 +31,6 @@ TOKEN = os.environ.get("CSIHU_NOTIFICATOR_BOT_TOKEN")
 intents = discord.Intents.all()
 client = commands.Bot(command_prefix=".", intents=intents, help_command=None)
 client.latest_announcement = {"text": last_message, "link": last_link}
-client.remove_command("help")
 client.is_running = False
 with open("commands.json") as file:
     client.commands_dict = json.load(file)
@@ -412,12 +410,16 @@ async def remove_reactions(ctx: commands.Context, amount: int, message: discord.
     .. note::
         The command the member sent, the `message` object and the previous `amount` messages are accounted for
     """
+
+    # Can't get negative amount of messages
     if amount < 0: return
 
+    # Only allowed to get 10 messages
     if amount > 10:
         await ctx.send(f"{ctx.author.mention} you can't remove reactions from more than 10 messages")
         return
 
+    # Check if the member can execute this command
     execute = False
     for role in ctx.author.roles:
         if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
@@ -428,6 +430,7 @@ async def remove_reactions(ctx: commands.Context, amount: int, message: discord.
             history = await ctx.channel.history(limit=amount, before=message.created_at).flatten()
         else:
             history = await ctx.channel.history(limit=amount+1).flatten()
+
         for msg in history:
             await msg.clear_reactions()
         await ctx.message.delete()
@@ -447,14 +450,18 @@ async def slow(ctx: commands.Context, time: str) -> None:
         The `time` parameter looks either like this e.g. "15m" (stands for 15 minutes)
         or like `15` where the time type is defaulted to seconds
     """
+
+    # Check if the member can execute this command
     execute = False
     for role in ctx.author.roles:
         if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
             execute = True
 
     if execute:
-        times = {"s": "seconds", "m": "minutes", "h": "hours"}
         slowed, time_type = time[0:len(time)-1], time[-1]
+        if not (time_type in ("s", "m", "h")):
+            slowed += time_type
+
         if slowed:
             slowed = int(slowed)
         else:
@@ -469,6 +476,7 @@ async def slow(ctx: commands.Context, time: str) -> None:
                 mult = 60
             elif time_type.endswith("h"):
                 mult = 60 * 60
+            # Maximum slow mode set by discord
             delay = slowed * mult
             if delay > 21600:
                 await ctx.send("Can't delay more than 6 hours")
@@ -497,6 +505,8 @@ async def filip(ctx: commands.Context, person: discord.Member) -> None:
 
     :param person: The member to add the `filip` role to
     """
+
+    # Check if the member can execute this command
     execute = False
     for role in ctx.author.roles:
         if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
@@ -505,6 +515,8 @@ async def filip(ctx: commands.Context, person: discord.Member) -> None:
     if execute:
         filip_role = ctx.guild.get_role(FILIP_ROLE_ID)
 
+        # The role will be removed if 
+        # the member already has it
         remove = False
         for role in person.roles:
             if role.id == FILIP_ROLE_ID:
@@ -545,12 +557,16 @@ async def slowmode_f(ctx: commands.Context) -> None:
     """
     Change the slow mode of the channel
     """
+
+    # Check if the member can use this command
+    # (Only moderators+ can use this command)
     execute = False
     for role in ctx.author.roles:
         if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
             execute = True
 
     if execute:
+        # Change the slow mode delay of the channel to 6000 seconds
         delay = 6000
         await ctx.channel.edit(slowmode_delay=delay)
     else:
@@ -576,12 +592,14 @@ async def mute_timer(ctx: commands.Context, member: discord.Member, minutes: flo
         else:
             break
     else:
+        # This is executed if the timer has ran out.
+        # This wouldn't be executed if someone unmuted the member prematurely
         muted_role = ctx.guild.get_role(MUTED_ROLE_ID)
         await member.remove_roles(muted_role)
         await ctx.send(f"{member.mention} is now unmuted")
 
 
-@client.command(brief="Unmute a muted member")
+@client.command(name="unmute", brief="Unmute a muted member")
 async def unmute(ctx: commands.Context, member: discord.Member) -> None:
     """
     Unmute the specified member
@@ -603,7 +621,7 @@ async def unmute(ctx: commands.Context, member: discord.Member) -> None:
     await ctx.send(f"{ctx.author.mention} unmuted {member.mention}")
 
 
-@client.command(brief="Mute a member", description="Mute a member for the specified amount of minutes")
+@client.command(name="mute", brief="Mute a member", description="Mute a member for the specified amount of minutes")
 async def mute(ctx: commands.Context, member: discord.Member, minutes: float) -> None:
     """
     Mutes a member for the specified amount of minutes
@@ -611,10 +629,13 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float) ->
     :param member: The member to mute
     :param minutes: The amount of minutes to mute for
     """
+
+    # One hour mute limit
     if  minutes > 60:
         await ctx.send(f"{ctx.author.mention} you can't mute someone for more than 1 hour.")
         return
     
+    # Check if the author can mute someone else
     execute = True
     for role in ctx.author.roles:
         if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
@@ -628,13 +649,14 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float) ->
         await ctx.send(f"{ctx.author.mention} muted {member.mention} for {minutes} minutes")
 
         # 2) Add timer that will check every second if it should remove the role prematurely
-        #   2.a) If the command ".unmute <member>"
+        #   2.a) If the command ".unmute <member>" is executed, then the loop should stop 
+        #        and the role is removed
         await mute_timer(ctx, member, minutes)
     else:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
 
 
-@client.command(brief="GitHub Link", aliases=["gh", "git"])
+@client.command(name="github", brief="Github Link", aliases=["gh", "git"])
 async def github(ctx: commands.Context) -> None:
     """
     Send the github repo link to the author's channel
@@ -642,7 +664,7 @@ async def github(ctx: commands.Context) -> None:
     await ctx.send(f"GitHub Link: <https://github.com/Vitaman02/CS-IHU-NotifierBot>")
 
 
-@client.command(brief="Moodle Link")
+@client.command(name="moodle", brief="Moodle Link")
 async def moodle(ctx: commands.Context) -> None:
     """
     Send the moodle link to the author's channel
@@ -650,7 +672,7 @@ async def moodle(ctx: commands.Context) -> None:
     await ctx.send("Moodle Link: <https://moodle.cs.ihu.gr/moodle/>")
 
 
-@client.command(brief="Courses Link")
+@client.command(name="courses", brief="Courses Link")
 async def courses(ctx: commands.Context) -> None:
     """
     Send the Courses link to the author's channel
@@ -665,10 +687,16 @@ async def help(ctx, group=None) -> None:
 
     :param group: The command to get help from
     """
+
+    # If there is a command passed check if that command exists.
+    # If it exists format the output like discord's help command does.
+    # Return the aliases and the parameters of the command formatted, if there are any
     if group:
+        # Check if the command exists
         if group in client.commands_dict["commands"]:
             help_text = f"{client.command_prefix}"
             aliases = client.commands_dict["commands"][group]["aliases"]
+            # Check if the command has any aliases
             if aliases:
                 help_text += f"[{group}"
                 for alias in aliases:
@@ -678,6 +706,7 @@ async def help(ctx, group=None) -> None:
                 help_text += f"{group} "
 
             parameters = client.commands_dict["commands"][group]["parameters"]
+            # Add any parameters the command takes
             for parameter in parameters:
                 help_text += f"{parameter} "
 
@@ -685,7 +714,8 @@ async def help(ctx, group=None) -> None:
         else:
             await ctx.send(f"Couldn't find command `{group}`")
         return
-        
+    
+    # Create the embed with the link to the help webpage
     embed = discord.Embed(title="Commands", url='https://csihu.pythonanywhere.com', description="View all the available commands for the CSIHU Notificator Bot!", color=0xff9500)
     embed.set_author(name="CSIHU Notificator", icon_url='https://csihu.pythonanywhere.com/static/images/csihu_icon.png')
     await ctx.send(embed=embed)
@@ -694,7 +724,7 @@ async def help(ctx, group=None) -> None:
 @client.event
 async def on_ready():
     """
-    This is an event listener. Changes the bot's presence when the bot is ready
+    This is an event listener. It changes the bot's presence when the bot is ready
     """
     global last_id, members_in_waiting_room
     await client.change_presence(status=discord.Status.online, activity=discord.Game(f"Commands with '{client.command_prefix}'"))
@@ -711,22 +741,28 @@ def valid_message(msg: discord.Message) -> bool:
     or False if it should be deleted
 
     :param msg: The message to filter
-    :return: bool
+    :return: bool if the message should be allowed or not
     """
-    # exceptions = ["gg", "kk", "xxx", "nn", ':o)', '', '8)', 'X‑P', '<:‑|', '*\x00/*', ':b', '>:)', ':‑p', '‑J', '0:3', '>;)', ':‑Þ', 'o_O', ':‑)', ':>', ':S', ':->', ':‑þ', 'x‑D', '( ͡° ͜ʖ ͡°)', ':-]', ':]', '=p', ':×', "',:-|", ':‑#', 'x‑p', ':###..', ';‑]', '0:)', ':E', ';‑)', '8D', 'O-O', 'XD', ':þ', ':‑X', '>:‑)', ':X', '}', ':‑)', '*-)', ';D', '(╯°□°）╯︵ ┻━┻┬──┬', '(ノಠ益ಠ)ノ彡┻━┻', '>:O', '8‑D', ':o', '}:)', ':‑###..', ':‑O', 'd:', ':3', ':L', '3:)', '=L', '>:3', '|;‑)', 'D=', 'D:<', ':‑|', "D‑':", '8‑0', '://)', ':#', '%‑)', ":'(", '://3', '%)', ':}', '=3', ':‑/', '=)', ':D', ':‑P', 'xp', ':‑&', 'ヽ(´ー｀)┌¯\\_(ツ)_/¯', ':‑.', ':P', 'O_o', 'O:)', '0:‑3', ':Þ', '3:‑)', ':‑b', ':-))', ':O', '0;^)', 'D;', 'D8', ':-*', ':-0', ';3', 'O:‑)', '//0‑0\\', "',:-l", ';^)', '*)', '=/', 'B^D', 'X‑D', ':‑D', ':-3', ';)', ':p', '|‑O', ':$', 'O_O', ':&', 'DX', '8-)', ":'‑)", ':*', ':|', 'D:', ":'‑(", ':‑o', ':c)', ':)', '0:‑)', ':/', 'o‑o', ':‑,', 'xD', '=\\', '>:\\', 'o_o', ';]', '=D', ':-}', ':^)', '>:P', '=]', '>:/', '#‑)', ":')", ':\\', 'XP']
-    # if msg in exceptions: return True
+
+    # Check if there are any special characters in the message and remove them
     characters = list(filter(lambda x: x in msg, special_characters))
     if characters:
         for char in characters:
             msg = msg.replace(char, "")
 
+    # If the message is less than 3 characters it's allowed
     if len(msg) < 3: return True
+    # If the message only contains special characters it's allowed
     if not msg: return True
 
+    # Check all the characters are the same character
+    # If they are the same character return False
     prev = msg[0]
     for char in msg[1:]:
         if not (char == prev):
             return True
+
+    # If the message is only numbers it's allowed
     if msg.isdigit():
         return True
     else:
@@ -740,13 +776,15 @@ async def on_message(msg: discord.Message) -> None:
     """
     global last_message
 
+    # If the author is the bot return
     if msg.author == client.user:
         return
 
     cwd = os.getcwd()
     check_msg = msg.content.lower()
 
-
+    # If there are attachments to the message
+    # check if the extension is allowed on the server
     attachments = msg.attachments
     if attachments:
         for attach in attachments:
@@ -756,14 +794,16 @@ async def on_message(msg: discord.Message) -> None:
                 await msg.channel.send(f"{msg.author.mention} you are not allowed to upload `.{extention}` files\nUse `{client.command_prefix}allowedfiles` to view all allowed file types.")
                 return
 
-
+    # If the message is not in the spam-chat, check if it should be allowed
     if not msg.channel.id == 766177228198903808:  # spam-chat ID
         if not valid_message(check_msg):
             await asyncio.sleep(0.5)
             await msg.delete()
 
 
+    # Python eval command
     if check_msg.startswith(f"{client.command_prefix}e"):
+        # Eval is not allowed in general, except moderators that can execute it
         if msg.channel.id == 760047749482807330:  # general ID
             allowed_in_general = False
             for role in msg.author.roles:
@@ -773,18 +813,21 @@ async def on_message(msg: discord.Message) -> None:
                 await msg.channel.send(f"Not allowed to use **{client.command_prefix}e** in {msg.channel.mention}")
                 return
 
+        # Format the text to only get the script
         try:
             script = str(msg.content).replace(f"{client.command_prefix}e ", "")
         except:
             await msg.channel.send(f"`Can't parse python script. Use '{client.command_prefix}e <code>'. Separate lines with ';'.`")
-        try:
-            script = script.replace(";", "\n")
-        except:
-            pass
+
+        script = script.replace(";", "\n")
+
+        # Check if the user doesn't want the output to be formatted
+        # inside triple quotes (```)
         safe_output = False
         if "#safe" in script:
             safe_output = True
 
+        # Format the string again
         if "```" in script:
             script = script.split("```")[-2]
             if script.startswith("python"):
@@ -792,6 +835,23 @@ async def on_message(msg: discord.Message) -> None:
             elif script.startswith("py"):
                 script = script[2:]
 
+        # Check if the script passes the filters
+        if "import os" in script or ("os." in script):
+            await msg.channel.send("You are not allowed to use `os`")
+            return
+        elif "import subprocess" in script or ("subprocess." in script):
+            await msg.channel.send("You are not allowed to use `subprocess`")
+            return
+        elif "import sys" in script or ("sys." in script):
+            await msg.channel.send("You are not allowed to use `sys`")
+            return
+        elif "open(" in script or "open (" in script:
+            await msg.channel.send("You are not allowed to use `open()`")
+            return
+
+        # Try to execute the script.
+        # If the script is not completed before the timeout
+        # then the execution stops and an error message is returned
         async with msg.channel.typing():
             output = ""
             timeout = 10
@@ -805,6 +865,7 @@ async def on_message(msg: discord.Message) -> None:
                         await msg.channel.send("Error: Process timed out.")
                         break
                 else:
+                    # This clause is executed only if there wasn't a timeout error
                     await msg.add_reaction(TICK_EMOJI)
 
                     if safe_output:
@@ -812,101 +873,15 @@ async def on_message(msg: discord.Message) -> None:
                     else:
                         await msg.channel.send(f"{msg.author.mention}```python\n{output} ```")
             except Exception as e:
+                # If there was an error with the code,
+                # send the full traceback
                 await msg.add_reaction(X_EMOJI)
                 trace = traceback.format_exc()
                 await msg.channel.send(f"{msg.author.mention} Error:\n```python\n{trace} ```")
         
         return
 
-
-        """
-        if "import os" in script or ("os." in script):
-            await msg.channel.send("`You are not allowed to do that :)\nNot allowed to use 'os'`")
-        elif "import subprocess" in script or ("subprocess." in script):
-            await msg.channel.send("`You are not allowed to do that :)\nNot allowed to use 'subprocess'`")
-        elif "import sys" in script or ("sys." in script):
-            await msg.channel.send("`You are not allowed to do that :)\nNot allowed to use 'sys'`")
-        elif "open" in script:
-            await msg.channel.send("`You are not allowed to do that :)\nNot allowed to use 'open()'`")
-        elif "while True" in script:
-            await msg.channel.send("`You are not allowed to use infinite loops :(`")
-        else:
-            path = os.path.join(cwd, "curr_script.txt")
-            with open(path, "w") as file:
-                file.write(script)
-
-            with open(path, "r") as file:
-                line = file.readline()
-                lines_to_write = []
-                lines_to_write.append("file_from_the_server = open('python_output.txt', 'a')\n")
-                send_plot = False
-                global_file = False
-                while line:
-                    if global_file:
-                        lines_to_write.append("  global file_from_the_server\n")
-                        global_file = False
-
-                    if "def" in line:
-                        global_file = True
-
-                    if line.startswith("import matplotlib.pyplot as"):
-                        plt_object = line.split("as ")[1].strip().replace("\n", "")
-
-                    if ".show" in line:
-                        plot_path = os.path.join(cwd, "pyplot.png")
-                        try:
-                            os.remove(plot_path)
-                        except FileNotFoundError as e:
-                            print(e)
-                        line = f"{plt_object}.savefig('{plot_path}')\n"
-                        send_plot = True
-
-                    prints = re.findall("print\(.*\s*\S*.*\)$", line)
-                    if prints:
-                        for item in prints:
-                            write_it = item[::-1].replace(")", ", file=file_from_the_server)\n"[::-1], 1)[::-1]
-                            lines_to_write.append(line.replace(item, write_it))
-                    else:
-                        lines_to_write.append(line)
-                    line = file.readline()
-                lines_to_write.append("\nfile_from_the_server.close()")
-            with open(path, "w") as file:
-                for item in lines_to_write:
-                    file.write(item)
-
-
-            died = await execute_python(msg)
-            if not died:
-                return
-            path2 = os.path.join(cwd, "python_output.txt")
-            with open(path2, "r") as outfile:
-                output = outfile.read()
-                if output:
-                    try:
-                        if send_plot:
-                            try:
-                                await msg.channel.send(file=discord.File("pyplot.png"))
-                            except FileNotFoundError:
-                                await msg.channel.send(f"{msg.author.mention}. Couldn't create plot.")
-                        if not safe_output:
-                            await msg.channel.send(f"{msg.author.mention}\n```python\n{output}```")
-                        else:
-                            await msg.channel.send(f"{msg.author.mention}\n{output}")
-                    except discord.errors.HTTPException as e:
-                        await msg.channel.send(f"{e}")
-                else:
-                    if send_plot:
-                        try:
-                            await msg.channel.send(file=discord.File("pyplot.png"))
-                        except FileNotFoundError:
-                            await msg.channel.send(f"{msg.author.mention}. Couldn't create plot.")
-                    else:
-                        await msg.channel.send(f"{msg.author.mention}\nThere was no output.")
-
-            with open(path2, "w") as outfile:
-                outfile.write("")
-        """
-
+    # Check if the message was supposed to be a command
     await client.process_commands(msg)
 
 
