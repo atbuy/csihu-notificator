@@ -594,8 +594,15 @@ async def mute_timer(ctx: commands.Context, member: discord.Member, minutes: flo
     else:
         # This is executed if the timer has ran out.
         # This wouldn't be executed if someone unmuted the member prematurely
+
+        # Remove muted role
         muted_role = ctx.guild.get_role(MUTED_ROLE_ID)
         await member.remove_roles(muted_role)
+
+        # Add synadelfos role again
+        synadelfos_role = ctx.guild.get_role(SYNADELFOS_ROLE_ID)
+        await member.add_roles(synadelfos_role)
+
         await ctx.send(f"{member.mention} is now unmuted")
 
 
@@ -612,8 +619,13 @@ async def unmute(ctx: commands.Context, member: discord.Member) -> None:
         an error message is sent to the channel.
     """
     try:
+        # Remove muted role
         muted_role = ctx.guild.get_role(MUTED_ROLE_ID)
         await member.remove_roles(muted_role)
+
+        # Add synaelfos role again
+        synadelfos_role = ctx.guild.get_role(SYNADELFOS_ROLE_ID)
+        await member.add_roles(synadelfos_role)
     except Exception as e:
         print(e)
         await ctx.send(f"{member.mention} is not muted")
@@ -648,8 +660,12 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float) ->
         await member.add_roles(muted_role)
         await ctx.send(f"{ctx.author.mention} muted {member.mention} for {minutes} minutes")
 
-        # 2) Add timer that will check every second if it should remove the role prematurely
-        #   2.a) If the command ".unmute <member>" is executed, then the loop should stop 
+        # 2) Remove role named "Synadelfos"
+        synadelfos_role = ctx.guild.get_role(SYNADELFOS_ROLE_ID)
+        await member.remove_roles(synadelfos_role)
+
+        # 3) Add timer that will check every second if it should remove the role prematurely
+        #   3.a) If the command ".unmute <member>" is executed, then the loop should stop 
         #        and the role is removed
         await mute_timer(ctx, member, minutes)
     else:
