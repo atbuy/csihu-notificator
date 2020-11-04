@@ -788,7 +788,7 @@ async def on_message(msg: discord.Message) -> None:
     attachments = msg.attachments
     if attachments:
         for attach in attachments:
-            extention = attach.filename.split(".")[1].lower()
+            extention = attach.filename.split(".")[-1].lower()
             if extention not in allowed_files:
                 await msg.delete()
                 await msg.channel.send(f"{msg.author.mention} you are not allowed to upload `.{extention}` files\nUse `{client.command_prefix}allowedfiles` to view all allowed file types.")
@@ -892,3 +892,4 @@ for extension in extensions:
 
 # Run the bot
 client.run(TOKEN, reconnect=True)
+
