@@ -43,7 +43,7 @@ last_message = info["last_message"]
 members_in_waiting_room = info["waiting_room"]
 
 
-TOKEN = "NzYwNDczOTMyNDM5ODc5NzAw.X3Mkig.ie5GTEVbJjnHXuJ9M7Q2ZwWi9WM"
+TOKEN = os.environ.get("CSIHU_NOTIFICATOR_BOT_TOKEN")
 intents = discord.Intents.all()
 client = commands.Bot(command_prefix=".", intents=intents, help_command=None)
 client.latest_announcement = {"text": last_message, "link": last_link}
@@ -60,6 +60,7 @@ waiting_room_id = "763090286372585522"
 bot_id = "760473932439879700"
 filip_role_id = "770328364913131621"
 panepisthmio_id = "760047749482807327"
+MUTED_ROLE_ID = 773396782129348610
 TICK_EMOJI = "\U00002705"
 X_EMOJI = "\U0000274c"
 
@@ -91,55 +92,55 @@ special_characters = [
 
 
 """
-Deprecated
-@client.command(name="points")
-async def view_points(ctx):
-    global points
-    author_points = points[str(ctx.author)]
-    await ctx.send(f"{ctx.author.mention} you have {author_points} points.")
+Deprecated:
+    @client.command(name="points")
+    async def view_points(ctx):
+        global points
+        author_points = points[str(ctx.author)]
+        await ctx.send(f"{ctx.author.mention} you have {author_points} points.")
 
 
-@client.command(name="+1")
-async def plus_one_point(ctx, person: discord.Member):
-    global points, info
-    if str(person) in points:
-        points[str(person)] += 1
-        info["points"] = points
-        with open("info.txt", "w") as file:
-            json.dump(info, file, indent=4)
-    else:
-        points[str(person)] = 1
-        info["points"] = points
-        with open("info.txt", "w") as file:
-            json.dump(info, file, indent=4)
+    @client.command(name="+1")
+    async def plus_one_point(ctx, person: discord.Member):
+        global points, info
+        if str(person) in points:
+            points[str(person)] += 1
+            info["points"] = points
+            with open("info.txt", "w") as file:
+                json.dump(info, file, indent=4)
+        else:
+            points[str(person)] = 1
+            info["points"] = points
+            with open("info.txt", "w") as file:
+                json.dump(info, file, indent=4)
 
 
-@client.command(name="class-start", brief="Reminder after 45 minutes")
-async def class_start(ctx):
-    await asyncio.sleep(45*60)
-    embed = discord.Embed(title="Class Timer", description="Called after 45 minutes", color=0xff0000)
-    embed.add_field(name="@everyone", value="Break time")
-    await ctx.send("@everyone", embed=embed)
+    @client.command(name="class-start", brief="Reminder after 45 minutes")
+    async def class_start(ctx):
+        await asyncio.sleep(45*60)
+        embed = discord.Embed(title="Class Timer", description="Called after 45 minutes", color=0xff0000)
+        embed.add_field(name="@everyone", value="Break time")
+        await ctx.send("@everyone", embed=embed)
 
 
-@client.command(aliases=["dolias-laugh-counter", "dolias-counter"])
-async def dolias(ctx):
-    await ctx.send(f"```Dolias has laughed {client.dolias_laugh_counter} times```")
+    @client.command(aliases=["dolias-laugh-counter", "dolias-counter"])
+    async def dolias(ctx):
+        await ctx.send(f"```Dolias has laughed {client.dolias_laugh_counter} times```")
 
 
-@client.command(name="dolias+", aliases=["dolias+1"])
-async def dolias_increase(ctx, amount=1):
-    if amount > 1:
-        client.dolias_laugh_counter += amount
-    else:
-        client.dolias_laugh_counter += 1
-    await ctx.send(f"```Dolias has laughed {client.dolias_laugh_counter} times```")
+    @client.command(name="dolias+", aliases=["dolias+1"])
+    async def dolias_increase(ctx, amount=1):
+        if amount > 1:
+            client.dolias_laugh_counter += amount
+        else:
+            client.dolias_laugh_counter += 1
+        await ctx.send(f"```Dolias has laughed {client.dolias_laugh_counter} times```")
 
-@client.command(brief="Check if the bot is working.")
-async def test(ctx):
-    await ctx.send(f"```Hello, World! {ctx.author} your id is {ctx.author.id}.```")
+    @client.command(brief="Check if the bot is working.")
+    async def test(ctx):
+        await ctx.send(f"```Hello, World! {ctx.author} your id is {ctx.author.id}.```")
 
-async def execute_python(msg):
+    async def execute_python(msg):
     cwd = os.getcwd()
 
     t = StoppableThread(target=run_file, args=(os.path.join(cwd, "script_runner.py"),))
@@ -342,11 +343,6 @@ async def is_running(ctx):
         await ctx.send("The bot is running")
     else:
         await ctx.send("The bot is not running")
-
-
-@client.command(brief="View the bot's rank")
-async def rank(ctx):
-    await ctx.send("!rank")
 
 
 @client.command(brief="POG a message")
@@ -562,6 +558,61 @@ async def slowmode_f(ctx):
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
 
 
+async def mute_timer(ctx: commands.Context, member: discord.Member, minutes: float):
+    counter = minutes*60
+    while counter > 0:
+        muted = False
+        for role in member.roles:
+            if role.id == MUTED_ROLE_ID:
+                muted = True
+        if muted:
+            await asyncio.sleep(1)
+            counter -= 1
+        else:
+            break
+    else:
+        muted_role = ctx.guild.get_role(MUTED_ROLE_ID)
+        await member.remove_roles(muted_role)
+        await ctx.send(f"{member.mention} is now unmuted")
+
+
+@client.command()
+async def unmute(ctx: commands.Context, member: discord.Member):
+    try:
+        muted_role = ctx.guild.get_role(MUTED_ROLE_ID)
+        await member.remove_roles(muted_role)
+    except Exception as e:
+        print(e)
+        await ctx.send(f"{member.mention} is not muted")
+        return
+    await ctx.send(f"{ctx.author.mention} unmuted {member.mention}")
+
+
+@client.command()
+async def mute(ctx, member: discord.Member, minutes: float):
+    if  minutes > 60:
+        await ctx.send(f"{ctx.author.mention} you can't mute someone for more than 1 hour.")
+        return
+    
+    execute = True
+    for role in ctx.author.roles:
+        if str(role.id) in (moderator_id, owner_id, bot_id):
+            execute = True
+            break
+    
+    if execute:
+        # 1) Add role named "Muted" to member
+        muted_role = ctx.guild.get_role(MUTED_ROLE_ID)
+        await member.add_roles(muted_role)
+        await ctx.send(f"{ctx.author.mention} muted {member.mention} for {minutes} minutes")
+
+        # 2) Add timer that will check every second if it should remove the role prematurely
+        #   2.a) If the command ".unmute <member>"
+        await mute_timer(ctx, member, minutes)
+    else:
+        await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
+
+
 @client.command()
 async def help(ctx, group=None):
     if group:
@@ -590,7 +641,6 @@ async def help(ctx, group=None):
     await ctx.send(embed=embed)
 
 
-
 @client.event
 async def on_ready():
     global last_id, members_in_waiting_room
@@ -600,9 +650,6 @@ async def on_ready():
 
 last_id = info["last_id"]
 last_message = info["last_message"]
-
-
-
 
 
 def valid_message(msg):
@@ -624,7 +671,6 @@ def valid_message(msg):
         return True
     else:
         return False
-
 
 
 @client.event
