@@ -13,7 +13,6 @@ import subprocess
 from bs4 import BeautifulSoup
 from discord.ext import commands
 from jishaku.repl.compilation import AsyncCodeExecutor
-from jishaku.codeblocks import codeblock_converter
 
 
 class StoppableThread(threading.Thread):
@@ -36,6 +35,7 @@ def run_file(filename):
 with open("info.txt") as file:
     info = json.load(file)
 
+
 points = info["points"]
 last_id = info["last_id"]
 last_link = info["last_link"]
@@ -53,16 +53,17 @@ with open("commands.json") as file:
     client.commands_dict = json.load(file)
 
 
-myid = "222950176770228225"
-moderator_id = "760078403264184341"
-owner_id = "760085688133222420"
-waiting_room_id = "763090286372585522"
-bot_id = "760473932439879700"
-filip_role_id = "770328364913131621"
-panepisthmio_id = "760047749482807327"
+MY_ID = 222950176770228225
+MODERATOR_ID = 760078403264184341
+OWNER_ID = 760085688133222420
+WAITING_ROOM_ID = 763090286372585522
+BOT_ID = 760473932439879700
+FILIP_ROLE_ID = 770328364913131621
+PANEPISTHMIO_ID = 760047749482807327
 MUTED_ROLE_ID = 773396782129348610
 TICK_EMOJI = "\U00002705"
 X_EMOJI = "\U0000274c"
+
 
 allowed_files = [
     "txt", "doc", "docx", "odf", "xlsx", "pptx", "mp4", "mp3", "wav",
@@ -235,7 +236,7 @@ async def search_by_id(ctx, ann_id: int):
 @client.command(name="last_id", brief="View last announcement's id")
 async def change_last_id(ctx, id_num: int=None):
     global last_id
-    if str(ctx.author.id) == myid:
+    if ctx.author.id == MY_ID:
         if id_num:
             try:
                 last_id = int(id_num)
@@ -251,7 +252,7 @@ async def change_last_id(ctx, id_num: int=None):
 @client.command(brief="Starts the bot", aliases=["run"])
 async def run_bot(ctx):
     global last_id
-    if str(ctx.author.id) == myid:
+    if ctx.author.id == MY_ID:
         client.is_running = True
         await ctx.send("```Started```")
 
@@ -312,12 +313,12 @@ async def waiting_list(ctx, user_id: int):
 
     execute = False
     for role in ctx.author.roles:
-        if str(role.id) == moderator_id or str(role.id) == owner_id or str(role.id) == bot_id:
+        if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
             execute = True
 
     if execute:
         member: discord.Member = ctx.guild.get_member(user_id)
-        waiting_room_role = ctx.guild.get_role(int(waiting_room_id))
+        waiting_room_role = ctx.guild.get_role(WAITING_ROOM_ID)
         if not member.id in members_in_waiting_room:
             members_in_waiting_room.append(member.id)
             info["waiting_room"] = members_in_waiting_room
@@ -374,11 +375,11 @@ async def react(ctx, msg_id, *, text):
 @client.command(brief="Say something in emojis")
 async def say(ctx, *, text):
     execute = False
-    if str(ctx.guild.id) == "760047749482807327":  # Panephstimio ID
+    if ctx.guild.id == PANEPISTHMIO_ID:  # Panephstimio ID
         for role in ctx.author.roles:
-            if str(role.id) in (moderator_id, owner_id, bot_id):
+            if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
                 execute = True
-        if str(ctx.channel.id) == "766177228198903808":  # spam-chat ID
+        if ctx.channel.id == 766177228198903808:  # spam-chat ID
             execute = True
     else:
         execute = True
@@ -414,7 +415,7 @@ async def delete(ctx, number: int, message: discord.Message=None, member: discor
 
     execute = False
     for role in ctx.author.roles:
-        if str(role.id) in (moderator_id, owner_id, bot_id):
+        if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
             execute = True
 
     if execute:
@@ -446,7 +447,7 @@ async def remove_reactions(ctx, amount: int, message: discord.Message=None):
 
     execute = False
     for role in ctx.author.roles:
-        if str(role.id) in (moderator_id, owner_id, bot_id):
+        if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
             execute = True
 
     if execute:
@@ -466,7 +467,7 @@ async def remove_reactions(ctx, amount: int, message: discord.Message=None):
 async def slow(ctx, time: str):
     execute = False
     for role in ctx.author.roles:
-        if str(role.id) in (moderator_id, owner_id, bot_id):
+        if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
             execute = True
 
     if execute:
@@ -508,15 +509,15 @@ async def view_allowed_file_extentions(ctx):
 async def filip(ctx, person: discord.Member):
     execute = False
     for role in ctx.author.roles:
-        if str(role.id) in (moderator_id, owner_id, bot_id):
+        if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
             execute = True
 
     if execute:
-        filip_role = ctx.guild.get_role(int(filip_role_id))
+        filip_role = ctx.guild.get_role(FILIP_ROLE_ID)
 
         remove = False
         for role in person.roles:
-            if str(role.id) == filip_role_id:
+            if role.id == FILIP_ROLE_ID:
                 remove = True
         if remove:
             await person.remove_roles(filip_role)
@@ -548,7 +549,7 @@ async def translate(ctx, *, text):
 async def slowmode_f(ctx):
     execute = False
     for role in ctx.author.roles:
-        if str(role.id) in (moderator_id, owner_id, bot_id):
+        if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
             execute = True
 
     if execute:
@@ -596,7 +597,7 @@ async def mute(ctx, member: discord.Member, minutes: float):
     
     execute = True
     for role in ctx.author.roles:
-        if str(role.id) in (moderator_id, owner_id, bot_id):
+        if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
             execute = True
             break
     
@@ -694,17 +695,17 @@ async def on_message(msg: discord.Message):
                 return
 
 
-    if not str(msg.channel.id) == "766177228198903808":  # spam-chat ID
+    if not msg.channel.id == 766177228198903808:  # spam-chat ID
         if not valid_message(check_msg):
             await asyncio.sleep(0.5)
             await msg.delete()
 
 
     if check_msg.startswith(f"{client.command_prefix}e"):
-        if str(msg.channel.id) == "760047749482807330":  # general ID
+        if msg.channel.id == 760047749482807330:  # general ID
             allowed_in_general = False
             for role in msg.author.roles:
-                if str(role.id) in (moderator_id, owner_id, bot_id):
+                if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
                     allowed_in_general = True
             if not allowed_in_general:
                 await msg.channel.send(f"Not allowed to use **{client.command_prefix}e** in {msg.channel.mention}")
