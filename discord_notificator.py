@@ -7,6 +7,7 @@ import discord
 import requests
 import textblob
 import traceback
+import urbandict
 from bs4 import BeautifulSoup
 from discord.ext import commands
 from jishaku.repl.compilation import AsyncCodeExecutor
@@ -142,6 +143,22 @@ def can_execute(ctx: commands.Context, **kwargs) -> bool:
 
     return execute
 
+
+
+@client.command(name="urbandict", aliases=["ud", "urban", "urb"])
+async def urbandict(ctx: commands.Context, *, text: str) -> None:
+    """
+    Search UrbanDictionary for the definition of `text`
+
+    :param text: The text to search for
+    """
+    
+    # Search for the word
+    query = urbandict.define(text)
+    word = query[0]
+
+    await ctx.send(f"{ctx.author.mention} Word:\n```{word['word']} ```\nDefinition:\n```{word['def']} ```\nExample: ```{word['example']}")
+    
 
 
 
@@ -431,12 +448,10 @@ async def say(ctx: commands.Context, *, text: str) -> None:
     :param text: The text to be converted to emojis
     """
 
-    execute = True
+    execute = False
     if ctx.guild.id == PANEPISTHMIO_ID:  # Panephstimio ID
         # This command is not allowed in the general chat
         if ctx.channel.id == GENERAL_ID:
-            execute = False
-        else:
             execute = can_execute(ctx)
 
     
@@ -967,6 +982,7 @@ async def on_message(msg: discord.Message) -> None:
         
         return
     """
+
     # Check if the message was supposed to be a command
     await client.process_commands(msg)
 
