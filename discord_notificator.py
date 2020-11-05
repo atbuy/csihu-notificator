@@ -41,11 +41,48 @@ MODERATOR_ID = 760078403264184341
 OWNER_ID = 760085688133222420
 WAITING_ROOM_ID = 763090286372585522
 BOT_ID = 760473932439879700
+GENERAL_ID = 760047749482807330
 FILIP_ROLE_ID = 770328364913131621
 PANEPISTHMIO_ID = 760047749482807327
 MUTED_ROLE_ID = 773396782129348610
 TICK_EMOJI = "\U00002705"
 X_EMOJI = "\U0000274c"
+
+
+def can_execute(ctx: commands.Context, **kwargs) -> bool:
+    """
+    Checks if the member that executed the command
+    is allowed to execute it
+
+    :param kwargs: check if a member should have a permission or not
+    :return: True if the member is allowed to execute it, False if not
+
+    .. note::
+        The keyword arguments are for checking which permissions
+        the member has enabled or not
+
+        **kwargs look like `manage_messages=True`
+    """
+
+    # First check if the member has any of the modderator roles
+    execute = False
+    for role in ctx.author.roles:
+        if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
+            execute = True
+            break
+    if not execute and kwargs:
+        # If he doesn't, check if he has enough permissions
+        # to execute this command (this is for other servers)
+        empty_perms = []
+        perms = ctx.author.permissions_in(ctx.channel)
+        for perm in perms:
+            if perm[0] in kwargs and perm[1] == kwargs[perm[0]]:
+                empty_perms.append(True)
+
+        if len(empty_perms) == len(kwargs):
+            execute = True
+
+    return execute
 
 
 @client.command(name="timer", brief="Set a timer")
@@ -234,10 +271,7 @@ async def waiting_list(ctx: commands.Context, user_id: int) -> None:
     """
     global members_in_waiting_room
 
-    execute = False
-    for role in ctx.author.roles:
-        if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
-            execute = True
+    execute = can_execute(ctx)
 
     if execute:
         member: discord.Member = ctx.guild.get_member(user_id)
@@ -322,16 +356,15 @@ async def say(ctx: commands.Context, *, text: str) -> None:
 
     :param text: The text to be converted to emojis
     """
-    execute = False
-    if ctx.guild.id == PANEPISTHMIO_ID:  # Panephstimio ID
-        for role in ctx.author.roles:
-            if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
-                execute = True
-        if ctx.channel.id == 766177228198903808:  # spam-chat ID
-            execute = True
-    else:
-        execute = True
 
+    execute = True
+    if ctx.guild.id == PANEPISTHMIO_ID:  # Panephstimio ID
+        if ctx.channel.id == GENERAL_ID:
+            execute = False
+        else:
+            execute = can_execute(ctx)
+
+    
     if execute:
         output = ""
         for char in text:
@@ -348,7 +381,7 @@ async def say(ctx: commands.Context, *, text: str) -> None:
         else:
             await ctx.send(f"{ctx.author.mention} There was a runtime error")
     else:
-        await ctx.send(f"{ctx.author.mention} You can't use this command in <#760047749482807330>")
+        await ctx.send(f"{ctx.author.mention} You can't use this command in <#{GENERAL_ID}>")
 
 
 @client.command(brief="Delete messages", aliases=["del"])
@@ -374,10 +407,8 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message=No
         await ctx.send(f"{ctx.author.mention}. Can't purge more than 10 messages")
         return
 
-    execute = False
-    for role in ctx.author.roles:
-        if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
-            execute = True
+    # Check if the member can execute this command
+    execute = can_execute(ctx)
 
     if execute:
         if not message:
@@ -420,10 +451,7 @@ async def remove_reactions(ctx: commands.Context, amount: int, message: discord.
         return
 
     # Check if the member can execute this command
-    execute = False
-    for role in ctx.author.roles:
-        if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
-            execute = True
+    execute = can_execute(ctx)
 
     if execute:
         if message:
@@ -452,10 +480,7 @@ async def slow(ctx: commands.Context, time: str) -> None:
     """
 
     # Check if the member can execute this command
-    execute = False
-    for role in ctx.author.roles:
-        if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
-            execute = True
+    execute = can_execute(ctx)
 
     if execute:
         slowed, time_type = time[0:len(time)-1], time[-1]
@@ -507,10 +532,7 @@ async def filip(ctx: commands.Context, person: discord.Member) -> None:
     """
 
     # Check if the member can execute this command
-    execute = False
-    for role in ctx.author.roles:
-        if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
-            execute = True
+    execute = can_execute(ctx)
 
     if execute:
         filip_role = ctx.guild.get_role(FILIP_ROLE_ID)
@@ -560,10 +582,7 @@ async def slowmode_f(ctx: commands.Context) -> None:
 
     # Check if the member can use this command
     # (Only moderators+ can use this command)
-    execute = False
-    for role in ctx.author.roles:
-        if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
-            execute = True
+    execute = can_execute(ctx, manage_channels=True)
 
     if execute:
         # Change the slow mode delay of the channel to 6000 seconds
@@ -580,7 +599,7 @@ async def mute_timer(ctx: commands.Context, member: discord.Member, minutes: flo
     :param member: The member to add the `mute` role to
     :param minutes: The amount of minutes to mute the member for
     """
-    counter = minutes*60
+    counter = minutes * 60
     while counter > 0:
         muted = False
         for role in member.roles:
@@ -618,19 +637,25 @@ async def unmute(ctx: commands.Context, member: discord.Member) -> None:
         If the member doesn't have the role an exception is thrown and
         an error message is sent to the channel.
     """
-    try:
-        # Remove muted role
-        muted_role = ctx.guild.get_role(MUTED_ROLE_ID)
-        await member.remove_roles(muted_role)
 
-        # Add synaelfos role again
-        synadelfos_role = ctx.guild.get_role(SYNADELFOS_ROLE_ID)
-        await member.add_roles(synadelfos_role)
-    except Exception as e:
-        print(e)
-        await ctx.send(f"{member.mention} is not muted")
-        return
-    await ctx.send(f"{ctx.author.mention} unmuted {member.mention}")
+    execute = can_execute(ctx, mute_members=True)
+
+    if execute:
+        try:
+            # Remove muted role
+            muted_role = ctx.guild.get_role(MUTED_ROLE_ID)
+            await member.remove_roles(muted_role)
+
+            # Add synaelfos role again
+            synadelfos_role = ctx.guild.get_role(SYNADELFOS_ROLE_ID)
+            await member.add_roles(synadelfos_role)
+        except Exception as e:
+            print(e)
+            await ctx.send(f"{member.mention} is not muted")
+            return
+        await ctx.send(f"{ctx.author.mention} unmuted {member.mention}")
+    else:
+        await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action.")
 
 
 @client.command(name="mute", brief="Mute a member", description="Mute a member for the specified amount of minutes")
@@ -648,11 +673,7 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float) ->
         return
     
     # Check if the author can mute someone else
-    execute = True
-    for role in ctx.author.roles:
-        if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
-            execute = True
-            break
+    execute = can_execute(ctx, mute_members=True)
     
     if execute:
         # 1) Add role named "Muted" to member
