@@ -163,7 +163,7 @@ async def urban_dict(ctx: commands.Context, *, text: str) -> None:
 
     word = query[0]
 
-    await ctx.send(f"{ctx.author.mention} Word:\n```{word['word']} ```\nDefinition:\n```{word['def']} ```\nExample:\n```{word['example']} ```")
+    await ctx.send(f"{ctx.author.mention} ```Word:\n{word['word']}\nDefinition:\n{word['def']}\nExample:\n{word['example']}```")
 
 
 @client.command(name="timer", brief="Set a timer")
