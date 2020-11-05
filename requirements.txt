@@ -10,3 +10,4 @@ yarl==1.6.0
 requests==2.23.0
 beautifulsoup4==4.9.1
 textblob==0.15.3
+jishaku==1.19.2.202
