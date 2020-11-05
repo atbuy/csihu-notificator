@@ -160,6 +160,18 @@
             "brief": "Courses Link",
             "aliases": [],
             "parameters": []
+        },
+        "urbandict": {
+            "brief": "Search UrbanDictionary",
+            "aliases": [
+                "ud",
+                "ub",
+                "urb",
+                "urban"
+            ],
+            "parameters": [
+                "<text>"
+            ]
         }
     },
     "prefix": "."

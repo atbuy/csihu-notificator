@@ -145,7 +145,7 @@ def can_execute(ctx: commands.Context, **kwargs) -> bool:
 
 
 
-@client.command(name="urbandict", aliases=["ud", "urban", "urb"])
+@client.command(name="urbandict", brief="Search UrbanDictionary", aliases=["ud", "ub", "urb", "urban"])
 async def urbandict(ctx: commands.Context, *, text: str) -> None:
     """
     Search UrbanDictionary for the definition of `text`
@@ -156,15 +156,15 @@ async def urbandict(ctx: commands.Context, *, text: str) -> None:
     # Search for the word
     try:
         query = urbandict.define(text)
-    except Exception:
-        await ctx.send(f"{ctx.author.mention}. Couldn't find definition for `text`")
+    except Exception as e:
+        print(e)
+        # In case the word is not found
+        await ctx.send(f"{ctx.author.mention}. Couldn't find definition for `{text}`")
         return
-        
+
     word = query[0]
 
-    await ctx.send(f"{ctx.author.mention} Word:\n```{word['word']} ```\nDefinition:\n```{word['def']} ```\nExample: ```{word['example']}")
-    
-
+    await ctx.send(f"{ctx.author.mention} Word:\n```{word['word']} ```\nDefinition:\n```{word['def']} ```\nExample:\n```{word['example']} ```")
 
 
 @client.command(name="timer", brief="Set a timer")
