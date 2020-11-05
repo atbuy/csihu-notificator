@@ -42,6 +42,7 @@ OWNER_ID = 760085688133222420
 WAITING_ROOM_ID = 763090286372585522
 BOT_ID = 760473932439879700
 GENERAL_ID = 760047749482807330
+SYNADELFOS_ROLE_ID = 773654278631850065
 FILIP_ROLE_ID = 770328364913131621
 PANEPISTHMIO_ID = 760047749482807327
 MUTED_ROLE_ID = 773396782129348610
@@ -408,7 +409,7 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message=No
         return
 
     # Check if the member can execute this command
-    execute = can_execute(ctx)
+    execute = can_execute(ctx, manage_messages=True)
 
     if execute:
         if not message:
@@ -909,7 +910,7 @@ async def on_message(msg: discord.Message) -> None:
                         await msg.channel.send(f"{msg.author.mention}\n{output}")
                     else:
                         await msg.channel.send(f"{msg.author.mention}```python\n{output} ```")
-            except Exception as e:
+            except Exception:
                 # If there was an error with the code,
                 # send the full traceback
                 await msg.add_reaction(X_EMOJI)
