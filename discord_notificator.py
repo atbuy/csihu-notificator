@@ -316,7 +316,7 @@ async def run_bot(ctx: commands.Context) -> None:
                 info["last_id"] = last_id
                 info["last_message"] = final_text_msg
                 info["last_link"] = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id}"
-                with open("info.txt", "w", encoding="utf8") as file:
+                with open("info.json", "w", encoding="utf8") as file:
                     json.dump(info, file, indent=4)
 
                 try:
@@ -346,7 +346,7 @@ async def waiting_list(ctx: commands.Context, user_id: int) -> None:
         if not member.id in members_in_waiting_room:
             members_in_waiting_room.append(member.id)
             info["waiting_room"] = members_in_waiting_room
-            with open("info.txt", "w", encoding="utf8") as file:
+            with open("info.json", "w", encoding="utf8") as file:
                 json.dump(info, file, indent=4)
             await member.add_roles(waiting_room_role)
             await ctx.send(f"{member.mention} has been moved to the waiting room")
@@ -354,7 +354,7 @@ async def waiting_list(ctx: commands.Context, user_id: int) -> None:
             member_index = members_in_waiting_room.index(member.id)
             members_in_waiting_room.pop(member_index)
             info["waiting_room"] = members_in_waiting_room
-            with open("info.txt", "w", encoding="utf8") as file:
+            with open("info.json", "w", encoding="utf8") as file:
                 json.dump(info, file, indent=4)
             await member.remove_roles(waiting_room_role)
             await ctx.send(f"{member.mention} has be removed from the waiting room")
