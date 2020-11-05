@@ -146,7 +146,7 @@ def can_execute(ctx: commands.Context, **kwargs) -> bool:
 
 
 @client.command(name="urbandict", brief="Search UrbanDictionary", aliases=["ud", "ub", "urb", "urban"])
-async def urbandict(ctx: commands.Context, *, text: str) -> None:
+async def urban_dict(ctx: commands.Context, *, text: str) -> None:
     """
     Search UrbanDictionary for the definition of `text`
 
@@ -157,7 +157,6 @@ async def urbandict(ctx: commands.Context, *, text: str) -> None:
     try:
         query = urbandict.define(text)
     except Exception as e:
-        print(e)
         # In case the word is not found
         await ctx.send(f"{ctx.author.mention}. Couldn't find definition for `{text}`")
         return
