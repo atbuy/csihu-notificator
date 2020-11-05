@@ -18,7 +18,7 @@ class Helpers:
     This class contains all the functions used inside commands and event listeners
     """
 
-    async def execute_python_script(msg: discord.Message, script: str, safe: bool=False) -> None:
+    async def execute_python_script(self, msg: discord.Message, script: str, safe: bool=False) -> None:
         """
         Execute a python script. The values printed will only be from `return` or `yield`
 
@@ -61,7 +61,7 @@ class Helpers:
                 await msg.channel.send(f"{msg.author.mention} Error:\n```python\n{trace} ```")
 
 
-    async def remove_unallowed_files(msg: discord.Message) -> None:
+    async def remove_unallowed_files(self, msg: discord.Message) -> None:
         """
         Delete any files that don't have an allowed extension
 
@@ -77,7 +77,7 @@ class Helpers:
                     await msg.channel.send(f"{msg.author.mention} you are not to upload `.{extension}` files\nUse `{client.command_prefix}allowedfiles` to view all the allowed file types.")
 
 
-    def can_execute(ctx: commands.Context, **kwargs) -> bool:
+    def can_execute(self, ctx: commands.Context, **kwargs) -> bool:
         """
         Checks if the member that executed the command
         is allowed to execute it
@@ -112,7 +112,7 @@ class Helpers:
 
         return execute
 
-    def valid_message(msg: discord.Message) -> bool:
+    def valid_message(self, msg: discord.Message) -> bool:
         """
         Filter the message sent and return True if it should be allowed
         or False if it should be deleted
