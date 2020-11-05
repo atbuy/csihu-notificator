@@ -95,7 +95,7 @@ async def timer(ctx: commands.Context, value: str) -> None:
 
     :return: None
     """
-    
+
     time_type = {"s": "seconds", "m": "minutes", "h": "hours"}
 
     # The multiplier is set to 1 because the time would be in seconds
@@ -424,22 +424,28 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message=No
     execute = can_execute(ctx, manage_messages=True)
 
     if execute:
+        # If the starting message is not specified, purge the last `amount` messages
         if not message:
             number += 1
             await ctx.channel.purge(limit=number)
+        # If the starting message is specified, delete the specified message
+        # delete `amount` message before it, delete the `delete` command message
         elif not member:
             await ctx.channel.purge(limit=number, before=message.created_at)
             await message.delete()
             await ctx.message.delete()
             print(f"{ctx.author} did {client.command_prefix}delete {number} {message.id}")
+        # If message and member are given, then retrieve `amount` messages
+        # and delete the messages sent from `member`
         elif message and member:
             await ctx.channel.purge(limit=number, before=message.created_at, check=check)
             await message.delete()
             await ctx.message.delete()
+
+            # Just for logs
             print(f"{ctx.author} did {client.command_prefix}delete {number} {message.id} {member}")
     else:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to use {client.command_prefix}delete")
-        return
 
 
 @client.command(name="rr", brief="Remove reactions from messages")
@@ -838,10 +844,11 @@ async def on_message(msg: discord.Message) -> None:
     attachments = msg.attachments
     if attachments:
         for attach in attachments:
-            extention = attach.filename.split(".")[-1].lower()
-            if extention not in allowed_files:
+            # Get the extension of the file and check if it is allowed
+            extension = attach.filename.split(".")[-1].lower()
+            if extension not in allowed_files:
                 await msg.delete()
-                await msg.channel.send(f"{msg.author.mention} you are not allowed to upload `.{extention}` files\nUse `{client.command_prefix}allowedfiles` to view all allowed file types.")
+                await msg.channel.send(f"{msg.author.mention} you are not allowed to upload `.{extension}` files\nUse `{client.command_prefix}allowedfiles` to view all allowed file types.")
                 return
 
     # If the message is not in the spam-chat, check if it should be allowed
