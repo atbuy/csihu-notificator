@@ -95,28 +95,32 @@ async def timer(ctx: commands.Context, value: str) -> None:
 
     :return: None
     """
+    
+    time_type = {"s": "seconds", "m": "minutes", "h": "hours"}
+
+    # The multiplier is set to 1 because the time would be in seconds
     mult = 1
-    time_type = "seconds"
     if value.endswith("s"):
         mult = 1
-        time_type = "seconds"
     elif value.endswith("m"):
+        # Multiply minutes by 60 to get seconds
         mult = 60
-        time_type = "minutes"
     elif value.endswith("h"):
+        # Multiply hours by 360 to get seconds
         mult = 60*60
-        time_type = "hours"
     try:
         timed = int(value[:len(value)-1])
     except ValueError:
         await ctx.send("Invalid time input")
         return
+    
+    # Sleep for the amount of time specified
     await asyncio.sleep(timed*mult)
 
-    embed = discord.Embed(title="Timer", description="Mention the author after a specified time", color=0xff0000)
-    embed.add_field(name=f"{ctx.author}", value="Time is up!", inline=True)
+    # Create the embed to send to the channel and tag the member that caled the command
+    embed = discord.Embed(title="Timer", description="Mention the author after the specified time", color=0xff0000)
+    embed.add_field(name=f"{ctx.author}", value=f"Time is up! You set a timer for {timed} {time_type[values[-1]]}", inline=True)
     await ctx.send(f"{ctx.author.mention}", embed=embed)
-    # f"{ctx.author.mention} you set a timer for {time} {time_type}"
 
 
 @client.command(brief="Show latest announcement")
@@ -137,26 +141,27 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
 
     :return: None
     """
+
+    # GET the announcements webpage of csihu
     req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}")
     soup = BeautifulSoup(req.text, "html.parser")
+    # Get all the paragraph tags
     paragraphs = soup.find_all("p")
-
 
     if len(paragraphs) == 1:
         for item in paragraphs:
-            final_text = item.get_text().replace("\n", "")
+            final_text = item.get_text()
     else:
         try:
             paragraphs.pop(0)
         except IndexError:
             pass
+        
         final_text = ""
         for index, item in enumerate(paragraphs):
-            if index == len(paragraphs):
-                final_text += item.get_text().replace("\n", "")
-            else:
-                final_text += item.get_text()
+            final_text += item.get_text()
 
+    # Some text formatting
     if final_text.replace("\n", "") != "":
         if final_text.strip().replace("""Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas""", "") != "":
             found = True
@@ -165,8 +170,10 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
     else:
         found = False
 
+    # If the announcement is found, update `last_link`, `last_announcement` and `last_id`
     if found:
         link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}"
+        # Remove PHP function and copyright notice in text
         final_text_msg = final_text.replace("""$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31",toolbarVisible:false,readOnly:true});});""", "").strip().replace("""Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas""", "").strip().replace("""Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas""", "")
         try:
             await ctx.send(f"Announcement found.\nLink: <{link}>\n```{final_text_msg} ```")
@@ -345,8 +352,10 @@ async def react(ctx: commands.Context, msg: discord.Message, *, text: str) -> No
     """
     for char in text:
         if char.isalpha():
+            # The unicode value for each emoji characters
             await msg.add_reaction(f"{characters[char.lower()]}")
         elif char.isdigit():
+            # The emoji for digits is different from the characters
             await msg.add_reaction(f"{char}" + "\N{variation selector-16}\N{combining enclosing keycap}")
 
 
@@ -360,6 +369,7 @@ async def say(ctx: commands.Context, *, text: str) -> None:
 
     execute = True
     if ctx.guild.id == PANEPISTHMIO_ID:  # Panephstimio ID
+        # This command is not allowed in the general chat
         if ctx.channel.id == GENERAL_ID:
             execute = False
         else:
@@ -370,8 +380,10 @@ async def say(ctx: commands.Context, *, text: str) -> None:
         output = ""
         for char in text:
             if char.isalpha():
+                # The emoji for characters
                 output += f":regional_indicator_{char.lower()}: "
             elif char.isdigit():
+                # The emoji for digits is different
                 output += str(char) + "\N{variation selector-16}\N{combining enclosing keycap} "
             elif char == "?":
                 output += "\U00002753 "
