@@ -50,6 +50,49 @@ TICK_EMOJI = "\U00002705"
 X_EMOJI = "\U0000274c"
 
 
+async def execute_python_script(msg: discord.Message, script: str, safe: bool=False) -> None:
+    """
+    Execute a python script. The values printed will only be from `return` or `yield`
+
+    :param msg: The message object to use, to reply to the author
+    :param script: The script to execute
+    :param safe: Determines whether the output should be formatted in triple quotes (```) or not
+
+    .. note::
+        The script is run with read/write permissions.
+    """
+
+    # Try to execute the script.
+    # If the script is not completed before the timeout
+    # then the execution stops and an error message is sent to the channel
+    async with msg.channel.typing():
+        output = ""
+        timeout = 10
+        start_time = time.time()
+        try:
+            async for x in AsyncCodeExecutor(script):
+                if time.time() - start_time < timeout:
+                    output += str(x)
+                else:
+                    await msg.add_reaction(X_EMOJI)
+                    await msg.channel.send("Error: Process timed out.")
+                    break
+            else:
+                # This clause is executed only if there wasn't a timeout error
+                await msg.add_reaction(TICK_EMOJI)
+
+                if safe:
+                    await msg.channel.send(f"{msg.author.mention}\n{output}")
+                else:
+                    await msg.channel.send(f"{msg.author.mention}```python\n{output} ```")
+        except Exception:
+            # If there was an error with the code,
+            # send the full traceback
+            await msg.add_reaction(X_EMOJI)
+            trace = traceback.format_exc()
+            await msg.channel.send(f"{msg.author.mention} Error:\n```python\n{trace} ```")
+
+
 async def remove_unallowed_files(msg: discord.Message) -> None:
     """
     Delete any files that don't have an allowed extension
@@ -59,6 +102,7 @@ async def remove_unallowed_files(msg: discord.Message) -> None:
     attachments = msg.attachments
     if attachments:
         for attach in attachments:
+            # Get the text after the last dot (.)
             extension = attach.filename.split(".")[-1].lower()
             if not (extension in allowed_files):
                 await msg.delete()
@@ -99,6 +143,8 @@ def can_execute(ctx: commands.Context, **kwargs) -> bool:
             execute = True
 
     return execute
+
+
 
 
 @client.command(name="timer", brief="Set a timer")
@@ -868,11 +914,8 @@ async def on_message(msg: discord.Message) -> None:
     # Python eval command
     if check_msg.startswith(f"{client.command_prefix}e"):
         # Eval is not allowed in general, except moderators that can execute it
-        if msg.channel.id == 760047749482807330:  # general ID
-            allowed_in_general = False
-            for role in msg.author.roles:
-                if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
-                    allowed_in_general = True
+        if msg.channel.id == GENERAL_ID:
+            allowed_in_general = can_execute(ctx)
             if not allowed_in_general:
                 await msg.channel.send(f"Not allowed to use **{client.command_prefix}e** in {msg.channel.mention}")
                 return
@@ -912,36 +955,8 @@ async def on_message(msg: discord.Message) -> None:
         elif "open(" in script or "open (" in script:
             await msg.channel.send("You are not allowed to use `open()`")
             return
-
-        # Try to execute the script.
-        # If the script is not completed before the timeout
-        # then the execution stops and an error message is returned
-        async with msg.channel.typing():
-            output = ""
-            timeout = 10
-            start_time = time.time()
-            try:
-                async for x in AsyncCodeExecutor(script):
-                    if time.time() - start_time < timeout:
-                        output += str(x)
-                    else:
-                        await msg.add_reaction(X_EMOJI)
-                        await msg.channel.send("Error: Process timed out.")
-                        break
-                else:
-                    # This clause is executed only if there wasn't a timeout error
-                    await msg.add_reaction(TICK_EMOJI)
-
-                    if safe_output:
-                        await msg.channel.send(f"{msg.author.mention}\n{output}")
-                    else:
-                        await msg.channel.send(f"{msg.author.mention}```python\n{output} ```")
-            except Exception:
-                # If there was an error with the code,
-                # send the full traceback
-                await msg.add_reaction(X_EMOJI)
-                trace = traceback.format_exc()
-                await msg.channel.send(f"{msg.author.mention} Error:\n```python\n{trace} ```")
+        else:
+            await execute_python_script(msg, script, safe_output)
         
         return
 
