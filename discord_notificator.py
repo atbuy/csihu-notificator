@@ -909,6 +909,10 @@ async def on_message(msg: discord.Message) -> None:
             await msg.delete()
 
 
+    #! REMOVED IN PRODUCTION
+    #! This might be deleted without a readonly mode
+    #? Consider including snekbox
+    """
     # Python eval command
     if check_msg.startswith(f"{client.command_prefix}e"):
         # Eval is not allowed in general, except moderators that can execute it
@@ -957,7 +961,7 @@ async def on_message(msg: discord.Message) -> None:
             await execute_python_script(msg, script, safe_output)
         
         return
-
+    """
     # Check if the message was supposed to be a command
     await client.process_commands(msg)
 
