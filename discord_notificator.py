@@ -239,7 +239,7 @@ async def timer(ctx: commands.Context, value: str) -> None:
 
     # Create the embed to send to the channel and tag the member that caled the command
     embed = discord.Embed(title="Timer", description="Mention the author after the specified time", color=0xff0000)
-    embed.add_field(name=f"{ctx.author}", value=f"Time is up! You set a timer for {timed} {time_type[values[-1]]}", inline=True)
+    embed.add_field(name=f"{ctx.author}", value=f"Time is up! You set a timer for {timed} {time_type[value[-1]]}", inline=True)
     await ctx.send(f"{ctx.author.mention}", embed=embed)
 
 
