@@ -154,7 +154,12 @@ async def urbandict(ctx: commands.Context, *, text: str) -> None:
     """
     
     # Search for the word
-    query = urbandict.define(text)
+    try:
+        query = urbandict.define(text)
+    except Exception:
+        await ctx.send(f"{ctx.author.mention}. Couldn't find definition for `text`")
+        return
+        
     word = query[0]
 
     await ctx.send(f"{ctx.author.mention} Word:\n```{word['word']} ```\nDefinition:\n```{word['def']} ```\nExample: ```{word['example']}")
