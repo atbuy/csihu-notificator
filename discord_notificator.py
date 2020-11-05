@@ -112,6 +112,7 @@ class Helpers:
 
         return execute
 
+
     def valid_message(self, msg: discord.Message) -> bool:
         """
         Filter the message sent and return True if it should be allowed
@@ -403,7 +404,7 @@ async def waiting_list(ctx: commands.Context, member: discord.Member) -> None:
 
     if execute:
         waiting_room_role = ctx.guild.get_role(WAITING_ROOM_ID)
-        for roles in member.roles:
+        for role in member.roles:
             if role.id == WAITING_ROOM_ID:
                 await member.remove_roles(waiting_room_role)
                 await ctx.send(f"{member.mention} has be removed from the waiting room")
