@@ -7,8 +7,6 @@ import discord
 import requests
 import textblob
 import traceback
-import threading
-import subprocess
 from bs4 import BeautifulSoup
 from discord.ext import commands
 from jishaku.repl.compilation import AsyncCodeExecutor
