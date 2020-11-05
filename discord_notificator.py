@@ -145,6 +145,7 @@ def can_execute(ctx: commands.Context, **kwargs) -> bool:
 
 
 
+
 @client.command(name="urbandict", brief="Search UrbanDictionary", aliases=["ud", "ub", "urb", "urban"])
 async def urban_dict(ctx: commands.Context, *, text: str) -> None:
     """
@@ -163,7 +164,7 @@ async def urban_dict(ctx: commands.Context, *, text: str) -> None:
 
     word = query[0]
 
-    await ctx.send(f"{ctx.author.mention} ```Word:\n{word['word']}\nDefinition:\n{word['def']}\nExample:\n{word['example']}```")
+    await ctx.send(f"{ctx.author.mention} **Word:** `{word['word']}`\n**Definition:** `{word['def']}`\n**Example:** `{word['example']}`")
 
 
 @client.command(name="timer", brief="Set a timer")
