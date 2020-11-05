@@ -112,6 +112,39 @@ class Helpers:
 
         return execute
 
+    def valid_message(msg: discord.Message) -> bool:
+        """
+        Filter the message sent and return True if it should be allowed
+        or False if it should be deleted
+
+        :param msg: The message to filter
+        :return: bool if the message should be allowed or not
+        """
+
+        # Check if there are any special characters in the message and remove them
+        characters = list(filter(lambda x: x in msg, special_characters))
+        if characters:
+            for char in characters:
+                msg = msg.replace(char, "")
+
+        # If the message is less than 3 characters it's allowed
+        if len(msg) < 3: return True
+        # If the message only contains special characters it's allowed
+        if not msg: return True
+
+        # Check all the characters are the same character
+        # If they are the same character return False
+        prev = msg[0]
+        for char in msg[1:]:
+            if not (char == prev):
+                return True
+
+        # If the message is only numbers it's allowed
+        if msg.isdigit():
+            return True
+        else:
+            return False
+
 
 with open("info.json") as file:
     info = json.load(file)
@@ -148,11 +181,6 @@ PANEPISTHMIO_ID = 760047749482807327
 MUTED_ROLE_ID = 773396782129348610
 TICK_EMOJI = "\U00002705"
 X_EMOJI = "\U0000274c"
-
-
-
-
-
 
 
 
@@ -873,39 +901,6 @@ last_id = info["last_id"]
 last_message = info["last_message"]
 
 
-def valid_message(msg: discord.Message) -> bool:
-    """
-    Filter the message sent and return True if it should be allowed
-    or False if it should be deleted
-
-    :param msg: The message to filter
-    :return: bool if the message should be allowed or not
-    """
-
-    # Check if there are any special characters in the message and remove them
-    characters = list(filter(lambda x: x in msg, special_characters))
-    if characters:
-        for char in characters:
-            msg = msg.replace(char, "")
-
-    # If the message is less than 3 characters it's allowed
-    if len(msg) < 3: return True
-    # If the message only contains special characters it's allowed
-    if not msg: return True
-
-    # Check all the characters are the same character
-    # If they are the same character return False
-    prev = msg[0]
-    for char in msg[1:]:
-        if not (char == prev):
-            return True
-
-    # If the message is only numbers it's allowed
-    if msg.isdigit():
-        return True
-    else:
-        return False
-
 
 @client.event
 async def on_message(msg: discord.Message) -> None:
@@ -927,7 +922,7 @@ async def on_message(msg: discord.Message) -> None:
 
     # If the message is not in the spam-chat, check if it should be allowed
     if not msg.channel.id == 766177228198903808:  # spam-chat ID
-        if not valid_message(check_msg):
+        if not client.helpers.valid_message(check_msg):
             await asyncio.sleep(0.5)
             await msg.delete()
 
