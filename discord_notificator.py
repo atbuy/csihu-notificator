@@ -13,6 +13,106 @@ from discord.ext import commands
 from jishaku.repl.compilation import AsyncCodeExecutor
 
 
+class Helpers:
+    """
+    This class contains all the functions used inside commands and event listeners
+    """
+
+    async def execute_python_script(msg: discord.Message, script: str, safe: bool=False) -> None:
+        """
+        Execute a python script. The values printed will only be from `return` or `yield`
+
+        :param msg: The message object to use, to reply to the author
+        :param script: The script to execute
+        :param safe: Determines whether the output should be formatted in triple quotes (```) or not
+
+        .. note::
+            The script is run with read/write permissions.
+        """
+
+        # Try to execute the script.
+        # If the script is not completed before the timeout
+        # then the execution stops and an error message is sent to the channel
+        async with msg.channel.typing():
+            output = ""
+            timeout = 10
+            start_time = time.time()
+            try:
+                async for x in AsyncCodeExecutor(script):
+                    if time.time() - start_time < timeout:
+                        output += str(x)
+                    else:
+                        await msg.add_reaction(X_EMOJI)
+                        await msg.channel.send("Error: Process timed out.")
+                        break
+                else:
+                    # This clause is executed only if there wasn't a timeout error
+                    await msg.add_reaction(TICK_EMOJI)
+
+                    if safe:
+                        await msg.channel.send(f"{msg.author.mention}\n{output}")
+                    else:
+                        await msg.channel.send(f"{msg.author.mention}```python\n{output} ```")
+            except Exception:
+                # If there was an error with the code,
+                # send the full traceback
+                await msg.add_reaction(X_EMOJI)
+                trace = traceback.format_exc()
+                await msg.channel.send(f"{msg.author.mention} Error:\n```python\n{trace} ```")
+
+
+    async def remove_unallowed_files(msg: discord.Message) -> None:
+        """
+        Delete any files that don't have an allowed extension
+
+        :param msg: The message to check the attachements of
+        """
+        attachments = msg.attachments
+        if attachments:
+            for attach in attachments:
+                # Get the text after the last dot (.)
+                extension = attach.filename.split(".")[-1].lower()
+                if not (extension in allowed_files):
+                    await msg.delete()
+                    await msg.channel.send(f"{msg.author.mention} you are not to upload `.{extension}` files\nUse `{client.command_prefix}allowedfiles` to view all the allowed file types.")
+
+
+    def can_execute(ctx: commands.Context, **kwargs) -> bool:
+        """
+        Checks if the member that executed the command
+        is allowed to execute it
+
+        :param kwargs: check if a member should have a permission or not
+        :return: True if the member is allowed to execute it, False if not
+
+        .. note::
+            The keyword arguments are for checking which permissions
+            the member has enabled or not
+
+            **kwargs look like `manage_messages=True`
+        """
+
+        # First check if the member has any of the modderator roles
+        execute = False
+        for role in ctx.author.roles:
+            if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
+                execute = True
+                break
+        if not execute and kwargs:
+            # If he doesn't, check if he has enough permissions
+            # to execute this command (this is for other servers)
+            empty_perms = []
+            perms = ctx.author.permissions_in(ctx.channel)
+            for perm in perms:
+                if perm[0] in kwargs and perm[1] == kwargs[perm[0]]:
+                    empty_perms.append(True)
+
+            if len(empty_perms) == len(kwargs):
+                execute = True
+
+        return execute
+
+
 with open("info.json") as file:
     info = json.load(file)
 
@@ -31,6 +131,7 @@ intents = discord.Intents.all()
 client = commands.Bot(command_prefix=".", intents=intents, help_command=None)
 client.latest_announcement = {"text": last_message, "link": last_link}
 client.is_running = False
+client.helpers = Helpers()
 with open("commands.json") as file:
     client.commands_dict = json.load(file)
 
@@ -49,99 +150,8 @@ TICK_EMOJI = "\U00002705"
 X_EMOJI = "\U0000274c"
 
 
-async def execute_python_script(msg: discord.Message, script: str, safe: bool=False) -> None:
-    """
-    Execute a python script. The values printed will only be from `return` or `yield`
-
-    :param msg: The message object to use, to reply to the author
-    :param script: The script to execute
-    :param safe: Determines whether the output should be formatted in triple quotes (```) or not
-
-    .. note::
-        The script is run with read/write permissions.
-    """
-
-    # Try to execute the script.
-    # If the script is not completed before the timeout
-    # then the execution stops and an error message is sent to the channel
-    async with msg.channel.typing():
-        output = ""
-        timeout = 10
-        start_time = time.time()
-        try:
-            async for x in AsyncCodeExecutor(script):
-                if time.time() - start_time < timeout:
-                    output += str(x)
-                else:
-                    await msg.add_reaction(X_EMOJI)
-                    await msg.channel.send("Error: Process timed out.")
-                    break
-            else:
-                # This clause is executed only if there wasn't a timeout error
-                await msg.add_reaction(TICK_EMOJI)
-
-                if safe:
-                    await msg.channel.send(f"{msg.author.mention}\n{output}")
-                else:
-                    await msg.channel.send(f"{msg.author.mention}```python\n{output} ```")
-        except Exception:
-            # If there was an error with the code,
-            # send the full traceback
-            await msg.add_reaction(X_EMOJI)
-            trace = traceback.format_exc()
-            await msg.channel.send(f"{msg.author.mention} Error:\n```python\n{trace} ```")
 
 
-async def remove_unallowed_files(msg: discord.Message) -> None:
-    """
-    Delete any files that don't have an allowed extension
-
-    :param msg: The message to check the attachements of
-    """
-    attachments = msg.attachments
-    if attachments:
-        for attach in attachments:
-            # Get the text after the last dot (.)
-            extension = attach.filename.split(".")[-1].lower()
-            if not (extension in allowed_files):
-                await msg.delete()
-                await msg.channel.send(f"{msg.author.mention} you are not to upload `.{extension}` files\nUse `{client.command_prefix}allowedfiles` to view all the allowed file types.")
-
-
-def can_execute(ctx: commands.Context, **kwargs) -> bool:
-    """
-    Checks if the member that executed the command
-    is allowed to execute it
-
-    :param kwargs: check if a member should have a permission or not
-    :return: True if the member is allowed to execute it, False if not
-
-    .. note::
-        The keyword arguments are for checking which permissions
-        the member has enabled or not
-
-        **kwargs look like `manage_messages=True`
-    """
-
-    # First check if the member has any of the modderator roles
-    execute = False
-    for role in ctx.author.roles:
-        if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
-            execute = True
-            break
-    if not execute and kwargs:
-        # If he doesn't, check if he has enough permissions
-        # to execute this command (this is for other servers)
-        empty_perms = []
-        perms = ctx.author.permissions_in(ctx.channel)
-        for perm in perms:
-            if perm[0] in kwargs and perm[1] == kwargs[perm[0]]:
-                empty_perms.append(True)
-
-        if len(empty_perms) == len(kwargs):
-            execute = True
-
-    return execute
 
 
 
@@ -354,37 +364,25 @@ async def run_bot(ctx: commands.Context) -> None:
 
 
 @client.command(brief="Move/Remove someone to the waiting list", aliases=["waiting_room"])
-async def waiting_list(ctx: commands.Context, user_id: int) -> None:
+async def waiting_list(ctx: commands.Context, member: discord.Member) -> None:
     """
-    #! Fucked up
+    Check if a member has the role `waiting room reception`. If he has then remove it,
+    if he doesn't the add it
 
-    #! Should be deprecated.
-    #TODO Fix how this role is added or removed to members
-    #TODO no need to have a list of people, if a member has this role, remove it,
-    #TODO or the opposite.
+    :param member: The member to add/remove the role
     """
-    global members_in_waiting_room
-
-    execute = can_execute(ctx)
+    execute = client.helpers.can_execute(ctx, manage_roles=True)
 
     if execute:
-        member: discord.Member = ctx.guild.get_member(user_id)
         waiting_room_role = ctx.guild.get_role(WAITING_ROOM_ID)
-        if not member.id in members_in_waiting_room:
-            members_in_waiting_room.append(member.id)
-            info["waiting_room"] = members_in_waiting_room
-            with open("info.json", "w", encoding="utf8") as file:
-                json.dump(info, file, indent=4)
-            await member.add_roles(waiting_room_role)
-            await ctx.send(f"{member.mention} has been moved to the waiting room")
+        for roles in member.roles:
+            if role.id == WAITING_ROOM_ID:
+                await member.remove_roles(waiting_room_role)
+                await ctx.send(f"{member.mention} has be removed from the waiting room")
+                break
         else:
-            member_index = members_in_waiting_room.index(member.id)
-            members_in_waiting_room.pop(member_index)
-            info["waiting_room"] = members_in_waiting_room
-            with open("info.json", "w", encoding="utf8") as file:
-                json.dump(info, file, indent=4)
-            await member.remove_roles(waiting_room_role)
-            await ctx.send(f"{member.mention} has be removed from the waiting room")
+            await member.add_roles(waiting_room_role)
+            await ctx.send(f"{member.mention} has been moved to the waiting room")        
     else:
         await ctx.send(f"{ctx.author.mention}, you don't have enough permissions to perform this action")
 
@@ -457,7 +455,7 @@ async def say(ctx: commands.Context, *, text: str) -> None:
     if ctx.guild.id == PANEPISTHMIO_ID:  # Panephstimio ID
         # This command is not allowed in the general chat
         if ctx.channel.id == GENERAL_ID:
-            execute = can_execute(ctx)
+            execute = client.helpers.can_execute(ctx)
 
     
     if execute:
@@ -505,7 +503,7 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message=No
         return
 
     # Check if the member can execute this command
-    execute = can_execute(ctx, manage_messages=True)
+    execute = client.helpers.can_execute(ctx, manage_messages=True)
 
     if execute:
         # If the starting message is not specified, purge the last `amount` messages
@@ -554,7 +552,7 @@ async def remove_reactions(ctx: commands.Context, amount: int, message: discord.
         return
 
     # Check if the member can execute this command
-    execute = can_execute(ctx)
+    execute = client.helpers.can_execute(ctx)
 
     if execute:
         if message:
@@ -583,7 +581,7 @@ async def slow(ctx: commands.Context, time: str) -> None:
     """
 
     # Check if the member can execute this command
-    execute = can_execute(ctx)
+    execute = client.helpers.can_execute(ctx)
 
     if execute:
         slowed, time_type = time[0:len(time)-1], time[-1]
@@ -635,7 +633,7 @@ async def filip(ctx: commands.Context, person: discord.Member) -> None:
     """
 
     # Check if the member can execute this command
-    execute = can_execute(ctx)
+    execute = client.helpers.can_execute(ctx)
 
     if execute:
         filip_role = ctx.guild.get_role(FILIP_ROLE_ID)
@@ -685,7 +683,7 @@ async def slowmode_f(ctx: commands.Context) -> None:
 
     # Check if the member can use this command
     # (Only moderators+ can use this command)
-    execute = can_execute(ctx, manage_channels=True)
+    execute = client.helpers.can_execute(ctx, manage_channels=True)
 
     if execute:
         # Change the slow mode delay of the channel to 6000 seconds
@@ -741,7 +739,7 @@ async def unmute(ctx: commands.Context, member: discord.Member) -> None:
         an error message is sent to the channel.
     """
 
-    execute = can_execute(ctx, mute_members=True)
+    execute = client.helpers.can_execute(ctx, mute_members=True)
 
     if execute:
         try:
@@ -776,7 +774,7 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float) ->
         return
     
     # Check if the author can mute someone else
-    execute = can_execute(ctx, mute_members=True)
+    execute = client.helpers.can_execute(ctx, mute_members=True)
     
     if execute:
         # 1) Add role named "Muted" to member
@@ -925,7 +923,7 @@ async def on_message(msg: discord.Message) -> None:
 
     # If there are attachments to the message
     # check if the extension is allowed on the server
-    await remove_unallowed_files(msg)
+    await client.helpers.remove_unallowed_files(msg)
 
     # If the message is not in the spam-chat, check if it should be allowed
     if not msg.channel.id == 766177228198903808:  # spam-chat ID
@@ -942,7 +940,7 @@ async def on_message(msg: discord.Message) -> None:
     if check_msg.startswith(f"{client.command_prefix}e"):
         # Eval is not allowed in general, except moderators that can execute it
         if msg.channel.id == GENERAL_ID:
-            allowed_in_general = can_execute(ctx)
+            allowed_in_general = client.helpers.can_execute(ctx)
             if not allowed_in_general:
                 await msg.channel.send(f"Not allowed to use **{client.command_prefix}e** in {msg.channel.mention}")
                 return
