@@ -50,6 +50,21 @@ TICK_EMOJI = "\U00002705"
 X_EMOJI = "\U0000274c"
 
 
+async def remove_unallowed_files(msg: discord.Message) -> None:
+    """
+    Delete any files that don't have an allowed extension
+
+    :param msg: The message to check the attachements of
+    """
+    attachments = msg.attachments
+    if attachments:
+        for attach in attachments:
+            extension = attach.filename.split(".")[-1].lower()
+            if not (extension in allowed_files):
+                await msg.delete()
+                await msg.channel.send(f"{msg.author.mention} you are not to upload `.{extension}` files\nUse `{client.command_prefix}allowedfiles` to view all the allowed file types.")
+
+
 def can_execute(ctx: commands.Context, **kwargs) -> bool:
     """
     Checks if the member that executed the command
@@ -841,15 +856,7 @@ async def on_message(msg: discord.Message) -> None:
 
     # If there are attachments to the message
     # check if the extension is allowed on the server
-    attachments = msg.attachments
-    if attachments:
-        for attach in attachments:
-            # Get the extension of the file and check if it is allowed
-            extension = attach.filename.split(".")[-1].lower()
-            if extension not in allowed_files:
-                await msg.delete()
-                await msg.channel.send(f"{msg.author.mention} you are not allowed to upload `.{extension}` files\nUse `{client.command_prefix}allowedfiles` to view all allowed file types.")
-                return
+    await remove_unallowed_files(msg)
 
     # If the message is not in the spam-chat, check if it should be allowed
     if not msg.channel.id == 766177228198903808:  # spam-chat ID
