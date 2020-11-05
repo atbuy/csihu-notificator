@@ -272,6 +272,8 @@ async def run_bot(ctx: commands.Context) -> None:
     If there are it sends them to the channel the command was ran from.
     
     :return: None
+
+    #TODO Add comments
     """
     global last_id
     if ctx.author.id == MY_ID:
@@ -332,9 +334,12 @@ async def run_bot(ctx: commands.Context) -> None:
 @client.command(brief="Move/Remove someone to the waiting list", aliases=["waiting_room"])
 async def waiting_list(ctx: commands.Context, user_id: int) -> None:
     """
-    Fucked up
+    #! Fucked up
 
-    Should be deprecated.
+    #! Should be deprecated.
+    #TODO Fix how this role is added or removed to members
+    #TODO no need to have a list of people, if a member has this role, remove it,
+    #TODO or the opposite.
     """
     global members_in_waiting_room
 
