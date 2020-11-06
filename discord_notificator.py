@@ -229,7 +229,7 @@ async def urban_dict(ctx: commands.Context, *, text: str) -> None:
 
     ub_def = ""
     for word in query:
-        if len(longest_definition) < len(word["def"]):
+        if len(ub_def) < len(word["def"]):
             ub_def = word["def"]
 
     output = "**Word:** `{ub_def['word']}`\n**Definition:** `{ub_def['def']}`\n**Example:** `{ub_def['example']}`"
