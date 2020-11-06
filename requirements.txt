@@ -13,3 +13,5 @@ textblob==0.15.3
 jishaku==1.19.2.202
 urbandict==0.6.1
 googlesearch-python==2020.0.2
+requests==2.24.0
+urllib==1.25.9

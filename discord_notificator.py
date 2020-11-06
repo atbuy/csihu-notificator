@@ -326,7 +326,7 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
         # Remove PHP function and copyright notice in text
         for item in to_delete:
             final_text = final_text.replace(item, "").strip()
-            
+
         try:
             await ctx.send(f"Announcement found.\nLink: <{link}>\n```{final_text} ```")
         except discord.errors.HTTPException:
@@ -420,7 +420,7 @@ async def run_bot(ctx: commands.Context) -> None:
                     json.dump(info, file, indent=4)
 
                 try:
-                    await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text_msg} ```")
+                    await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text} ```")
                 except discord.errors.HTTPException:
                     await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
 
