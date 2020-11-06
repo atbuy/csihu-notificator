@@ -414,7 +414,7 @@ async def run_bot(ctx: commands.Context) -> None:
                 client.latest_announcement = {"text": final_text, "link": link}
 
                 info["last_id"] = last_id
-                info["last_message"] = final_text_msg
+                info["last_message"] = final_text
                 info["last_link"] = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id}"
                 with open("info.json", "w", encoding="utf8") as file:
                     json.dump(info, file, indent=4)
