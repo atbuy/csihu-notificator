@@ -18,7 +18,7 @@ class Helpers:
     This class contains all the functions used inside commands and event listeners
     """
 
-    async def execute_python_script(self, msg: discord.Message, script: str, safe: bool=False) -> None:
+    async def execute_python_script(self, msg: discord.Message, script: str, safe: bool = False) -> None:
         """
         Execute a python script. The values printed will only be from `return` or `yield`
 
@@ -60,7 +60,6 @@ class Helpers:
                 trace = traceback.format_exc()
                 await msg.channel.send(f"{msg.author.mention} Error:\n```python\n{trace} ```")
 
-
     async def remove_unallowed_files(self, msg: discord.Message) -> None:
         """
         Delete any files that don't have an allowed extension
@@ -75,7 +74,6 @@ class Helpers:
                 if not (extension in allowed_files):
                     await msg.delete()
                     await msg.channel.send(f"{msg.author.mention} you are not to upload `.{extension}` files\nUse `{client.command_prefix}allowedfiles` to view all the allowed file types.")
-
 
     def can_execute(self, ctx: commands.Context, **kwargs) -> bool:
         """
@@ -112,7 +110,6 @@ class Helpers:
 
         return execute
 
-
     def valid_message(self, msg: discord.Message) -> bool:
         """
         Filter the message sent and return True if it should be allowed
@@ -129,9 +126,11 @@ class Helpers:
                 msg = msg.replace(char, "")
 
         # If the message is less than 3 characters it's allowed
-        if len(msg) < 3: return True
+        if len(msg) < 3:
+            return True
         # If the message only contains special characters it's allowed
-        if not msg: return True
+        if not msg:
+            return True
 
         # Check all the characters are the same character
         # If they are the same character return False
@@ -184,7 +183,6 @@ TICK_EMOJI = "\U00002705"
 X_EMOJI = "\U0000274c"
 
 
-
 @client.command(name="urbandict", brief="Search UrbanDictionary", aliases=["ud", "ub", "urb", "urban"])
 async def urban_dict(ctx: commands.Context, *, text: str) -> None:
     """
@@ -192,11 +190,11 @@ async def urban_dict(ctx: commands.Context, *, text: str) -> None:
 
     :param text: The text to search for
     """
-    
+
     # Search for the word
     try:
         query = urbandict.define(text)
-    except Exception as e:
+    except Exception:
         # In case the word is not found
         await ctx.send(f"{ctx.author.mention}. Couldn't find definition for `{text}`")
         return
@@ -229,13 +227,13 @@ async def timer(ctx: commands.Context, value: str) -> None:
         # Multiply hours by 360 to get seconds
         mult = 60*60
     try:
-        timed = int(value[:len(value)-1])
+        timed = int(value[:len(value) - 1])
     except ValueError:
         await ctx.send("Invalid time input")
         return
-    
+
     # Sleep for the amount of time specified
-    await asyncio.sleep(timed*mult)
+    await asyncio.sleep(timed * mult)
 
     # Create the embed to send to the channel and tag the member that caled the command
     embed = discord.Embed(title="Timer", description="Mention the author after the specified time", color=0xff0000)
@@ -345,7 +343,6 @@ async def run_bot(ctx: commands.Context) -> None:
             req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id+1}")
             soup = BeautifulSoup(req.text, "html.parser")
             paragraphs = soup.find_all("p")
-
 
             if len(paragraphs) == 1:
                 for item in paragraphs:
@@ -509,7 +506,7 @@ async def say(ctx: commands.Context, *, text: str) -> None:
 
 
 @client.command(brief="Delete messages", aliases=["del"])
-async def delete(ctx: commands.Context, number: int, message: discord.Message=None, member: discord.Member=None) -> None:
+async def delete(ctx: commands.Context, number: int, message: discord.Message = None, member: discord.Member = None) -> None:
     """
     Delete an ammount of messages from the author's channel
 
@@ -526,7 +523,9 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message=No
     def check(message):
         return message.author == member
 
-    if number < 0: return
+    if number < 0:
+        return
+
     if number > 10:
         await ctx.send(f"{ctx.author.mention}. Can't purge more than 10 messages")
         return
@@ -560,7 +559,7 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message=No
 
 
 @client.command(name="rr", brief="Remove reactions from messages")
-async def remove_reactions(ctx: commands.Context, amount: int, message: discord.Message=None) -> None:
+async def remove_reactions(ctx: commands.Context, amount: int, message: discord.Message = None) -> None:
     """
     Removes all reactions from the previous messages.
     The amount of messages
@@ -848,7 +847,7 @@ async def courses(ctx: commands.Context) -> None:
 
 
 @client.command(brief="Webpage embed to help commands", aliases=["commands"])
-async def help(ctx, group=None) -> None:
+async def help(ctx, group = None) -> None:
     """
     Send an embed with the link to the csihu help page
 
@@ -932,7 +931,7 @@ async def on_message(msg: discord.Message) -> None:
     #! This might be deleted without a readonly mode
     #? Consider including snekbox
     """
-    # Python eval command
+    Python eval command
     if check_msg.startswith(f"{client.command_prefix}e"):
         # Eval is not allowed in general, except moderators that can execute it
         if msg.channel.id == GENERAL_ID:
@@ -993,4 +992,3 @@ for extension in extensions:
 
 # Run the bot
 client.run(TOKEN, reconnect=True)
-
