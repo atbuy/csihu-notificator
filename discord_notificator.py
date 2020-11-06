@@ -1000,7 +1000,7 @@ async def help(ctx, group: str = None) -> None:
         embed = client.helpers.get_help_page(ctx, current_page)
 
         msg = await ctx.send(f"{ctx.author.mention}", embed=embed)
-        
+
         # Add reactions for the next page of the help page
         arrow_backward = "\U000025c0"
         arrow_forward = "\U000025b6"
@@ -1031,7 +1031,7 @@ async def help(ctx, group: str = None) -> None:
                         await msg.edit(content=f"{ctx.author.mention}", embed=embed)
             except asyncio.TimeoutError:
                 break
-            
+
             # Remove the reactions on the message and readd them
             if 0 < current_page < total_pages:
                 await msg.clear_reactions()
