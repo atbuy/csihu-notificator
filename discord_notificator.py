@@ -410,7 +410,7 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
     if found:
         link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}"
 
-        to_delete [
+        to_delete = [
             """$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31","""
             """toolbarVisible:false,readOnly:true});});""",
             """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
@@ -947,6 +947,7 @@ async def courses(ctx: commands.Context) -> None:
 
 
 @client.command(brief="Webpage embed to help commands", aliases=["commands"])
+@commands.cooldown(1, 30, commands.BucketType.user)
 async def help(ctx, group: str = None) -> None:
     """
     Send an embed with the link to the csihu help page
@@ -991,40 +992,41 @@ async def help(ctx, group: str = None) -> None:
         msg = await ctx.send(f"{ctx.author.mention}", embed=embed)
         
         # Add reactions for the next page of the help page
-        reactions = ["\U000025c0", "\U000025b6"]
+        arrow_backward = "\U000025c0"
+        arrow_forward = "\U000025b6"
+        reactions = [arrow_backward, arrow_forward]
+        # Add reactions as a way to interact with the page
         for reaction in reactions:
             await msg.add_reaction(reaction)
 
         while True:
             try:
+                # Wait for a reaction from the user
                 reaction, user = await client.wait_for("reaction_add", check=check, timeout=60)
-                if reaction.emoji == "\U000025b6": # :arrow_forward:
+
+                # If the user wants the next page, increment the current page
+                # only if it is before the last page
+                if reaction.emoji == arrow_forward:
                     if current_page < total_pages:
                         current_page += 1
+                        # Get the new embed and edit the last message
                         embed = client.helpers.get_help_page(ctx, current_page)
                         await msg.edit(content=f"{ctx.author.mention}", embed=embed)
-                elif reaction.emoji == "\U000025c0":  # :arrow_backward:
+                elif reaction.emoji == arrow_backward:
+                    # If the user wants the previous page, decrement the current page
+                    # only if it is after the first page
                     if current_page > 0:
                         current_page -= 1
                         embed = client.helpers.get_help_page(ctx, current_page)
                         await msg.edit(content=f"{ctx.author.mention}", embed=embed)
             except asyncio.TimeoutError:
-                print("timeout")
                 break
             
+            # Remove the reactions on the message and readd them
             if 0 < current_page < total_pages:
                 await msg.clear_reactions()
                 for reaction in reactions:
                     await msg.add_reaction(reaction)
-
-    
-
-
-    return
-    # Create the embed with the link to the help webpage
-    embed = discord.Embed(title="Commands", url='https://csihu.pythonanywhere.com', description="View all the available commands for the CSIHU Notificator Bot!", color=0xff9500)
-    embed.set_author(name="CSIHU Notificator", icon_url='https://csihu.pythonanywhere.com/static/images/csihu_icon.png')
-    await ctx.send(embed=embed)
 
 
 @client.event
