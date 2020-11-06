@@ -1120,7 +1120,7 @@ async def on_message(msg: discord.Message) -> None:
             await msg.channel.send("You are not allowed to use `open()`")
             return
         else:
-            await execute_python_script(msg, script, safe_output)
+            await client.helpers.execute_python_script(msg, script, safe_output)
 
         return
 
