@@ -228,11 +228,14 @@ async def urban_dict(ctx: commands.Context, *, text: str) -> None:
         return
 
     ub_def = ""
-    for word in query:
+    for i, word in enumarate(query):
         if len(ub_def) < len(word["def"]):
             ub_def = word["def"]
+            index = i
 
-    output = f"**Word:** `{ub_def['word']}`\n**Definition:** `{ub_def['def']}`\n**Example:** `{ub_def['example']}`"
+    word = query[index]["word"]
+    example = query[index]["example"]
+    output = f"**Word:** `{word}`\n**Definition:** `{ub_def}`\n**Example:** `{example}`"
     await ctx.send(f"{ctx.author.mention}\n{output}")
 
 
