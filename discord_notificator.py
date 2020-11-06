@@ -226,9 +226,9 @@ async def urban_dict(ctx: commands.Context, *, text: str) -> None:
         # In case the word is not found
         await ctx.send(f"{ctx.author.mention}. Couldn't find definition for `{text}`")
         return
-
+    
     ub_def = ""
-    for i, word in enumarate(query):
+    for i, word in enumerate(query):
         if len(ub_def) < len(word["def"]):
             ub_def = word["def"]
             index = i
