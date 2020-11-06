@@ -1075,7 +1075,7 @@ async def on_message(msg: discord.Message) -> None:
 
     # ! This should be deleted without a readonly mode
     # ? Consider including snekbox
-    Python eval command
+    # Python eval command
     if check_msg.startswith(f"{client.command_prefix}e"):
         # Eval is not allowed in general, except moderators that can execute it
         if msg.channel.id == GENERAL_ID:
