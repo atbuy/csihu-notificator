@@ -1079,6 +1079,7 @@ async def on_message(msg: discord.Message) -> None:
     if check_msg.startswith(f"{client.command_prefix}e"):
         # Eval is not allowed in general, except moderators that can execute it
         if msg.channel.id == GENERAL_ID:
+            ctx = client.get_context(msg)
             allowed_in_general = client.helpers.can_execute(ctx)
             if not allowed_in_general:
                 await msg.channel.send(f"Not allowed to use **{client.command_prefix}e** in {msg.channel.mention}")
