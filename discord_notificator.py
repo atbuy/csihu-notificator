@@ -43,7 +43,7 @@ class Helpers:
     This class contains all the functions used inside commands and event listeners
     """
 
-    async def mute_timer(ctx: commands.Context, member: discord.Member, minutes: float) -> None:
+    async def mute_timer(self, ctx: commands.Context, member: discord.Member, minutes: float) -> None:
         """
         Timer until the specified time, to remove the `mute` role
 
@@ -947,7 +947,6 @@ async def courses(ctx: commands.Context) -> None:
 
 
 @client.command(brief="Webpage embed to help commands", aliases=["commands"])
-@commands.cooldown(1, 30, commands.BucketType.user)
 async def help(ctx, group: str = None) -> None:
     """
     Send an embed with the link to the csihu help page
