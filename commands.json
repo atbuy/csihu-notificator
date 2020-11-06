@@ -185,7 +185,7 @@
             ]
         },
         "test": {
-            "brief": "Just a test",
+            "brief": "Test the bot",
             "aliases": [],
             "parameters": []
         }

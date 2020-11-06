@@ -6,8 +6,8 @@ import asyncio
 import discord
 import requests
 import textblob
-import traceback
 import urbandict
+import traceback
 import googlesearch
 from datetime import datetime
 from bs4 import BeautifulSoup
@@ -267,6 +267,14 @@ PANEPISTHMIO_ID = 760047749482807327
 MUTED_ROLE_ID = 773396782129348610
 TICK_EMOJI = "\U00002705"
 X_EMOJI = "\U0000274c"
+
+
+@client.command(brief="Test the bot")
+async def test(ctx: commands.Context) -> None:
+    """
+    Reply to the bot to check if it's working
+    """
+    await ctx.send(f"Hey {ctx.author.mention}!")
 
 
 @client.command(name="gsearch", brief="Search google", aliases=["gs", "googlesearch"])
@@ -1065,10 +1073,8 @@ async def on_message(msg: discord.Message) -> None:
             await asyncio.sleep(0.5)
             await msg.delete()
 
-    # ! REMOVED IN PRODUCTION
-    # ! This might be deleted without a readonly mode
+    # ! This should be deleted without a readonly mode
     # ? Consider including snekbox
-    """
     Python eval command
     if check_msg.startswith(f"{client.command_prefix}e"):
         # Eval is not allowed in general, except moderators that can execute it
@@ -1117,7 +1123,6 @@ async def on_message(msg: discord.Message) -> None:
             await execute_python_script(msg, script, safe_output)
 
         return
-    """
 
     # Check if the message was supposed to be a command
     await client.process_commands(msg)
