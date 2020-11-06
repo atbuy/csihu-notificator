@@ -230,6 +230,7 @@ class Helpers:
 
         available_commands = client.commands_dict["commands"]
         max_commands_on_page = 4
+        total_pages = len(available_commands) // max_commands_on_page
         page_commands = self.slice_dict(
             self.sort_dict(available_commands),
             page_number*max_commands_on_page,
@@ -242,6 +243,7 @@ class Helpers:
                 value=f"{val['brief']}"
             )
         
+        embed.add_field(name="Page", value=f"{page_number}/{total_pages}")
         embed.set_footer(text=ctx.author.nick, icon_url=ctx.author.avatar_url)
         embed.timestamp = datetime.now()
 
@@ -1000,7 +1002,7 @@ async def help(ctx, group: str = None) -> None:
                     if current_page < total_pages:
                         current_page += 1
                         embed = client.helpers.get_help_page(ctx, current_page)
-                await msg.edit(content=f"{ctx.author.mention}", embed=embed)
+                        await msg.edit(content=f"{ctx.author.mention}", embed=embed)
                 elif reaction.emoji == "\U000025c0":  # :arrow_backward:
                     if current_page > 0:
                         current_page -= 1
