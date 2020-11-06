@@ -164,10 +164,21 @@
         "urbandict": {
             "brief": "Search UrbanDictionary",
             "aliases": [
-                "ud",
                 "ub",
+                "ud",
+                "urban",
                 "urb",
                 "urban"
+            ],
+            "parameters": [
+                "<text>"
+            ]
+        },
+        "gsearch": {
+            "brief": "Search Google",
+            "aliases": [
+                "gs",
+                "googlesearch"
             ],
             "parameters": [
                 "<text>"

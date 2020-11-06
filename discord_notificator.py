@@ -8,6 +8,7 @@ import requests
 import textblob
 import traceback
 import urbandict
+import googlesearch
 from bs4 import BeautifulSoup
 from discord.ext import commands
 from jishaku.repl.compilation import AsyncCodeExecutor
@@ -181,6 +182,33 @@ PANEPISTHMIO_ID = 760047749482807327
 MUTED_ROLE_ID = 773396782129348610
 TICK_EMOJI = "\U00002705"
 X_EMOJI = "\U0000274c"
+
+
+@client.command(name="gsearch", brief="Search google", aliases=["gs", "googlesearch"])
+async def gsearch(ctx: commands.Context, *, query: str) -> None:
+    """
+    Searches google and returns the first 10 results
+
+    :param query: The query to make to google (what to search for)
+    """
+
+    # Detect original language
+    language = textblob.TextBlob(query).detect_language()
+
+    # Search for the text input
+    search = googlesearch.search(query, num_results=10, lang=language)
+
+    # Place all the results in a list to index
+    results = [item for item in search]
+
+    output = ""
+    for i in range(len(results)):
+        if i < len(results):
+            output += f"**{i+1})** <{results[i]}>\n"
+        else:
+            output += f"**{i+1})** <{results[i]}>"
+    
+    await ctx.send(f"**Results:**\n{output}")
 
 
 @client.command(name="urbandict", brief="Search UrbanDictionary", aliases=["ud", "ub", "urb", "urban"])
@@ -572,7 +600,8 @@ async def remove_reactions(ctx: commands.Context, amount: int, message: discord.
     """
 
     # Can't get negative amount of messages
-    if amount < 0: return
+    if amount < 0:
+        return
 
     # Only allowed to get 10 messages
     if amount > 10:
@@ -590,6 +619,7 @@ async def remove_reactions(ctx: commands.Context, amount: int, message: discord.
 
         for msg in history:
             await msg.clear_reactions()
+
         await ctx.message.delete()
     else:
         await ctx.send(f"{ctx.author.mention} you don't have enough permission to perform this action")
@@ -797,13 +827,13 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float) ->
     """
 
     # One hour mute limit
-    if  minutes > 60:
+    if minutes > 60:
         await ctx.send(f"{ctx.author.mention} you can't mute someone for more than 1 hour.")
         return
-    
+
     # Check if the author can mute someone else
     execute = client.helpers.can_execute(ctx, mute_members=True)
-    
+
     if execute:
         # 1) Add role named "Muted" to member
         muted_role = ctx.guild.get_role(MUTED_ROLE_ID)
@@ -913,7 +943,6 @@ async def on_message(msg: discord.Message) -> None:
     if msg.author == client.user:
         return
 
-    cwd = os.getcwd()
     check_msg = msg.content.lower()
 
     # If there are attachments to the message
@@ -926,10 +955,9 @@ async def on_message(msg: discord.Message) -> None:
             await asyncio.sleep(0.5)
             await msg.delete()
 
-
-    #! REMOVED IN PRODUCTION
-    #! This might be deleted without a readonly mode
-    #? Consider including snekbox
+    # ! REMOVED IN PRODUCTION
+    # ! This might be deleted without a readonly mode
+    # ? Consider including snekbox
     """
     Python eval command
     if check_msg.startswith(f"{client.command_prefix}e"):
