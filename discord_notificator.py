@@ -203,7 +203,7 @@ class Helpers:
             return False
 
     def sort_dict(self, dictionary: dict) -> dict:
-        return {k: d[k] for k in sorted(dictionary)]}
+        return {k: dictionary[k] for k in sorted(dictionary)}
 
     def slice_dict(self, dictionary: dict, start: int, stop: int) -> dict:
         new_dict = {}
@@ -231,7 +231,7 @@ class Helpers:
         available_commands = client.commands_dict["commands"]
         max_commands_on_page = 4
         page_commands = self.slice_dict(
-            self.sort_commands(available_commands),
+            self.sort_dict(available_commands),
             page_number*max_commands_on_page,
             page_number*max_commands_on_page+4
         )
@@ -993,24 +993,28 @@ async def help(ctx, group: str = None) -> None:
         for reaction in reactions:
             await msg.add_reaction(reaction)
 
-        # TODO Wait for reaction
         while True:
             try:
                 reaction, user = await client.wait_for("reaction_add", check=check, timeout=60)
                 if reaction.emoji == "\U000025b6": # :arrow_forward:
                     if current_page < total_pages:
                         current_page += 1
+                        embed = client.helpers.get_help_page(ctx, current_page)
+                await msg.edit(content=f"{ctx.author.mention}", embed=embed)
                 elif reaction.emoji == "\U000025c0":  # :arrow_backward:
                     if current_page > 0:
                         current_page -= 1
-                print(str(reaction.emoji))
-                print(f"Currenct page: {current_page}")
-                embed = client.helpers.get_help_page(ctx, current_page)
-                await msg.edit(content=f"{ctx.author.mention}", embed=embed)
-                # await ctx.send(f"{ctx.author.mention}", embed=embed)
+                        embed = client.helpers.get_help_page(ctx, current_page)
+                        await msg.edit(content=f"{ctx.author.mention}", embed=embed)
             except asyncio.TimeoutError:
                 print("timeout")
                 break
+            
+            if 0 < current_page < total_pages:
+                await msg.clear_reactions()
+                for reaction in reactions:
+                    await msg.add_reaction(reaction)
+
     
 
 
