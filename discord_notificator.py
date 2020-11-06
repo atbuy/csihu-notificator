@@ -326,6 +326,7 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
         # Remove PHP function and copyright notice in text
         for item in to_delete:
             final_text = final_text.replace(item, "").strip()
+            
         try:
             await ctx.send(f"Announcement found.\nLink: <{link}>\n```{final_text} ```")
         except discord.errors.HTTPException:
