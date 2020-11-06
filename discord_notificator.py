@@ -240,10 +240,11 @@ class Helpers:
         for key, val in page_commands.items():
             embed.add_field(
                 name=f"{client.command_prefix}{key}",
-                value=f"{val['brief']}"
+                value=f"{val['brief']}",
+                inline=False
             )
         
-        embed.add_field(name="Page", value=f"{page_number}/{total_pages}")
+        embed.add_field(name="Page", value=f"{page_number+1}/{total_pages+1}")
         embed.set_footer(text=ctx.author.nick, icon_url=ctx.author.avatar_url)
         embed.timestamp = datetime.now()
 
@@ -984,7 +985,6 @@ async def help(ctx, group: str = None) -> None:
     else:
         # Paginate the help command
         total_pages = len(client.commands_dict["commands"]) // 4
-        print(total_pages)
         current_page = 0
         embed = client.helpers.get_help_page(ctx, current_page)
 
