@@ -207,7 +207,7 @@ async def gsearch(ctx: commands.Context, *, query: str) -> None:
             output += f"**{i+1})** <{results[i]}>\n"
         else:
             output += f"**{i+1})** <{results[i]}>"
-    
+
     await ctx.send(f"**Results:**\n{output}")
 
 
@@ -308,21 +308,26 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
             final_text += item.get_text()
 
     # Some text formatting
+    found = False
+    to_delete = """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
     if final_text.replace("\n", "") != "":
-        if final_text.strip().replace("""Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas""", "") != "":
+        if final_text.strip().replace(to_delete, "") != "":
             found = True
-        else:
-            found = False
-    else:
-        found = False
 
     # If the announcement is found, update `last_link`, `last_announcement` and `last_id`
     if found:
         link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}"
+
+        to_delete [
+            """$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31","""
+            """toolbarVisible:false,readOnly:true});});""",
+            """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
+        ]
         # Remove PHP function and copyright notice in text
-        final_text_msg = final_text.replace("""$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31",toolbarVisible:false,readOnly:true});});""", "").strip().replace("""Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas""", "").strip().replace("""Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas""", "")
+        for item in to_delete:
+            final_text = final_text.replace(item, "").strip()
         try:
-            await ctx.send(f"Announcement found.\nLink: <{link}>\n```{final_text_msg} ```")
+            await ctx.send(f"Announcement found.\nLink: <{link}>\n```{final_text} ```")
         except discord.errors.HTTPException:
             await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
     else:
@@ -330,7 +335,7 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
 
 
 @client.command(name="last_id", brief="View last announcement's id")
-async def change_last_id(ctx: commands.Context, id_num: int=None) -> None:
+async def change_last_id(ctx: commands.Context, id_num: int = None) -> None:
     """
     Shows or changes the announcement's last ID.
     `last_id` is the ID of the latest posted announcement
@@ -360,7 +365,7 @@ async def run_bot(ctx: commands.Context) -> None:
     
     :return: None
 
-    #TODO Add comments
+    # TODO Add comments
     """
     global last_id
     if ctx.author.id == MY_ID:
@@ -387,19 +392,25 @@ async def run_bot(ctx: commands.Context) -> None:
                     else:
                         final_text += item.get_text()
 
+
+            new_announce = False
+            to_delete = """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
             if final_text.replace("\n", "") != "":
-                if final_text.strip().replace("""Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas""", "") != "":
+                if final_text.strip().replace(to_delete, "") != "":
                     new_announce = True
-                else:
-                    new_announce = False
-            else:
-                new_announce = False
 
             if new_announce:
                 last_id += 1
                 link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id}"
-                final_text_msg = final_text.replace("""$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31",toolbarVisible:false,readOnly:true});});""", "").strip().replace("""Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas""", "")
-                client.latest_announcement = {"text": final_text_msg, "link": link}
+                to_delete = [
+                    """$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31","""
+                    """toolbarVisible:false,readOnly:true});});""",
+                    """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
+                ]
+                for item in to_delete:
+                    final_text = final_text.replace(item, "").strip()
+
+                client.latest_announcement = {"text": final_text, "link": link}
 
                 info["last_id"] = last_id
                 info["last_message"] = final_text_msg
@@ -511,7 +522,6 @@ async def say(ctx: commands.Context, *, text: str) -> None:
         if ctx.channel.id == GENERAL_ID:
             execute = client.helpers.can_execute(ctx)
 
-    
     if execute:
         output = ""
         for char in text:
@@ -845,8 +855,8 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float) ->
         await member.remove_roles(synadelfos_role)
 
         # 3) Add timer that will check every second if it should remove the role prematurely
-        #   3.a) If the command ".unmute <member>" is executed, then the loop should stop 
-        #        and the role is removed
+        # 3.a) If the command ".unmute <member>" is executed, then the loop should stop
+        # and the role is removed
         await mute_timer(ctx, member, minutes)
     else:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
@@ -857,7 +867,7 @@ async def github(ctx: commands.Context) -> None:
     """
     Send the github repo link to the author's channel
     """
-    await ctx.send(f"GitHub Link: <https://github.com/Vitaman02/CS-IHU-NotifierBot>")
+    await ctx.send("GitHub Link: <https://github.com/Vitaman02/CS-IHU-NotifierBot>")
 
 
 @client.command(name="moodle", brief="Moodle Link")
@@ -877,7 +887,7 @@ async def courses(ctx: commands.Context) -> None:
 
 
 @client.command(brief="Webpage embed to help commands", aliases=["commands"])
-async def help(ctx, group = None) -> None:
+async def help(ctx, group: str = None) -> None:
     """
     Send an embed with the link to the csihu help page
 
@@ -1005,7 +1015,7 @@ async def on_message(msg: discord.Message) -> None:
             return
         else:
             await execute_python_script(msg, script, safe_output)
-        
+
         return
     """
 
