@@ -227,9 +227,13 @@ async def urban_dict(ctx: commands.Context, *, text: str) -> None:
         await ctx.send(f"{ctx.author.mention}. Couldn't find definition for `{text}`")
         return
 
-    word = query[0]
+    ub_def = ""
+    for word in query:
+        if len(longest_definition) < len(word["def"]):
+            ub_def = word["def"]
 
-    await ctx.send(f"{ctx.author.mention} **Word:** `{word['word']}`\n**Definition:** `{word['def']}`\n**Example:** `{word['example']}`")
+    output = "**Word:** `{ub_def['word']}`\n**Definition:** `{ub_def['def']}`\n**Example:** `{ub_def['example']}`"
+    await ctx.send(f"{ctx.author.mention}\n{output}")
 
 
 @client.command(name="timer", brief="Set a timer")
