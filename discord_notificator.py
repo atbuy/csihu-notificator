@@ -232,7 +232,7 @@ async def urban_dict(ctx: commands.Context, *, text: str) -> None:
         if len(ub_def) < len(word["def"]):
             ub_def = word["def"]
 
-    output = "**Word:** `{ub_def['word']}`\n**Definition:** `{ub_def['def']}`\n**Example:** `{ub_def['example']}`"
+    output = f"**Word:** `{ub_def['word']}`\n**Definition:** `{ub_def['def']}`\n**Example:** `{ub_def['example']}`"
     await ctx.send(f"{ctx.author.mention}\n{output}")
 
 
