@@ -183,6 +183,11 @@
             "parameters": [
                 "<text>"
             ]
+        },
+        "test": {
+            "brief": "Just a test",
+            "aliases": [],
+            "parameters": []
         }
     },
     "prefix": "."

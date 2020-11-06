@@ -9,15 +9,71 @@ import textblob
 import traceback
 import urbandict
 import googlesearch
+from datetime import datetime
 from bs4 import BeautifulSoup
 from discord.ext import commands
 from jishaku.repl.compilation import AsyncCodeExecutor
+
+
+
+with open("info.json") as file:
+    info = json.load(file)
+
+last_id = info["last_id"]
+last_link = info["last_link"]
+last_message = info["last_message"]
+members_in_waiting_room = info["waiting_room"]
+allowed_files = info["allowed_files"]
+characters = info["emoji_characters"]
+special_characters = info["special_characters"]
+
+
+TOKEN = os.environ.get("CSIHU_NOTIFICATOR_BOT_TOKEN")
+intents = discord.Intents.all()
+client = commands.Bot(command_prefix=".", intents=intents, help_command=None)
+client.latest_announcement = {"text": last_message, "link": last_link}
+client.is_running = False
+
+with open("commands.json") as file:
+    client.commands_dict = json.load(file)
 
 
 class Helpers:
     """
     This class contains all the functions used inside commands and event listeners
     """
+
+    async def mute_timer(ctx: commands.Context, member: discord.Member, minutes: float) -> None:
+        """
+        Timer until the specified time, to remove the `mute` role
+
+        :param member: The member to add the `mute` role to
+        :param minutes: The amount of minutes to mute the member for
+        """
+        counter = minutes * 60
+        while counter > 0:
+            muted = False
+            for role in member.roles:
+                if role.id == MUTED_ROLE_ID:
+                    muted = True
+            if muted:
+                await asyncio.sleep(1)
+                counter -= 1
+            else:
+                break
+        else:
+            # This is executed if the timer has ran out.
+            # This wouldn't be executed if someone unmuted the member prematurely
+
+            # Remove muted role
+            muted_role = ctx.guild.get_role(MUTED_ROLE_ID)
+            await member.remove_roles(muted_role)
+
+            # Add synadelfos role again
+            synadelfos_role = ctx.guild.get_role(SYNADELFOS_ROLE_ID)
+            await member.add_roles(synadelfos_role)
+
+            await ctx.send(f"{member.mention} is now unmuted")
 
     async def execute_python_script(self, msg: discord.Message, script: str, safe: bool = False) -> None:
         """
@@ -146,28 +202,54 @@ class Helpers:
         else:
             return False
 
+    def sort_dict(self, dictionary: dict) -> dict:
+        return {k: d[k] for k in sorted(dictionary)]}
 
-with open("info.json") as file:
-    info = json.load(file)
+    def slice_dict(self, dictionary: dict, start: int, stop: int) -> dict:
+        new_dict = {}
+        for i, item in enumerate(dictionary.items()):
+            if i >= start and i < stop:
+                new_dict[item[0]] = item[1]
+        
+        return new_dict
+
+    def get_help_page(self, ctx: commands.Context, page_number: int) -> discord.Embed:
+        """
+        Creates a discord embed of the available commands paginated
+        """
+        embed = discord.Embed(
+            title="Commands",
+            url="https://csihu.pythonanywhere.com",
+            description="View all the available commands!",
+            color=0xff0000
+        )
+        embed.set_author(
+            name="CSIHU Notificator",
+            icon_url="https://csihu.pythonanywhere.com/static/images/csihu_icon.png"
+        )
+
+        available_commands = client.commands_dict["commands"]
+        max_commands_on_page = 4
+        page_commands = self.slice_dict(
+            self.sort_commands(available_commands),
+            page_number*max_commands_on_page,
+            page_number*max_commands_on_page+4
+        )
+
+        for key, val in page_commands.items():
+            embed.add_field(
+                name=f"{client.command_prefix}{key}",
+                value=f"{val['brief']}"
+            )
+        
+        embed.set_footer(text=ctx.author.nick, icon_url=ctx.author.avatar_url)
+        embed.timestamp = datetime.now()
+
+        return embed
 
 
-last_id = info["last_id"]
-last_link = info["last_link"]
-last_message = info["last_message"]
-members_in_waiting_room = info["waiting_room"]
-allowed_files = info["allowed_files"]
-characters = info["emoji_characters"]
-special_characters = info["special_characters"]
-
-
-TOKEN = os.environ.get("CSIHU_NOTIFICATOR_BOT_TOKEN")
-intents = discord.Intents.all()
-client = commands.Bot(command_prefix=".", intents=intents, help_command=None)
-client.latest_announcement = {"text": last_message, "link": last_link}
-client.is_running = False
+# Initialize helpers object to be used inside commands
 client.helpers = Helpers()
-with open("commands.json") as file:
-    client.commands_dict = json.load(file)
 
 
 MY_ID = 222950176770228225
@@ -769,39 +851,6 @@ async def slowmode_f(ctx: commands.Context) -> None:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
 
 
-async def mute_timer(ctx: commands.Context, member: discord.Member, minutes: float) -> None:
-    """
-    Timer until the specified time, to remove the `mute` role
-
-    :param member: The member to add the `mute` role to
-    :param minutes: The amount of minutes to mute the member for
-    """
-    counter = minutes * 60
-    while counter > 0:
-        muted = False
-        for role in member.roles:
-            if role.id == MUTED_ROLE_ID:
-                muted = True
-        if muted:
-            await asyncio.sleep(1)
-            counter -= 1
-        else:
-            break
-    else:
-        # This is executed if the timer has ran out.
-        # This wouldn't be executed if someone unmuted the member prematurely
-
-        # Remove muted role
-        muted_role = ctx.guild.get_role(MUTED_ROLE_ID)
-        await member.remove_roles(muted_role)
-
-        # Add synadelfos role again
-        synadelfos_role = ctx.guild.get_role(SYNADELFOS_ROLE_ID)
-        await member.add_roles(synadelfos_role)
-
-        await ctx.send(f"{member.mention} is now unmuted")
-
-
 @client.command(name="unmute", brief="Unmute a muted member")
 async def unmute(ctx: commands.Context, member: discord.Member) -> None:
     """
@@ -865,7 +914,7 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float) ->
         # 3) Add timer that will check every second if it should remove the role prematurely
         # 3.a) If the command ".unmute <member>" is executed, then the loop should stop
         # and the role is removed
-        await mute_timer(ctx, member, minutes)
+        await client.helpers.mute_timer(ctx, member, minutes)
     else:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
 
@@ -901,6 +950,8 @@ async def help(ctx, group: str = None) -> None:
 
     :param group: The command to get help from
     """
+    def check(reaction, user):
+        return user == ctx.author
 
     # If there is a command passed check if that command exists.
     # If it exists format the output like discord's help command does.
@@ -928,7 +979,42 @@ async def help(ctx, group: str = None) -> None:
         else:
             await ctx.send(f"Couldn't find command `{group}`")
         return
+    else:
+        # Paginate the help command
+        total_pages = len(client.commands_dict["commands"]) // 4
+        print(total_pages)
+        current_page = 0
+        embed = client.helpers.get_help_page(ctx, current_page)
+
+        msg = await ctx.send(f"{ctx.author.mention}", embed=embed)
+        
+        # Add reactions for the next page of the help page
+        reactions = ["\U000025c0", "\U000025b6"]
+        for reaction in reactions:
+            await msg.add_reaction(reaction)
+
+        # TODO Wait for reaction
+        while True:
+            try:
+                reaction, user = await client.wait_for("reaction_add", check=check, timeout=60)
+                if reaction.emoji == "\U000025b6": # :arrow_forward:
+                    if current_page < total_pages:
+                        current_page += 1
+                elif reaction.emoji == "\U000025c0":  # :arrow_backward:
+                    if current_page > 0:
+                        current_page -= 1
+                print(str(reaction.emoji))
+                print(f"Currenct page: {current_page}")
+                embed = client.helpers.get_help_page(ctx, current_page)
+                await msg.edit(content=f"{ctx.author.mention}", embed=embed)
+                # await ctx.send(f"{ctx.author.mention}", embed=embed)
+            except asyncio.TimeoutError:
+                print("timeout")
+                break
     
+
+
+    return
     # Create the embed with the link to the help webpage
     embed = discord.Embed(title="Commands", url='https://csihu.pythonanywhere.com', description="View all the available commands for the CSIHU Notificator Bot!", color=0xff9500)
     embed.set_author(name="CSIHU Notificator", icon_url='https://csihu.pythonanywhere.com/static/images/csihu_icon.png')
@@ -947,7 +1033,6 @@ async def on_ready():
 
 last_id = info["last_id"]
 last_message = info["last_message"]
-
 
 
 @client.event
