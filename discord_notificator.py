@@ -15,7 +15,6 @@ from discord.ext import commands
 from jishaku.repl.compilation import AsyncCodeExecutor
 
 
-
 with open("info.json") as file:
     info = json.load(file)
 
@@ -130,7 +129,10 @@ class Helpers:
                 extension = attach.filename.split(".")[-1].lower()
                 if not (extension in allowed_files):
                     await msg.delete()
-                    await msg.channel.send(f"{msg.author.mention} you are not to upload `.{extension}` files\nUse `{client.command_prefix}allowedfiles` to view all the allowed file types.")
+                    await msg.channel.send(
+                        f"{msg.author.mention} you are not to upload `.{extension}` files"
+                        f"Use `{client.command_prefix}allowedfiles` to view all the allowed file types."
+                    )
 
     def can_execute(self, ctx: commands.Context, **kwargs) -> bool:
         """
@@ -210,7 +212,7 @@ class Helpers:
         for i, item in enumerate(dictionary.items()):
             if i >= start and i < stop:
                 new_dict[item[0]] = item[1]
-        
+
         return new_dict
 
     def get_help_page(self, ctx: commands.Context, page_number: int) -> discord.Embed:
@@ -243,7 +245,7 @@ class Helpers:
                 value=f"{val['brief']}",
                 inline=False
             )
-        
+
         embed.add_field(name="Page", value=f"{page_number+1}/{total_pages+1}")
         embed.set_footer(text=ctx.author.nick, icon_url=ctx.author.avatar_url)
         embed.timestamp = datetime.now()
@@ -319,7 +321,7 @@ async def urban_dict(ctx: commands.Context, *, text: str) -> None:
         # In case the word is not found
         await ctx.send(f"{ctx.author.mention}. Couldn't find definition for `{text}`")
         return
-    
+
     ub_def = ""
     for i, word in enumerate(query):
         if len(ub_def) < len(word["def"]):
@@ -376,7 +378,9 @@ async def latest(ctx: commands.Context) -> None:
 
     :return: None
     """
-    await ctx.send(f"Latest announcement link: <{client.latest_announcement['link']}>\n```{client.latest_announcement['text']} ```")
+    link = client.last_announcement["link"]
+    text = client.last_announcement["text"]
+    await ctx.send(f"Latest announcement link: <{link}>\n```{text} ```")
 
 
 @client.command(brief="Search for an announcement", name="search-id")
@@ -463,7 +467,7 @@ async def run_bot(ctx: commands.Context) -> None:
     Starts pinging the announcements webpage
     to see if there are any new announcements posted.
     If there are it sends them to the channel the command was ran from.
-    
+
     :return: None
 
     # TODO Add comments
@@ -492,7 +496,6 @@ async def run_bot(ctx: commands.Context) -> None:
                         final_text += item.get_text().replace("\xa0", "\n")
                     else:
                         final_text += item.get_text()
-
 
             new_announce = False
             to_delete = """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
@@ -548,7 +551,7 @@ async def waiting_list(ctx: commands.Context, member: discord.Member) -> None:
                 break
         else:
             await member.add_roles(waiting_room_role)
-            await ctx.send(f"{member.mention} has been moved to the waiting room")        
+            await ctx.send(f"{member.mention} has been moved to the waiting room")
     else:
         await ctx.send(f"{ctx.author.mention}, you don't have enough permissions to perform this action")
 
@@ -744,7 +747,7 @@ async def slow(ctx: commands.Context, time: str) -> None:
 
     :param time: The amount of time to change the delay to
 
-    .. note:: 
+    .. note::
         The `time` parameter looks either like this e.g. "15m" (stands for 15 minutes)
         or like `15` where the time type is defaulted to seconds
     """
@@ -807,7 +810,7 @@ async def filip(ctx: commands.Context, person: discord.Member) -> None:
     if execute:
         filip_role = ctx.guild.get_role(FILIP_ROLE_ID)
 
-        # The role will be removed if 
+        # The role will be removed if
         # the member already has it
         remove = False
         for role in person.roles:
@@ -1042,7 +1045,10 @@ async def on_ready():
     This is an event listener. It changes the bot's presence when the bot is ready
     """
     global last_id, members_in_waiting_room
-    await client.change_presence(status=discord.Status.online, activity=discord.Game(f"Commands with '{client.command_prefix}'"))
+    await client.change_presence(
+        status=discord.Status.online,
+        activity=discord.Game(f"Commands with '{client.command_prefix}'")
+    )
     print("NotificatorBot ready")
 
 
@@ -1086,11 +1092,7 @@ async def on_message(msg: discord.Message) -> None:
                 return
 
         # Format the text to only get the script
-        try:
-            script = str(msg.content).replace(f"{client.command_prefix}e ", "")
-        except:
-            await msg.channel.send(f"`Can't parse python script. Use '{client.command_prefix}e <code>'. Separate lines with ';'.`")
-
+        script = str(msg.content).replace(f"{client.command_prefix}e ", "")
         script = script.replace(";", "\n")
 
         # Check if the user doesn't want the output to be formatted
