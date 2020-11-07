@@ -154,7 +154,44 @@ class Helpers:
                         f"Use `{client.command_prefix}allowedfiles` to view all the allowed file types."
                     )
 
-    async def check_for_page_change(self, ctx: commands.Context, msg: discord.Message, current_page: int) -> bool:
+    async def _clear_reactions(self, msg: discord.Message, current_page: int) -> None:
+        """
+        Clears and re adds emojis on help embed if the requested page is not outside of boundaries
+
+        :param msg: The help command embed
+        :param current_page: The current help page displayed
+        """
+        if 0 < current_page < self.total_pages:
+            await msg.clear_reactions()
+            for reaction in self.reactions:
+                await msg.add_reaction(reaction)
+
+    async def _changed_page(self, ctx: commands.Context, current_page: int, reaction: discord.Reaction) -> tuple:
+        """
+        Checks if the member changed page and returns True or False if the command has exited.
+        The command returns True if the member has changed page and False if he didn't.
+
+        :param current_page: The current page displayed
+        :param reaction: The reaction the member did
+        :return tuple: The first element of the tuple is if the member has changed page, and the second what page to display
+        """
+
+        # If the user wants the next page, increment the current page
+        # only if it is before the last page
+        if reaction.emoji == ARROW_FORWARD:
+            if current_page < self.total_pages:
+                current_page += 1
+        elif reaction.emoji == ARROW_BACKWARD:
+            # If the user wants the previous page, decrement the current page
+            # only if it is after the first page
+            if current_page > 0:
+                current_page -= 1
+        else:
+            return False, current_page
+
+        return True, current_page
+
+    async def _check_for_page_change(self, ctx: commands.Context, msg: discord.Message, current_page: int) -> bool:
         """
         Check if the user wants to change the page and sends a new page if he does.
 
@@ -168,33 +205,17 @@ class Helpers:
         try:
             # Wait for a reaction from the user
             reaction, user = await client.wait_for("reaction_add", check=check, timeout=60)
-            change_page = False
+            change_page, current_page = await self._changed_page(ctx)
 
-            # If the user wants the next page, increment the current page
-            # only if it is before the last page
-            if reaction.emoji == ARROW_FORWARD:
-                if current_page < self.total_pages:
-                    current_page += 1
-                    change_page = True
-            elif reaction.emoji == ARROW_BACKWARD:
-                # If the user wants the previous page, decrement the current page
-                # only if it is after the first page
-                if current_page > 0:
-                    current_page -= 1
-                    change_page = True
-
-            # Get the new embed and edit the last message
-            # if the page has changed
             if change_page:
+                # Get the new embed and edit the last message if the page has changed
                 embed = self.get_help_page(ctx, current_page)
                 await msg.edit(content=f"{ctx.author.mention}", embed=embed)
         except asyncio.TimeoutError:
-            return True
+            return False
 
-        if 0 < current_page < self.total_pages:
-            await msg.clear_reactions()
-            for reaction in self.reactions:
-                await msg.add_reaction(reaction)
+        await self._clear_reactions(msg, current_page)
+        return True
 
     async def send_help_embed(self, ctx: commands.Context) -> None:
         """
@@ -210,8 +231,9 @@ class Helpers:
         for reaction in self.reactions:
             await msg.add_reaction(reaction)
 
-        while True:
-            await self.wait_for_reaction_help_page(ctx)
+        execute = await self._check_for_page_change(ctx, msg, current_page)
+        while execute:
+            execute = await self._check_for_page_change(ctx, msg, current_page)
 
     def can_execute(self, ctx: commands.Context, **kwargs) -> bool:
         """
