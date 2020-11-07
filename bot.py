@@ -59,6 +59,8 @@ class Helpers:
     """
     def __init__(self):
         self.max_commands_on_page = 4
+        self.total_pages = len(client.commands_dict["commands"]) // self.max_commands_on_page
+        self.help_command_reactions = [ARROW_BACKWARD, ARROW_FORWARD]
 
     async def mute_timer(self, ctx: commands.Context, member: discord.Member, minutes: float) -> None:
         """
@@ -152,59 +154,64 @@ class Helpers:
                         f"Use `{client.command_prefix}allowedfiles` to view all the allowed file types."
                     )
 
-    async def send_help_embed(self, ctx: commands.Context) -> None:
+    async def check_for_page_change(self, ctx: commands.Context, msg: discord.Message, current_page: int) -> bool:
         """
-        Create the help embed when no group is passed
+        Check if the user wants to change the page and sends a new page if he does.
+
+        :param msg: The help command message
+        :param current_page: The help page to display
+        :return bool: Returns True if the help command has stop waiting and the TimeoutError has been thrown
         """
         def check(reaction, user):
             return ctx.author == user
 
+        try:
+            # Wait for a reaction from the user
+            reaction, user = await client.wait_for("reaction_add", check=check, timeout=60)
+            change_page = False
+
+            # If the user wants the next page, increment the current page
+            # only if it is before the last page
+            if reaction.emoji == ARROW_FORWARD:
+                if current_page < self.total_pages:
+                    current_page += 1
+                    change_page = True
+            elif reaction.emoji == ARROW_BACKWARD:
+                # If the user wants the previous page, decrement the current page
+                # only if it is after the first page
+                if current_page > 0:
+                    current_page -= 1
+                    change_page = True
+
+            # Get the new embed and edit the last message
+            # if the page has changed
+            if change_page:
+                embed = self.get_help_page(ctx, current_page)
+                await msg.edit(content=f"{ctx.author.mention}", embed=embed)
+        except asyncio.TimeoutError:
+            return True
+
+        if 0 < current_page < self.total_pages:
+            await msg.clear_reactions()
+            for reaction in self.reactions:
+                await msg.add_reaction(reaction)
+
+    async def send_help_embed(self, ctx: commands.Context) -> None:
+        """
+        Create the help embed when no group is passed
+        """
         # Paginate the help command
-        total_pages = len(client.commands_dict["commands"]) // self.max_commands_on_page
         current_page = 0
         embed = self.get_help_page(ctx, current_page)
 
         msg = await ctx.send(f"{ctx.author.mention}", embed=embed)
 
-        # Add reactions for the next and previous page of the help commnad
-        reactions = [ARROW_BACKWARD, ARROW_FORWARD]
-
         # Add reactions as a way to interact with the page
-        for reaction in reactions:
+        for reaction in self.reactions:
             await msg.add_reaction(reaction)
 
         while True:
-            try:
-                # Wait for a reaction from the user
-                reaction, user = await client.wait_for("reaction_add", check=check, timeout=60)
-                change_page = False
-
-                # If the user wants the next page, increment the current page
-                # only if it is before the last page
-                if reaction.emoji == ARROW_FORWARD:
-                    if current_page < total_pages:
-                        current_page += 1
-                        change_page = True
-                elif reaction.emoji == ARROW_BACKWARD:
-                    # If the user wants the previous page, decrement the current page
-                    # only if it is after the first page
-                    if current_page > 0:
-                        current_page -= 1
-                        change_page = True
-
-                # Get the new embed and edit the last message
-                # if the page has changed
-                if change_page:
-                    embed = self.get_help_page(ctx, current_page)
-                    await msg.edit(content=f"{ctx.author.mention}", embed=embed)
-            except asyncio.TimeoutError:
-                break
-
-            # Remove the reactions on the message and readd them
-            if 0 < current_page < total_pages:
-                await msg.clear_reactions()
-                for reaction in reactions:
-                    await msg.add_reaction(reaction)
+            await self.wait_for_reaction_help_page(ctx)
 
     def can_execute(self, ctx: commands.Context, **kwargs) -> bool:
         """
