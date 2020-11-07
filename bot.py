@@ -37,6 +37,22 @@ with open("commands.json") as file:
     client.commands_dict = json.load(file)
 
 
+MY_ID = 222950176770228225
+MODERATOR_ID = 760078403264184341
+OWNER_ID = 760085688133222420
+WAITING_ROOM_ID = 763090286372585522
+BOT_ID = 760473932439879700
+GENERAL_ID = 760047749482807330
+SYNADELFOS_ROLE_ID = 773654278631850065
+FILIP_ROLE_ID = 770328364913131621
+PANEPISTHMIO_ID = 760047749482807327
+MUTED_ROLE_ID = 773396782129348610
+TICK_EMOJI = "\U00002705"
+X_EMOJI = "\U0000274c"
+ARROW_BACKWARD = "\U000025c0"
+ARROW_FORWARD = "\U000025b6"
+
+
 class Helpers:
     """
     This class contains all the functions used inside commands and event listeners
@@ -135,9 +151,60 @@ class Helpers:
                         f"{msg.author.mention} you are not to upload `.{extension}` files"
                         f"Use `{client.command_prefix}allowedfiles` to view all the allowed file types."
                     )
-    
-    async def send_help_embed(self, ctx: commands.Context) -> None:
 
+    async def send_help_embed(self, ctx: commands.Context) -> None:
+        """
+        Create the help embed when no group is passed
+        """
+        def check(reaction, user):
+            return ctx.author == user
+
+        # Paginate the help command
+        total_pages = len(client.commands_dict["commands"]) // self.max_commands_on_page
+        current_page = 0
+        embed = self.get_help_page(ctx, current_page)
+
+        msg = await ctx.send(f"{ctx.author.mention}", embed=embed)
+
+        # Add reactions for the next and previous page of the help commnad
+        reactions = [ARROW_BACKWARD, ARROW_FORWARD]
+
+        # Add reactions as a way to interact with the page
+        for reaction in reactions:
+            await msg.add_reaction(reaction)
+
+        while True:
+            try:
+                # Wait for a reaction from the user
+                reaction, user = await client.wait_for("reaction_add", check=check, timeout=60)
+                change_page = False
+
+                # If the user wants the next page, increment the current page
+                # only if it is before the last page
+                if reaction.emoji == ARROW_FORWARD:
+                    if current_page < total_pages:
+                        current_page += 1
+                        change_page = True
+                elif reaction.emoji == ARROW_BACKWARD:
+                    # If the user wants the previous page, decrement the current page
+                    # only if it is after the first page
+                    if current_page > 0:
+                        current_page -= 1
+                        change_page = True
+
+                # Get the new embed and edit the last message
+                # if the page has changed
+                if change_page:
+                    embed = self.get_help_page(ctx, current_page)
+                    await msg.edit(content=f"{ctx.author.mention}", embed=embed)
+            except asyncio.TimeoutError:
+                break
+
+            # Remove the reactions on the message and readd them
+            if 0 < current_page < total_pages:
+                await msg.clear_reactions()
+                for reaction in reactions:
+                    await msg.add_reaction(reaction)
 
     def can_execute(self, ctx: commands.Context, **kwargs) -> bool:
         """
@@ -290,20 +357,6 @@ class Helpers:
 
 # Initialize helpers object to be used inside commands
 client.helpers = Helpers()
-
-
-MY_ID = 222950176770228225
-MODERATOR_ID = 760078403264184341
-OWNER_ID = 760085688133222420
-WAITING_ROOM_ID = 763090286372585522
-BOT_ID = 760473932439879700
-GENERAL_ID = 760047749482807330
-SYNADELFOS_ROLE_ID = 773654278631850065
-FILIP_ROLE_ID = 770328364913131621
-PANEPISTHMIO_ID = 760047749482807327
-MUTED_ROLE_ID = 773396782129348610
-TICK_EMOJI = "\U00002705"
-X_EMOJI = "\U0000274c"
 
 
 @client.command(brief="Test the bot")
@@ -999,8 +1052,6 @@ async def help(ctx, group: str = None) -> None:
 
     :param group: The command to get help from
     """
-    def check(reaction, user):
-        return user == ctx.author
 
     # If there is a command passed check if that command exists.
     # If it exists format the output like discord's help command does.
@@ -1010,6 +1061,7 @@ async def help(ctx, group: str = None) -> None:
         if group in client.commands_dict["commands"]:
             help_text = f"{client.command_prefix}"
             aliases = client.commands_dict["commands"][group]["aliases"]
+
             # Check if the command has any aliases
             if aliases:
                 help_text += f"[{group}"
@@ -1030,50 +1082,7 @@ async def help(ctx, group: str = None) -> None:
 
         return
 
-    
-    # Paginate the help command
-    total_pages = len(client.commands_dict["commands"]) // 4
-    current_page = 0
-    embed = client.helpers.get_help_page(ctx, current_page)
-
-    msg = await ctx.send(f"{ctx.author.mention}", embed=embed)
-
-    # Add reactions for the next page of the help page
-    arrow_backward = "\U000025c0"
-    arrow_forward = "\U000025b6"
-    reactions = [arrow_backward, arrow_forward]
-    # Add reactions as a way to interact with the page
-    for reaction in reactions:
-        await msg.add_reaction(reaction)
-
-    while True:
-        try:
-            # Wait for a reaction from the user
-            reaction, user = await client.wait_for("reaction_add", check=check, timeout=60)
-
-            # If the user wants the next page, increment the current page
-            # only if it is before the last page
-            if reaction.emoji == arrow_forward:
-                if current_page < total_pages:
-                    current_page += 1
-                    # Get the new embed and edit the last message
-                    embed = client.helpers.get_help_page(ctx, current_page)
-                    await msg.edit(content=f"{ctx.author.mention}", embed=embed)
-            elif reaction.emoji == arrow_backward:
-                # If the user wants the previous page, decrement the current page
-                # only if it is after the first page
-                if current_page > 0:
-                    current_page -= 1
-                    embed = client.helpers.get_help_page(ctx, current_page)
-                    await msg.edit(content=f"{ctx.author.mention}", embed=embed)
-        except asyncio.TimeoutError:
-            break
-
-        # Remove the reactions on the message and readd them
-        if 0 < current_page < total_pages:
-            await msg.clear_reactions()
-            for reaction in reactions:
-                await msg.add_reaction(reaction)
+    await client.helpers.send_help_embed(ctx)
 
 
 @client.event
