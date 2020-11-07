@@ -41,6 +41,8 @@ class Helpers:
     """
     This class contains all the functions used inside commands and event listeners
     """
+    def __init__(self):
+        self.max_commands_on_page = 4
 
     async def mute_timer(self, ctx: commands.Context, member: discord.Member, minutes: float) -> None:
         """
@@ -133,6 +135,9 @@ class Helpers:
                         f"{msg.author.mention} you are not to upload `.{extension}` files"
                         f"Use `{client.command_prefix}allowedfiles` to view all the allowed file types."
                     )
+    
+    async def send_help_embed(self, ctx: commands.Context) -> None:
+
 
     def can_execute(self, ctx: commands.Context, **kwargs) -> bool:
         """
@@ -205,9 +210,23 @@ class Helpers:
             return False
 
     def sort_dict(self, dictionary: dict) -> dict:
+        """
+        Sort a dictionary by key
+
+        :param dictionary: The dictionary to sort
+        :return dict: The dictionary sorted by key
+        """
         return {k: dictionary[k] for k in sorted(dictionary)}
 
     def slice_dict(self, dictionary: dict, start: int, stop: int) -> dict:
+        """
+        Return a slice of a dictionary"
+
+        :param dictionary: The dictionary to slice
+        :param start: The index to start slicing th dict. This is inclusive.
+        :param stop: The index to stop slicing the dict. This is exclusive
+        :return new_dict: The new dictionary, only containing the elements from `start`(inclusive) to `stop`(exclusive)
+        """
         new_dict = {}
         for i, item in enumerate(dictionary.items()):
             if i >= start and i < stop:
@@ -219,26 +238,38 @@ class Helpers:
         """
         Creates a discord embed of the available commands paginated
         """
+
+        # Initialize the discord.Embed object
         embed = discord.Embed(
             title="Commands",
             url="https://csihu.pythonanywhere.com",
             description="View all the available commands!",
             color=0xff0000
         )
+        # Set the bot as the author
         embed.set_author(
             name="CSIHU Notificator",
             icon_url="https://csihu.pythonanywhere.com/static/images/csihu_icon.png"
         )
 
+        # All the available commands
         available_commands = client.commands_dict["commands"]
-        max_commands_on_page = 4
+
+        # How many command can appear on the page
+        max_commands_on_page = self.max_commands_on_page
+
+        # The number of pages needed to show all the commands
         total_pages = len(available_commands) // max_commands_on_page
+
+        # Current page's commands.
+        # This is a dictionary with `max_commands_on_page` keys
         page_commands = self.slice_dict(
             self.sort_dict(available_commands),
             page_number*max_commands_on_page,
             page_number*max_commands_on_page+4
         )
 
+        # Add all the fields with the commands of the page
         for key, val in page_commands.items():
             embed.add_field(
                 name=f"{client.command_prefix}{key}",
@@ -246,7 +277,11 @@ class Helpers:
                 inline=False
             )
 
+        # Field that shows what is the current page and how many the total pages are
         embed.add_field(name="Page", value=f"{page_number+1}/{total_pages+1}")
+
+        # Set the footer of the embed to the icon of the author, the nickanme
+        # and the current time the page was requested
         embed.set_footer(text=ctx.author.nick, icon_url=ctx.author.avatar_url)
         embed.timestamp = datetime.now()
 
@@ -992,51 +1027,53 @@ async def help(ctx, group: str = None) -> None:
             await ctx.send(f"```{help_text} ```")
         else:
             await ctx.send(f"Couldn't find command `{group}`")
+
         return
-    else:
-        # Paginate the help command
-        total_pages = len(client.commands_dict["commands"]) // 4
-        current_page = 0
-        embed = client.helpers.get_help_page(ctx, current_page)
 
-        msg = await ctx.send(f"{ctx.author.mention}", embed=embed)
+    
+    # Paginate the help command
+    total_pages = len(client.commands_dict["commands"]) // 4
+    current_page = 0
+    embed = client.helpers.get_help_page(ctx, current_page)
 
-        # Add reactions for the next page of the help page
-        arrow_backward = "\U000025c0"
-        arrow_forward = "\U000025b6"
-        reactions = [arrow_backward, arrow_forward]
-        # Add reactions as a way to interact with the page
-        for reaction in reactions:
-            await msg.add_reaction(reaction)
+    msg = await ctx.send(f"{ctx.author.mention}", embed=embed)
 
-        while True:
-            try:
-                # Wait for a reaction from the user
-                reaction, user = await client.wait_for("reaction_add", check=check, timeout=60)
+    # Add reactions for the next page of the help page
+    arrow_backward = "\U000025c0"
+    arrow_forward = "\U000025b6"
+    reactions = [arrow_backward, arrow_forward]
+    # Add reactions as a way to interact with the page
+    for reaction in reactions:
+        await msg.add_reaction(reaction)
 
-                # If the user wants the next page, increment the current page
-                # only if it is before the last page
-                if reaction.emoji == arrow_forward:
-                    if current_page < total_pages:
-                        current_page += 1
-                        # Get the new embed and edit the last message
-                        embed = client.helpers.get_help_page(ctx, current_page)
-                        await msg.edit(content=f"{ctx.author.mention}", embed=embed)
-                elif reaction.emoji == arrow_backward:
-                    # If the user wants the previous page, decrement the current page
-                    # only if it is after the first page
-                    if current_page > 0:
-                        current_page -= 1
-                        embed = client.helpers.get_help_page(ctx, current_page)
-                        await msg.edit(content=f"{ctx.author.mention}", embed=embed)
-            except asyncio.TimeoutError:
-                break
+    while True:
+        try:
+            # Wait for a reaction from the user
+            reaction, user = await client.wait_for("reaction_add", check=check, timeout=60)
 
-            # Remove the reactions on the message and readd them
-            if 0 < current_page < total_pages:
-                await msg.clear_reactions()
-                for reaction in reactions:
-                    await msg.add_reaction(reaction)
+            # If the user wants the next page, increment the current page
+            # only if it is before the last page
+            if reaction.emoji == arrow_forward:
+                if current_page < total_pages:
+                    current_page += 1
+                    # Get the new embed and edit the last message
+                    embed = client.helpers.get_help_page(ctx, current_page)
+                    await msg.edit(content=f"{ctx.author.mention}", embed=embed)
+            elif reaction.emoji == arrow_backward:
+                # If the user wants the previous page, decrement the current page
+                # only if it is after the first page
+                if current_page > 0:
+                    current_page -= 1
+                    embed = client.helpers.get_help_page(ctx, current_page)
+                    await msg.edit(content=f"{ctx.author.mention}", embed=embed)
+        except asyncio.TimeoutError:
+            break
+
+        # Remove the reactions on the message and readd them
+        if 0 < current_page < total_pages:
+            await msg.clear_reactions()
+            for reaction in reactions:
+                await msg.add_reaction(reaction)
 
 
 @client.event
