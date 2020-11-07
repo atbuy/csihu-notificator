@@ -841,7 +841,7 @@ async def remove_reactions(ctx: commands.Context, amount: int, message: discord.
         return
 
     # Check if the member can execute this command
-    execute = client.helpers.can_execute(ctx)
+    execute = client.helpers.can_execute(ctx, manage_messages=True)
 
     if execute:
         if message:
@@ -871,7 +871,7 @@ async def slow(ctx: commands.Context, time: str) -> None:
     """
 
     # Check if the member can execute this command
-    execute = client.helpers.can_execute(ctx)
+    execute = client.helpers.can_execute(ctx, manage_channels=True)
 
     if execute:
         slowed, time_type = time[0:len(time)-1], time[-1]
@@ -923,7 +923,7 @@ async def filip(ctx: commands.Context, person: discord.Member) -> None:
     """
 
     # Check if the member can execute this command
-    execute = client.helpers.can_execute(ctx)
+    execute = client.helpers.can_execute(ctx, manage_roles=True)
 
     if execute:
         filip_role = ctx.guild.get_role(FILIP_ROLE_ID)
