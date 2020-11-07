@@ -163,7 +163,7 @@ class Helpers:
         """
         if 0 < current_page < self.total_pages:
             await msg.clear_reactions()
-            for reaction in self.reactions:
+            for reaction in self.help_command_reactions:
                 await msg.add_reaction(reaction)
 
     async def _changed_page(self, ctx: commands.Context, current_page: int, reaction: discord.Reaction) -> tuple:
@@ -228,7 +228,7 @@ class Helpers:
         msg = await ctx.send(f"{ctx.author.mention}", embed=embed)
 
         # Add reactions as a way to interact with the page
-        for reaction in self.reactions:
+        for reaction in self.help_command_reactions:
             await msg.add_reaction(reaction)
 
         execute = await self._check_for_page_change(ctx, msg, current_page)
