@@ -191,7 +191,7 @@ class Helpers:
 
         return True, current_page
 
-    async def _check_for_page_change(self, ctx: commands.Context, msg: discord.Message, current_page: int) -> bool:
+    async def _wait_for_page_change(self, ctx: commands.Context, msg: discord.Message, current_page: int) -> bool:
         """
         Check if the user wants to change the page and sends a new page if he does.
 
@@ -205,7 +205,7 @@ class Helpers:
         try:
             # Wait for a reaction from the user
             reaction, user = await client.wait_for("reaction_add", check=check, timeout=60)
-            change_page, current_page = await self._changed_page(ctx)
+            change_page, current_page = await self._changed_page(ctx, current_page, reaction)
 
             if change_page:
                 # Get the new embed and edit the last message if the page has changed
@@ -231,9 +231,9 @@ class Helpers:
         for reaction in self.help_command_reactions:
             await msg.add_reaction(reaction)
 
-        execute = await self._check_for_page_change(ctx, msg, current_page)
+        execute = await self._wait_for_page_change(ctx, msg, current_page)
         while execute:
-            execute = await self._check_for_page_change(ctx, msg, current_page)
+            execute = await self._wait_for_page_change(ctx, msg, current_page)
 
     def can_execute(self, ctx: commands.Context, **kwargs) -> bool:
         """
