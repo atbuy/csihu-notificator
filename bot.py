@@ -406,7 +406,7 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
             paragraphs.pop(0)
         except IndexError:
             pass
-        
+
         final_text = ""
         for index, item in enumerate(paragraphs):
             final_text += item.get_text()
