@@ -189,6 +189,7 @@ class Helpers:
         else:
             return False, current_page
 
+        print(current_page)
         return True, current_page
 
     async def _wait_for_page_change(self, ctx: commands.Context, msg: discord.Message, current_page: int) -> bool:
@@ -212,10 +213,10 @@ class Helpers:
                 embed = self.get_help_page(ctx, current_page)
                 await msg.edit(content=f"{ctx.author.mention}", embed=embed)
         except asyncio.TimeoutError:
-            return False
+            return False, current_page
 
         await self._clear_reactions(msg, current_page)
-        return True
+        return True, current_page
 
     async def send_help_embed(self, ctx: commands.Context) -> None:
         """
@@ -231,9 +232,9 @@ class Helpers:
         for reaction in self.help_command_reactions:
             await msg.add_reaction(reaction)
 
-        execute = await self._wait_for_page_change(ctx, msg, current_page)
+        execute, current_page = await self._wait_for_page_change(ctx, msg, current_page)
         while execute:
-            execute = await self._wait_for_page_change(ctx, msg, current_page)
+            execute, current_page = await self._wait_for_page_change(ctx, msg, current_page)
 
     def can_execute(self, ctx: commands.Context, **kwargs) -> bool:
         """
