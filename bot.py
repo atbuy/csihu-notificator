@@ -15,7 +15,7 @@ from discord.ext import commands
 from jishaku.repl.compilation import AsyncCodeExecutor
 
 
-with open("info.json") as file:
+with open("info.json", encoding="utf8") as file:
     info = json.load(file)
 
 last_id = info["last_id"]
@@ -33,7 +33,7 @@ client = commands.Bot(command_prefix=".", intents=intents, help_command=None)
 client.latest_announcement = {"text": last_message, "link": last_link}
 client.is_running = False
 
-with open("commands.json") as file:
+with open("commands.json", encoding="utf8") as file:
     client.commands_dict = json.load(file)
 
 
@@ -496,8 +496,8 @@ async def latest(ctx: commands.Context) -> None:
 
     :return: None
     """
-    link = client.last_announcement["link"]
-    text = client.last_announcement["text"]
+    link = client.latest_announcement["link"]
+    text = client.latest_announcement["text"]
     await ctx.send(f"Latest announcement link: <{link}>\n```{text} ```")
 
 
