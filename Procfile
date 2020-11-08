@@ -1,1 +1,1 @@
-worker: python3.7 bot/bot.py 
+worker: python3.7 notificator/bot.py 
