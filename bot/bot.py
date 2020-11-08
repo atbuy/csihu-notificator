@@ -15,7 +15,12 @@ from discord.ext import commands
 from jishaku.repl.compilation import AsyncCodeExecutor
 
 
-with open("info.json", encoding="utf8") as file:
+cwd = os.getcwd()
+data_folder = os.path.join(cwd, "data")
+info_file = os.path.join(data_folder, "info.json")
+commands_file = os.path.join(data_folder, "commands.json")
+
+with open(info_file, encoding="utf8") as file:
     info = json.load(file)
 
 last_id = info["last_id"]
@@ -33,7 +38,7 @@ client = commands.Bot(command_prefix=".", intents=intents, help_command=None)
 client.latest_announcement = {"text": last_message, "link": last_link}
 client.is_running = False
 
-with open("commands.json", encoding="utf8") as file:
+with open(commands_file, encoding="utf8") as file:
     client.commands_dict = json.load(file)
 
 
