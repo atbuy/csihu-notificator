@@ -9,18 +9,19 @@ import textblob
 import urbandict
 import traceback
 import googlesearch
-from datetime import datetime
+from pathlib import Path
 from bs4 import BeautifulSoup
+from datetime import datetime
 from discord.ext import commands
 from jishaku.repl.compilation import AsyncCodeExecutor
 
 
-cwd = os.getcwd()
-data_folder = os.path.join(cwd, "data")
-info_file = os.path.join(data_folder, "info.json")
-commands_file = os.path.join(data_folder, "commands.json")
+ROOT_DIR = Path(__file__).parent.parent
+DATA_FOLDER = os.path.join(ROOT_DIR, "data")
+INFO_FILE = os.path.join(DATA_FOLDER, "info.json")
+COMMANDS_FILE = os.path.join(DATA_FOLDER, "commands.json")
 
-with open(info_file, encoding="utf8") as file:
+with open(INFO_FILE, encoding="utf8") as file:
     info = json.load(file)
 
 last_id = info["last_id"]
@@ -34,11 +35,11 @@ special_characters = info["special_characters"]
 
 TOKEN = os.environ.get("CSIHU_NOTIFICATOR_BOT_TOKEN")
 intents = discord.Intents.all()
-client = commands.Bot(command_prefix=".", intents=intents, help_command=None)
+client = commands.Bot(command_prefix=commands.when_mentioned_or("."), intents=intents, help_command=None)
 client.latest_announcement = {"text": last_message, "link": last_link}
 client.is_running = False
 
-with open(commands_file, encoding="utf8") as file:
+with open(COMMANDS_FILE, encoding="utf8") as file:
     client.commands_dict = json.load(file)
 
 
@@ -1125,7 +1126,6 @@ async def on_ready():
     """
     This is an event listener. It changes the bot's presence when the bot is ready
     """
-    global last_id, members_in_waiting_room
     await client.change_presence(
         status=discord.Status.online,
         activity=discord.Game(f"Commands with '{client.command_prefix}'")
@@ -1212,10 +1212,15 @@ async def on_message(msg: discord.Message) -> None:
     await client.process_commands(msg)
 
 
-# Load the `jishaku` extension
-extensions = ["jishaku"]
-for extension in extensions:
-    client.load_extension(extension)
+def start():
+    # Load the `jishaku` extension
+    extensions = ["jishaku"]
+    for extension in extensions:
+        client.load_extension(extension)
 
-# Run the bot
-client.run(TOKEN, reconnect=True)
+    # Run the bot
+    client.run(TOKEN, reconnect=True)
+
+
+if __name__ == "__main__":
+    start()
