@@ -40,7 +40,8 @@
         "webm",
         "flv",
         "mkv",
-        "gif"
+        "gif",
+        "pdf"
     ],
     "emoji_characters": {
         "a": "\ud83c\udde6",

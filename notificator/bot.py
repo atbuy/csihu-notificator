@@ -148,6 +148,7 @@ class Helpers:
 
         :param msg: The message to check the attachements of
         """
+        ctx = client.get_context(msg)
         attachments = msg.attachments
         if attachments:
             for attach in attachments:
@@ -157,7 +158,7 @@ class Helpers:
                     await msg.delete()
                     await msg.channel.send(
                         f"{msg.author.mention} you are not to upload `.{extension}` files"
-                        f"Use `{client.command_prefix}allowedfiles` to view all the allowed file types."
+                        f"Use `{ctx.prefix}allowedfiles` to view all the allowed file types."
                     )
 
     async def _clear_reactions(self, msg: discord.Message, current_page: int) -> None:
@@ -375,7 +376,7 @@ class Helpers:
         # Add all the fields with the commands of the page
         for key, val in page_commands.items():
             embed.add_field(
-                name=f"{client.command_prefix}{key}",
+                name=f"{ctx.prefix}{key}",
                 value=f"{val['brief']}",
                 inline=False
             )
@@ -810,7 +811,7 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message = 
             await ctx.channel.purge(limit=number, before=message.created_at)
             await message.delete()
             await ctx.message.delete()
-            print(f"{ctx.author} did {client.command_prefix}delete {number} {message.id}")
+            print(f"{ctx.author} did {ctx.prefix}delete {number} {message.id}")
         # If message and member are given, then retrieve `amount` messages
         # and delete the messages sent from `member`
         elif message and member:
@@ -819,9 +820,9 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message = 
             await ctx.message.delete()
 
             # Just for logs
-            print(f"{ctx.author} did {client.command_prefix}delete {number} {message.id} {member}")
+            print(f"{ctx.author} did {ctx.prefix}delete {number} {message.id} {member}")
     else:
-        await ctx.send(f"{ctx.author.mention} you don't have enough permissions to use {client.command_prefix}delete")
+        await ctx.send(f"{ctx.author.mention} you don't have enough permissions to use {ctx.prefix}delete")
 
 
 @client.command(name="rr", brief="Remove reactions from messages")
@@ -1095,7 +1096,7 @@ async def help(ctx, group: str = None) -> None:
     if group:
         # Check if the command exists
         if group in client.commands_dict["commands"]:
-            help_text = f"{client.command_prefix}"
+            help_text = f"{ctx.prefix}"
             aliases = client.commands_dict["commands"][group]["aliases"]
 
             # Check if the command has any aliases
@@ -1128,7 +1129,7 @@ async def on_ready():
     """
     await client.change_presence(
         status=discord.Status.online,
-        activity=discord.Game(f"Commands with '{client.command_prefix}'")
+        activity=discord.Game(f"Commands with '{client.command_prefix()}'")
     )
     print("NotificatorBot ready")
 
@@ -1163,17 +1164,18 @@ async def on_message(msg: discord.Message) -> None:
     # ! This should be deleted without a readonly mode
     # ? Consider including snekbox
     # Python eval command
-    if check_msg.startswith(f"{client.command_prefix}e"):
+    ctx = client.get_context(msg)
+    if check_msg.startswith(f"{ctx.prefix}e"):
         # Eval is not allowed in general, except moderators that can execute it
         if msg.channel.id == GENERAL_ID:
             ctx = client.get_context(msg)
             allowed_in_general = client.helpers.can_execute(ctx)
             if not allowed_in_general:
-                await msg.channel.send(f"Not allowed to use **{client.command_prefix}e** in {msg.channel.mention}")
+                await msg.channel.send(f"Not allowed to use **{ctx.prefix}e** in {msg.channel.mention}")
                 return
 
         # Format the text to only get the script
-        script = str(msg.content).replace(f"{client.command_prefix}e ", "")
+        script = str(msg.content).replace(f"{ctx.prefix}e ", "")
         script = script.replace(";", "\n")
 
         # Check if the user doesn't want the output to be formatted
