@@ -1068,11 +1068,9 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float) ->
         muted_role = ctx.guild.get_role(MUTED_ROLE_ID)
 
         # If the member is already muted return
-        roles = ctx.author.roles
-        for role in roles:
-            if role.id == MUTED_ROLE_ID:
-                await ctx.send(f"{member.mention} is already muted")
-                return
+        if muted_role in member.roles:
+            await ctx.send(f"{member.mention} is already muted")
+            return
 
         # 1) Add role named "Muted" to member
         await member.add_roles(muted_role)
