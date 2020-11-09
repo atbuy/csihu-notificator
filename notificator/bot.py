@@ -1039,7 +1039,7 @@ async def unmute(ctx: commands.Context, member: discord.Member) -> None:
             # Add synaelfos role again
             synadelfos_role = ctx.guild.get_role(SYNADELFOS_ROLE_ID)
             await member.add_roles(synadelfos_role)
-        except Exception as e:
+        except Exception:
             await ctx.send(f"{member.mention} is not muted")
             return
         await ctx.send(f"{ctx.author.mention} unmuted {member.mention}")
