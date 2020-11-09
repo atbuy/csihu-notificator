@@ -148,7 +148,7 @@ class Helpers:
 
         :param msg: The message to check the attachements of
         """
-        ctx = client.get_context(msg)
+        ctx = await client.get_context(msg)
         attachments = msg.attachments
         if attachments:
             for attach in attachments:
@@ -1164,11 +1164,10 @@ async def on_message(msg: discord.Message) -> None:
     # ! This should be deleted without a readonly mode
     # ? Consider including snekbox
     # Python eval command
-    ctx = client.get_context(msg)
+    ctx = await client.get_context(msg)
     if check_msg.startswith(f"{ctx.prefix}e"):
         # Eval is not allowed in general, except moderators that can execute it
         if msg.channel.id == GENERAL_ID:
-            ctx = client.get_context(msg)
             allowed_in_general = client.helpers.can_execute(ctx)
             if not allowed_in_general:
                 await msg.channel.send(f"Not allowed to use **{ctx.prefix}e** in {msg.channel.mention}")
