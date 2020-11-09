@@ -2,6 +2,7 @@
 import os
 import json
 import time
+import random
 import asyncio
 import discord
 import requests
@@ -409,6 +410,12 @@ async def test(ctx: commands.Context) -> None:
     Reply to the bot to check if it's working
     """
     await ctx.send(f"Hey {ctx.author.mention}!")
+
+
+@client.command(name="roll", brief="Get a random number!")
+async def roll(ctx: commands.Context) -> None:
+    random_number = random.randint(0, 1000)
+    await ctx.send(f"{ctx.author.mention} you number is: `{random_number}`")
 
 
 @client.command(name="gsearch", brief="Search google", aliases=["gs", "googlesearch"])
@@ -1033,7 +1040,6 @@ async def unmute(ctx: commands.Context, member: discord.Member) -> None:
             synadelfos_role = ctx.guild.get_role(SYNADELFOS_ROLE_ID)
             await member.add_roles(synadelfos_role)
         except Exception as e:
-            print(e)
             await ctx.send(f"{member.mention} is not muted")
             return
         await ctx.send(f"{ctx.author.mention} unmuted {member.mention}")
@@ -1063,9 +1069,10 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float) ->
 
         # If the member is already muted return
         roles = ctx.author.roles
-        if muted_role in roles:
-            await ctx.send(f"{member.mention} is already muted")
-            return
+        for role in roles:
+            if role.id == MUTED_ROLE_ID:
+                await ctx.send(f"{member.mention} is already muted")
+                return
 
         # 1) Add role named "Muted" to member
         await member.add_roles(muted_role)
@@ -1191,9 +1198,7 @@ async def help(ctx, group: str = None) -> None:
 
 @client.event
 async def on_ready():
-    """
-    This is an event listener. It changes the bot's presence when the bot is ready
-    """
+    """This is an event listener. It changes the bot's presence when the bot is ready"""
     print("NotificatorBot ready")
 
 

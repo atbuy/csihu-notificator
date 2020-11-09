@@ -120,7 +120,7 @@
             ]
         },
         "waiting_list": {
-            "brief": "Add/Remove someone from the waiting list",
+            "brief": "Add/Remove someone from the waiting lit",
             "aliases": [
                 "waiting_room"
             ],
@@ -193,6 +193,16 @@
             "parameters": [
                 "<script>"
             ]
+        },
+        "roll": {
+            "brief": "Get a random number",
+            "aliases": [],
+            "parameters": []
+        },
+        "zoom": {
+            "brief": "Zoom Link",
+            "aliases": [],
+            "parameters": []
         }
     },
     "prefix": "."
