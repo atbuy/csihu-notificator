@@ -529,20 +529,21 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
     # Get all the paragraph tags
     paragraphs = soup.find_all("p")
 
-    if len(paragraphs) == 1:
-        for item in paragraphs:
-            final_text = item.get_text()
-    else:
-        try:
-            paragraphs.pop(0)
-        except IndexError:
-            pass
+    # The first element contains all the text, so remove it
+    # to iterate over the other elements which also contain
+    # the text.
+    # ! Spaghetti here
+    try:
+        paragraphs.pop(0)
+    except IndexError:
+        pass
 
-        final_text = ""
-        for index, item in enumerate(paragraphs):
-            final_text += item.get_text()
+    # Add the text to a string
+    final_text = ""
+    for item in paragraphs:
+        final_text += item.get_text()
 
-    # Some text formatting
+    # Format it to remove unwanted characters
     found = False
     to_delete = """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
     if final_text.replace("\n", "") != "":
@@ -566,7 +567,10 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
             await ctx.send(f"Announcement found.\nLink: <{link}>\n```{final_text} ```")
         except discord.errors.HTTPException:
             await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
+
+        await ctx.message.add_reaction(TICK_EMOJI)
     else:
+        await ctx.message.add_reaction(X_EMOJI)
         await ctx.send("```Couldn't find announcement.```")
 
 
@@ -600,40 +604,43 @@ async def run_bot(ctx: commands.Context) -> None:
     If there are it sends them to the channel the command was ran from.
 
     :return: None
-
-    # TODO Add comments
     """
     global last_id
+
+    # Only I am allowed to run this command, so other member don't mess with it
+    # since we don't want multiple instances of this command running, unless it's for different channels
     if ctx.author.id == MY_ID:
         client.is_running = True
-        await ctx.send("```Started```")
+        await ctx.message.add_reaction(TICK_EMOJI)
 
         while True:
+            # GET the page and find all the paragraphs
             req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id+1}")
             soup = BeautifulSoup(req.text, "html.parser")
             paragraphs = soup.find_all("p")
 
-            if len(paragraphs) == 1:
-                for item in paragraphs:
-                    final_text = item.get_text().replace("\n", "")
-            else:
-                try:
-                    paragraphs.pop(0)
-                except IndexError:
-                    pass
-                final_text = ""
-                for index, item in enumerate(paragraphs):
-                    if index == len(paragraphs):
-                        final_text += item.get_text().replace("\xa0", "\n")
-                    else:
-                        final_text += item.get_text()
+            # The first element contains all the text, so remove it
+            # to iterate over the other elements which also contain
+            # the text.
+            # ! Spaghetti here
+            try:
+                paragraphs.pop(0)
+            except IndexError:
+                pass
 
+            # Get all the text of the page
+            final_text = ""
+            for item in paragraphs:
+                final_text += item.get_text()
+
+            # Check if there is a new announcement, or if the page is empty
             new_announce = False
             to_delete = """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
             if final_text.replace("\n", "") != "":
                 if final_text.strip().replace(to_delete, "") != "":
                     new_announce = True
 
+            # If there is a new announcement, send it to the channel the command was executed
             if new_announce:
                 last_id += 1
                 link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id}"
@@ -645,20 +652,24 @@ async def run_bot(ctx: commands.Context) -> None:
                 for item in to_delete:
                     final_text = final_text.replace(item, "").strip()
 
+                # Update the latest announcement dictionary
                 client.latest_announcement = {"text": final_text, "link": link}
 
-                info["last_id"] = last_id
-                info["last_message"] = final_text
-                info["last_link"] = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id}"
-                with open("info.json", "w", encoding="utf8") as file:
-                    json.dump(info, file, indent=4)
+                # Write the new data to `info.json`
+                # * This can only be used in servers with read/write permissions
+                # ! Removed when hosted on Heroku
+                # info["last_id"] = last_id
+                # info["last_message"] = final_text
+                # info["last_link"] = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id}"
+                # with open("info.json", "w", encoding="utf8") as file:
+                #     json.dump(info, file, indent=4)
 
                 try:
                     await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text} ```")
                 except discord.errors.HTTPException:
                     await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
 
-            await asyncio.sleep(120)
+            await asyncio.sleep(300)
     else:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions")
 
