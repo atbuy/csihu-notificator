@@ -155,7 +155,7 @@ class Helpers:
 
         :param msg: The message to check the attachements of
         """
-        ctx = await client.get_context(msg)
+        # ctx = await client.get_context(msg)
         attachments = msg.attachments
         if attachments:
             for attach in attachments:
@@ -165,7 +165,7 @@ class Helpers:
                     await msg.delete()
                     await msg.channel.send(
                         f"{msg.author.mention} you are not to upload `.{extension}` files"
-                        f"Use `{ctx.prefix}allowedfiles` to view all the allowed file types."
+                        f"Use `.allowedfiles` to view all the allowed file types."
                     )
 
     async def _clear_reactions(self, msg: discord.Message, current_page: int) -> None:
