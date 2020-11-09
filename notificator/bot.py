@@ -35,7 +35,12 @@ special_characters = info["special_characters"]
 
 TOKEN = os.environ.get("CSIHU_NOTIFICATOR_BOT_TOKEN")
 intents = discord.Intents.all()
-client = commands.Bot(command_prefix=commands.when_mentioned_or("."), intents=intents, help_command=None)
+client = commands.Bot(
+    command_prefix=commands.when_mentioned_or("."),
+    intents=intents,
+    help_command=None,
+    activity=discord.Activity(discord.ActivityType.listening, name=".help")
+)
 client.latest_announcement = {"text": last_message, "link": last_link}
 client.is_running = False
 
@@ -1127,10 +1132,6 @@ async def on_ready():
     """
     This is an event listener. It changes the bot's presence when the bot is ready
     """
-    await client.change_presence(
-        status=discord.Status.online,
-        activity=discord.Game(f"Commands with '{client.command_prefix()}'")
-    )
     print("NotificatorBot ready")
 
 
