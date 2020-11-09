@@ -75,9 +75,6 @@ class Helpers:
         self.total_pages = len(client.commands_dict["commands"]) // self.max_commands_on_page
         self.help_command_reactions = [ARROW_BACKWARD, ARROW_FORWARD]
 
-    async def get_python_script(self, ctx: commands.Context, msg: discord.Message) -> str:
-        pass
-
     async def mute_timer(self, ctx: commands.Context, member: discord.Member, minutes: float) -> None:
         """
         Timer until the specified time, to remove the `mute` role
