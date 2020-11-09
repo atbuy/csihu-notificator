@@ -16,6 +16,7 @@ from discord.ext import commands
 from jishaku.repl.compilation import AsyncCodeExecutor
 
 
+# The files inside the data folder
 ROOT_DIR = Path(__file__).parent.parent
 DATA_FOLDER = os.path.join(ROOT_DIR, "data")
 INFO_FILE = os.path.join(DATA_FOLDER, "info.json")
@@ -1215,10 +1216,12 @@ async def on_message(msg: discord.Message) -> None:
 
 
 def start():
+
+    # ! Removed the jishaku extension
     # Load the `jishaku` extension
-    extensions = ["jishaku"]
-    for extension in extensions:
-        client.load_extension(extension)
+    # extensions = ["jishaku"]
+    # for extension in extensions:
+    #     client.load_extension(extension)
 
     # Run the bot
     client.run(TOKEN, reconnect=True)
