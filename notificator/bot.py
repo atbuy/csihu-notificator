@@ -40,7 +40,7 @@ client = commands.Bot(
     command_prefix=commands.when_mentioned_or("."),
     intents=intents,
     help_command=None,
-    activity=discord.Activity(discord.ActivityType.listening, name=".help")
+    activity=discord.Activity(type=discord.ActivityType.listening, name=".help")
 )
 client.latest_announcement = {"text": last_message, "link": last_link}
 client.is_running = False
