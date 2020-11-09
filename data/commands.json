@@ -184,10 +184,15 @@
                 "<text>"
             ]
         },
-        "test": {
-            "brief": "Test the bot",
-            "aliases": [],
-            "parameters": []
+        "e": {
+            "brief": "Execute a Python script",
+            "aliases": [
+                "eval",
+                "py"
+            ],
+            "parameters": [
+                "<script>"
+            ]
         }
     },
     "prefix": "."

@@ -1086,6 +1086,7 @@ async def execute_python(ctx: commands.Context, *, script: str) -> None:
 
     :param script: The script to execute.
     """
+
     # Eval is not allowed in general, except moderators that can execute it
     if ctx.channel.id == GENERAL_ID:
         allowed_in_general = client.helpers.can_execute(ctx)
@@ -1109,20 +1110,7 @@ async def execute_python(ctx: commands.Context, *, script: str) -> None:
 
     # Check if the script passes the filters
     # and if it does, send the output to the channel
-    if ("import os" in script) or ("os." in script):
-        await ctx.send("You are not allowed to use `os`")
-        return
-    elif ("import subprocess" in script) or ("subprocess." in script):
-        await ctx.send("You are not allowed to use `subprocess`")
-        return
-    elif ("import sys" in script) or ("sys." in script):
-        await ctx.send("You are not allowed to use `sys`")
-        return
-    elif ("open(" in script) or ("open (" in script):
-        await ctx.send("You are not allowed to use `open()`")
-        return
-    else:
-        await client.helpers.execute_python_script(ctx.message, script, safe_output)
+    await client.helpers.execute_python_script(ctx.message, script, safe_output)
 
 
 @client.command(name="github", brief="Github Link", aliases=["gh", "git"])

@@ -1,5 +1,5 @@
 .vscode
 add_commands.py
-deprecated.py
+deprecated.txt
 .pytest_cache
 */__pycache__
