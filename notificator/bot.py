@@ -1134,6 +1134,14 @@ async def courses(ctx: commands.Context) -> None:
     await ctx.send("Courses Link: <https://courses.cs.ihu.gr/>")
 
 
+@client.command(name="zoom", brief="Zoom Link")
+async def zoom(ctx: commands.Context) -> None:
+    """
+    Send the Zoom link to the author's channel
+    """
+    await ctx.send("Zoom Link: <https://zoom.us/j/95316736704>")
+
+
 @client.command(brief="Webpage embed to help commands", aliases=["commands"])
 async def help(ctx, group: str = None) -> None:
     """
