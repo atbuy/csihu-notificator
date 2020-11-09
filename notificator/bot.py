@@ -173,7 +173,7 @@ class Helpers:
             for reaction in self.help_command_reactions:
                 await msg.add_reaction(reaction)
 
-    async def _changed_page(self, ctx: commands.Context, current_page: int, reaction: discord.Reaction) -> tuple:
+    async def _changed_page(self, current_page: int, reaction: discord.Reaction) -> tuple:
         """
         Checks if the member changed page and returns True or False if the command has exited.
         The command returns True if the member has changed page and False if he didn't.
@@ -213,7 +213,7 @@ class Helpers:
         try:
             # Wait for a reaction from the user
             reaction, user = await client.wait_for("reaction_add", check=check, timeout=60)
-            change_page, current_page = await self._changed_page(ctx, current_page, reaction)
+            change_page, current_page = await self._changed_page(current_page, reaction)
 
             if change_page:
                 # Get the new embed and edit the last message if the page has changed
