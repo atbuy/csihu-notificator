@@ -1217,13 +1217,6 @@ async def on_message(msg: discord.Message) -> None:
 
 
 def start():
-
-    # ! Removed the jishaku extension
-    # Load the `jishaku` extension
-    # extensions = ["jishaku"]
-    # for extension in extensions:
-    #     client.load_extension(extension)
-
     # Run the bot
     client.run(TOKEN, reconnect=True)
 
