@@ -55,6 +55,7 @@ OWNER_ID = 760085688133222420
 WAITING_ROOM_ID = 763090286372585522
 BOT_ID = 760473932439879700
 GENERAL_ID = 760047749482807330
+SPAM_CHAT_ID = 766177228198903808
 SYNADELFOS_ROLE_ID = 773654278631850065
 FILIP_ROLE_ID = 770328364913131621
 PANEPISTHMIO_ID = 760047749482807327
@@ -73,6 +74,9 @@ class Helpers:
         self.max_commands_on_page = 4
         self.total_pages = len(client.commands_dict["commands"]) // self.max_commands_on_page
         self.help_command_reactions = [ARROW_BACKWARD, ARROW_FORWARD]
+
+    async def get_python_script(self, ctx: commands.Context, msg: discord.Message) -> str:
+        pass
 
     async def mute_timer(self, ctx: commands.Context, member: discord.Member, minutes: float) -> None:
         """
@@ -1075,6 +1079,52 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float) ->
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
 
 
+@client.command(name="eval", aliases=["e"], brief="Execute a python script")
+async def execute_python(ctx: commands.Context, *, script: str) -> None:
+    """
+    Command that executes a python script.
+
+    :param script: The script to execute.
+    """
+    # Eval is not allowed in general, except moderators that can execute it
+    if ctx.channel.id == GENERAL_ID:
+        allowed_in_general = client.helpers.can_execute(ctx)
+        if not allowed_in_general:
+            await ctx.send(f"Not allowed to use **{ctx.prefix}e** in {ctx.channel.mention}")
+            return
+
+    # Check if the user doesn't want the output to be formatted
+    # inside triple quotes (```)
+    safe_output = False
+    if "#safe" in script:
+        safe_output = True
+
+    # Format the text to only get the script
+    if "```" in script:
+        script = script.split("```")[-2]
+        if script.startswith("python"):
+            script = script[6:]
+        elif script.startswith("py"):
+            script = script[2:]
+
+    # Check if the script passes the filters
+    # and if it does, send the output to the channel
+    if ("import os" in script) or ("os." in script):
+        await ctx.send("You are not allowed to use `os`")
+        return
+    elif ("import subprocess" in script) or ("subprocess." in script):
+        await ctx.send("You are not allowed to use `subprocess`")
+        return
+    elif ("import sys" in script) or ("sys." in script):
+        await ctx.send("You are not allowed to use `sys`")
+        return
+    elif ("open(" in script) or ("open (" in script):
+        await ctx.send("You are not allowed to use `open()`")
+        return
+    else:
+        await client.helpers.execute_python_script(ctx.message, script, safe_output)
+
+
 @client.command(name="github", brief="Github Link", aliases=["gh", "git"])
 async def github(ctx: commands.Context) -> None:
     """
@@ -1169,58 +1219,10 @@ async def on_message(msg: discord.Message) -> None:
     await client.helpers.remove_unallowed_files(msg)
 
     # If the message is not in the spam-chat, check if it should be allowed
-    if not msg.channel.id == 766177228198903808:  # spam-chat ID
+    if not msg.channel.id == SPAM_CHAT_ID:
         if not client.helpers.valid_message(check_msg):
             await asyncio.sleep(0.5)
             await msg.delete()
-
-    # ! This should be deleted without a readonly mode
-    # ? Consider including snekbox
-    # Python eval command
-    ctx = await client.get_context(msg)
-    if check_msg.startswith(f"{ctx.prefix}e"):
-        # Eval is not allowed in general, except moderators that can execute it
-        if msg.channel.id == GENERAL_ID:
-            allowed_in_general = client.helpers.can_execute(ctx)
-            if not allowed_in_general:
-                await msg.channel.send(f"Not allowed to use **{ctx.prefix}e** in {msg.channel.mention}")
-                return
-
-        # Format the text to only get the script
-        script = str(msg.content).replace(f"{ctx.prefix}e ", "")
-        script = script.replace(";", "\n")
-
-        # Check if the user doesn't want the output to be formatted
-        # inside triple quotes (```)
-        safe_output = False
-        if "#safe" in script:
-            safe_output = True
-
-        # Format the string again
-        if "```" in script:
-            script = script.split("```")[-2]
-            if script.startswith("python"):
-                script = script[6:]
-            elif script.startswith("py"):
-                script = script[2:]
-
-        # Check if the script passes the filters
-        if "import os" in script or ("os." in script):
-            await msg.channel.send("You are not allowed to use `os`")
-            return
-        elif "import subprocess" in script or ("subprocess." in script):
-            await msg.channel.send("You are not allowed to use `subprocess`")
-            return
-        elif "import sys" in script or ("sys." in script):
-            await msg.channel.send("You are not allowed to use `sys`")
-            return
-        elif "open(" in script or "open (" in script:
-            await msg.channel.send("You are not allowed to use `open()`")
-            return
-        else:
-            await client.helpers.execute_python_script(msg, script, safe_output)
-
-        return
 
     # Check if the message was supposed to be a command
     await client.process_commands(msg)
