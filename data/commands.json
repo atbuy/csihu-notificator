@@ -197,7 +197,10 @@
         "roll": {
             "brief": "Get a random number",
             "aliases": [],
-            "parameters": []
+            "parameters": [
+                "[start]",
+                "[end]"
+            ]
         },
         "zoom": {
             "brief": "Zoom Link",

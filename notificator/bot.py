@@ -413,9 +413,9 @@ async def test(ctx: commands.Context) -> None:
 
 
 @client.command(name="roll", brief="Get a random number!")
-async def roll(ctx: commands.Context) -> None:
-    random_number = random.randint(0, 1000)
-    await ctx.send(f"{ctx.author.mention} you number is: `{random_number}`")
+async def roll(ctx: commands.Context, start: int = 0, end: int = 10_000) -> None:
+    random_number = random.randint(start, end)
+    await ctx.send(f"{ctx.author.mention} your number is: `{random_number}`")
 
 
 @client.command(name="gsearch", brief="Search google", aliases=["gs", "googlesearch"])
