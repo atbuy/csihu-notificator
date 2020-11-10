@@ -1025,6 +1025,7 @@ async def filip(ctx: commands.Context, person: discord.Member) -> None:
 
 
 @client.command(name="translate", aliases=["trans", "tr"])
+@commands.cooldown(1, 10, commands.BucketType.user)
 async def translate(ctx: commands.Context, *, text: str) -> None:
     """
     Trasnlate text from the detected language to greek
