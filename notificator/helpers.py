@@ -284,7 +284,7 @@ class Helpers:
         """
 
         # Check if there are any special characters in the message and remove them
-        characters = list(filter(lambda x: x in msg, self.SPECIAL_CHARACTERS))
+        characters = list(filter(lambda x: x in msg, SPECIAL_CHARACTERS))
         if characters:
             for char in characters:
                 msg = msg.replace(char, "")
