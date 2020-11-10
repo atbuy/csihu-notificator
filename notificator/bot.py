@@ -414,27 +414,44 @@ async def test(ctx: commands.Context) -> None:
 
 @client.command(name="setc", aliases=["color", "role-color"], brief="Change your color")
 async def change_role_color(ctx: commands.Context, red=None, green=None, blue=None) -> None:
-    # !A!B!C = !!(!A * !B * !C) = !(A + B + C)
+    """
+    Changes the author's name color to either the hex value passed, or the rgb one.
+
+    :param red: Can be either a hex value, or the red value of rgb.
+    :param green: Can be None when hex is passed. This is the green value of rgb.
+    :param blue: Can be None when hex is passed. This is the green value of rgb.
+    """
+    # * !A!B!C = !!(!A * !B * !C) = !(A + B + C)
     if not (red or green or blue):
         return
 
+    # If the hex contains a `#`, remove it
     if "#" in red:
         hex_val = red.replace("#", "")
+    # Account the hex, even without the `#`
     elif not ("#" in red) and not (green or blue):
         hex_val = red
+    # Check if the user passed an rgb value and convert it to hex
     elif red and green and blue:
         hex_val = "%02x%02x%02x" % (int(red), int(green), int(blue))
     else:
         return
 
+    # Check if the role already exists and return it
     color_role = discord.utils.get(ctx.guild.roles, name=f"clr-{ctx.author.name}")
+
+    # If it exists, just edit it's color
     if color_role:
+        # Convert the hex to an integer base16
         await color_role.edit(colour=discord.Color(int(hex_val, 16)))
     else:
+        # If it doesn't exist, create it and give it to the author
         color_role = await ctx.guild.create_role(name=f"clr-{ctx.author.name}", color=discord.Color(int(hex_val, 16)))
         await ctx.author.add_roles(color_role)
+
+    # Get the top position, to place the role and move it after all the locked roles.
     roles = ctx.guild.roles
-    position = len(roles)-10
+    position = len(roles) - 10
     await color_role.edit(position=position)
 
 
