@@ -14,7 +14,8 @@ from discord.ext import commands
 import helpers
 
 LAST_ID = helpers.LAST_ID
-
+LAST_LINK = helpers.LAST_LINK
+LAST_MESSAGE = helpers.LAST_MESSAGE
 
 TOKEN = os.environ.get("CSIHU_NOTIFICATOR_BOT_TOKEN")
 intents = discord.Intents.all()
@@ -24,7 +25,7 @@ client = commands.Bot(
     help_command=None,
     activity=discord.Activity(type=discord.ActivityType.listening, name=".help")
 )
-client.latest_announcement = {"text": LAST_MESSAGE, "link": helpers.LAST_LINK}
+client.latest_announcement = {"text": LAST_MESSAGE, "link": LAST_LINK}
 client.is_running = False
 
 with open(helpers.COMMANDS_FILE, encoding="utf8") as file:
