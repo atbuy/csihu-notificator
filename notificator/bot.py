@@ -412,6 +412,32 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="setc", aliases=["color", "role-color"], brief="Change your color")
+async def change_role_color(ctx: commands.Context, red=None, green=None, blue=None) -> None:
+    # !A!B!C = !!(!A * !B * !C) = !(A + B + C)
+    if not (red or green or blue):
+        return
+
+    if "#" in red:
+        hex_val = red.replace("#", "")
+    elif not ("#" in red) and not (green or blue):
+        hex_val = red
+    elif red and green and blue:
+        hex_val = "%02x%02x%02x" % (int(red), int(green), int(blue))
+    else:
+        return
+
+    color_role = discord.utils.get(ctx.guild.roles, name=f"clr-{ctx.author.name}")
+    if color_role:
+        await color_role.edit(colour=discord.Color(int(hex_val, 16)))
+    else:
+        color_role = await ctx.guild.create_role(name=f"clr-{ctx.author.name}", color=discord.Color(int(hex_val, 16)))
+        await ctx.author.add_roles(color_role)
+    roles = ctx.guild.roles
+    position = len(roles)-10
+    await color_role.edit(position=position)
+
+
 @client.command(name="roll", brief="Get a random number!")
 async def roll(ctx: commands.Context, start: int = 0, end: int = 10_000) -> None:
     random_number = random.randint(start, end)
