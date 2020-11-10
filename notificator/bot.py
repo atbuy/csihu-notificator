@@ -1200,10 +1200,6 @@ async def on_ready():
     print("NotificatorBot ready")
 
 
-last_id = info["last_id"]
-last_message = info["last_message"]
-
-
 @client.event
 async def on_message(msg: discord.Message) -> None:
     """
@@ -1229,6 +1225,12 @@ async def on_message(msg: discord.Message) -> None:
 
     # Check if the message was supposed to be a command
     await client.process_commands(msg)
+
+
+@client.event
+async def on_member_join(member: discord.Member) -> None:
+    synadelfos_role = member.guild.get_role(SYNADELFOS_ROLE_ID)
+    await member.add_roles(synadelfos_role)
 
 
 def start():
