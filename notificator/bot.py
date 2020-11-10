@@ -1,38 +1,19 @@
 # -*- coding: UTF-8 -*-
 import os
 import json
-import time
 import random
 import asyncio
 import discord
 import requests
 import textblob
 import urbandict
-import traceback
 import googlesearch
-from pathlib import Path
 from bs4 import BeautifulSoup
-from datetime import datetime
 from discord.ext import commands
-from jishaku.repl.compilation import AsyncCodeExecutor
 
+import helpers
 
-# The files inside the data folder
-ROOT_DIR = Path(__file__).parent.parent
-DATA_FOLDER = os.path.join(ROOT_DIR, "data")
-INFO_FILE = os.path.join(DATA_FOLDER, "info.json")
-COMMANDS_FILE = os.path.join(DATA_FOLDER, "commands.json")
-
-with open(INFO_FILE, encoding="utf8") as file:
-    info = json.load(file)
-
-last_id = info["last_id"]
-last_link = info["last_link"]
-last_message = info["last_message"]
-members_in_waiting_room = info["waiting_room"]
-allowed_files = info["allowed_files"]
-characters = info["emoji_characters"]
-special_characters = info["special_characters"]
+LAST_ID = helpers.LAST_ID
 
 
 TOKEN = os.environ.get("CSIHU_NOTIFICATOR_BOT_TOKEN")
@@ -43,376 +24,14 @@ client = commands.Bot(
     help_command=None,
     activity=discord.Activity(type=discord.ActivityType.listening, name=".help")
 )
-client.latest_announcement = {"text": last_message, "link": last_link}
+client.latest_announcement = {"text": LAST_MESSAGE, "link": helpers.LAST_LINK}
 client.is_running = False
 
-with open(COMMANDS_FILE, encoding="utf8") as file:
+with open(helpers.COMMANDS_FILE, encoding="utf8") as file:
     client.commands_dict = json.load(file)
 
-
-MY_ID = 222950176770228225
-MODERATOR_ID = 760078403264184341
-OWNER_ID = 760085688133222420
-WAITING_ROOM_ID = 763090286372585522
-BOT_ID = 760473932439879700
-GENERAL_ID = 760047749482807330
-SPAM_CHAT_ID = 766177228198903808
-SYNADELFOS_ROLE_ID = 773654278631850065
-FILIP_ROLE_ID = 770328364913131621
-PANEPISTHMIO_ID = 760047749482807327
-MUTED_ROLE_ID = 773396782129348610
-TICK_EMOJI = "\U00002705"
-X_EMOJI = "\U0000274c"
-START_EMOJI = "\U000023ee"
-ARROW_BACKWARD = "\U000025c0"
-ARROW_FORWARD = "\U000025b6"
-END_EMOJI = "\U000023ed"
-
-
-class Helpers:
-    """
-    This class contains all the functions used inside commands and event listeners
-    """
-    def __init__(self):
-        self.max_commands_on_page = 4
-        self.total_pages = len(client.commands_dict["commands"]) // self.max_commands_on_page
-        self.help_command_reactions = [START_EMOJI, ARROW_BACKWARD, ARROW_FORWARD, END_EMOJI]
-
-    async def remove_previous_color_roles(self, ctx: commands.Context) -> None:
-        """Removes all color roles from the member"""
-        for role in ctx.author.roles:
-            if role.name.startswith("clr-"):
-                await ctx.author.remove_roles(role)
-
-    async def mute_timer(self, ctx: commands.Context, member: discord.Member, minutes: float) -> None:
-        """
-        Timer until the specified time, to remove the `mute` role
-
-        :param member: The member to add the `mute` role to
-        :param minutes: The amount of minutes to mute the member for
-        """
-        counter = minutes * 60
-        while counter > 0:
-            muted = False
-            for role in member.roles:
-                if role.id == MUTED_ROLE_ID:
-                    muted = True
-            if muted:
-                await asyncio.sleep(1)
-                counter -= 1
-            else:
-                break
-        else:
-            # This is executed if the timer has ran out.
-            # This wouldn't be executed if someone unmuted the member prematurely
-
-            # Remove muted role
-            muted_role = ctx.guild.get_role(MUTED_ROLE_ID)
-            await member.remove_roles(muted_role)
-
-            # Add synadelfos role again
-            synadelfos_role = ctx.guild.get_role(SYNADELFOS_ROLE_ID)
-            await member.add_roles(synadelfos_role)
-
-            await ctx.send(f"{member.mention} is now unmuted")
-
-    async def execute_python_script(self, msg: discord.Message, script: str, safe: bool = False) -> None:
-        """
-        Execute a python script. The values printed will only be from `return` or `yield`
-
-        :param msg: The message object to use, to reply to the author
-        :param script: The script to execute
-        :param safe: Determines whether the output should be formatted in triple quotes (```) or not
-
-        .. note::
-            The script is run with read/write permissions.
-        """
-
-        # Try to execute the script.
-        # If the script is not completed before the timeout
-        # then the execution stops and an error message is sent to the channel
-        async with msg.channel.typing():
-            output = ""
-            timeout = 10
-            start_time = time.time()
-            try:
-                async for x in AsyncCodeExecutor(script):
-                    if time.time() - start_time < timeout:
-                        output += str(x)
-                    else:
-                        await msg.add_reaction(X_EMOJI)
-                        await msg.channel.send("Error: Process timed out.")
-                        break
-                else:
-                    # This clause is executed only if there wasn't a timeout error
-                    await msg.add_reaction(TICK_EMOJI)
-
-                    if safe:
-                        await msg.channel.send(f"{msg.author.mention}\n{output}")
-                    else:
-                        await msg.channel.send(f"{msg.author.mention}```python\n{output} ```")
-            except Exception:
-                # If there was an error with the code,
-                # send the full traceback
-                await msg.add_reaction(X_EMOJI)
-                trace = traceback.format_exc()
-                await msg.channel.send(f"{msg.author.mention} Error:\n```python\n{trace} ```")
-
-    async def remove_unallowed_files(self, msg: discord.Message) -> None:
-        """
-        Delete any files that don't have an allowed extension
-
-        :param msg: The message to check the attachements of
-        """
-        # ctx = await client.get_context(msg)
-        attachments = msg.attachments
-        if attachments:
-            for attach in attachments:
-                # Get the text after the last dot (.)
-                extension = attach.filename.split(".")[-1].lower()
-                if not (extension in allowed_files):
-                    await msg.delete()
-                    await msg.channel.send(
-                        f"{msg.author.mention} you are not to upload `.{extension}` files"
-                        f"Use `.allowedfiles` to view all the allowed file types."
-                    )
-
-    async def _clear_reactions(self, msg: discord.Message, current_page: int) -> None:
-        """
-        Clears and re adds emojis on help embed if the requested page is not outside of boundaries
-
-        :param msg: The help command embed
-        :param current_page: The current help page displayed
-        """
-        if 0 < current_page < self.total_pages:
-            await msg.clear_reactions()
-            for reaction in self.help_command_reactions:
-                await msg.add_reaction(reaction)
-
-    async def _changed_page(self, current_page: int, reaction: discord.Reaction) -> tuple:
-        """
-        Checks if the member changed page and returns True or False if the command has exited.
-        The command returns True if the member has changed page and False if he didn't.
-
-        :param current_page: The current page displayed
-        :param reaction: The reaction the member did
-        :return tuple: The first element of the tuple is if the member has changed page, and the second what page to display
-        """
-
-        # If the user wants the next page, increment the current page
-        # only if it is before the last page
-        if reaction.emoji == ARROW_FORWARD:
-            if current_page < self.total_pages:
-                current_page += 1
-        elif reaction.emoji == ARROW_BACKWARD:
-            # If the user wants the previous page, decrement the current page
-            # only if it is after the first page
-            if current_page > 0:
-                current_page -= 1
-        elif reaction.emoji == START_EMOJI:
-            current_page = 0
-        elif reaction.emoji == END_EMOJI:
-            current_page = self.total_pages
-        else:
-            return False, current_page
-
-        return True, current_page
-
-    async def _wait_for_page_change(self, ctx: commands.Context, msg: discord.Message, current_page: int) -> bool:
-        """
-        Check if the user wants to change the page and sends a new page if he does.
-
-        :param msg: The help command message
-        :param current_page: The help page to display
-        :return bool: Returns True if the help command has stop waiting and the TimeoutError has been thrown
-        """
-        def check(reaction, user):
-            return ctx.author == user
-
-        try:
-            # Wait for a reaction from the user
-            reaction, user = await client.wait_for("reaction_add", check=check, timeout=60)
-            change_page, current_page = await self._changed_page(current_page, reaction)
-
-            if change_page:
-                # Get the new embed and edit the last message if the page has changed
-                embed = self.get_help_page(ctx, current_page)
-                await msg.edit(content=f"{ctx.author.mention}", embed=embed)
-        except asyncio.TimeoutError:
-            return False, current_page
-
-        await self._clear_reactions(msg, current_page)
-        return True, current_page
-
-    async def send_help_embed(self, ctx: commands.Context) -> None:
-        """
-        Create the help embed when no group is passed
-        """
-        # Paginate the help command
-        current_page = 0
-        embed = self.get_help_page(ctx, current_page)
-
-        msg = await ctx.send(f"{ctx.author.mention}", embed=embed)
-
-        # Add reactions as a way to interact with the page
-        for reaction in self.help_command_reactions:
-            await msg.add_reaction(reaction)
-
-        execute, current_page = await self._wait_for_page_change(ctx, msg, current_page)
-        while execute:
-            execute, current_page = await self._wait_for_page_change(ctx, msg, current_page)
-
-    def can_execute(self, ctx: commands.Context, **kwargs) -> bool:
-        """
-        Checks if the member that executed the command
-        is allowed to execute it
-
-        :param kwargs: check if a member should have a permission or not
-        :return: True if the member is allowed to execute it, False if not
-
-        .. note::
-            The keyword arguments are for checking which permissions
-            the member has enabled or not
-
-            **kwargs look like `manage_messages=True`
-        """
-
-        # First check if the member has any of the modderator roles
-        execute = False
-        for role in ctx.author.roles:
-            if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
-                execute = True
-                break
-        if not execute and kwargs:
-            # If he doesn't, check if he has enough permissions
-            # to execute this command (this is for other servers)
-            empty_perms = []
-            perms = ctx.author.permissions_in(ctx.channel)
-            for perm in perms:
-                if perm[0] in kwargs and perm[1] == kwargs[perm[0]]:
-                    empty_perms.append(True)
-
-            if len(empty_perms) == len(kwargs):
-                execute = True
-
-        return execute
-
-    def valid_message(self, msg: discord.Message) -> bool:
-        """
-        Filter the message sent and return True if it should be allowed
-        or False if it should be deleted
-
-        :param msg: The message to filter
-        :return: bool if the message should be allowed or not
-        """
-
-        # Check if there are any special characters in the message and remove them
-        characters = list(filter(lambda x: x in msg, special_characters))
-        if characters:
-            for char in characters:
-                msg = msg.replace(char, "")
-
-        # If the message is less than 3 characters it's allowed
-        if len(msg) < 3:
-            return True
-        # If the message only contains special characters it's allowed
-        if not msg:
-            return True
-
-        # Check all the characters are the same character
-        # If they are the same character return False
-        prev = msg[0]
-        for char in msg[1:]:
-            if not (char == prev):
-                return True
-
-        # If the message is only numbers it's allowed
-        if msg.isdigit():
-            return True
-        else:
-            return False
-
-    def sort_dict(self, dictionary: dict) -> dict:
-        """
-        Sort a dictionary by key
-
-        :param dictionary: The dictionary to sort
-        :return dict: The dictionary sorted by key
-        """
-        return {k: dictionary[k] for k in sorted(dictionary)}
-
-    def slice_dict(self, dictionary: dict, start: int, stop: int) -> dict:
-        """
-        Return a slice of a dictionary"
-
-        :param dictionary: The dictionary to slice
-        :param start: The index to start slicing th dict. This is inclusive.
-        :param stop: The index to stop slicing the dict. This is exclusive
-        :return new_dict: The new dictionary, only containing the elements from `start`(inclusive) to `stop`(exclusive)
-        """
-        new_dict = {}
-        for i, item in enumerate(dictionary.items()):
-            if i >= start and i < stop:
-                new_dict[item[0]] = item[1]
-
-        return new_dict
-
-    def get_help_page(self, ctx: commands.Context, page_number: int) -> discord.Embed:
-        """
-        Creates a discord embed of the available commands paginated
-        """
-
-        # Initialize the discord.Embed object
-        embed = discord.Embed(
-            title="Commands",
-            url="https://csihu.pythonanywhere.com",
-            description="View all the available commands!",
-            color=0xff0000
-        )
-        # Set the bot as the author
-        embed.set_author(
-            name="CSIHU Notificator",
-            icon_url="https://csihu.pythonanywhere.com/static/images/csihu_icon.png"
-        )
-
-        # All the available commands
-        available_commands = client.commands_dict["commands"]
-
-        # How many command can appear on the page
-        max_commands_on_page = self.max_commands_on_page
-
-        # The number of pages needed to show all the commands
-        total_pages = len(available_commands) // max_commands_on_page
-
-        # Current page's commands.
-        # This is a dictionary with `max_commands_on_page` keys
-        page_commands = self.slice_dict(
-            self.sort_dict(available_commands),
-            page_number*max_commands_on_page,
-            page_number*max_commands_on_page+4
-        )
-
-        # Add all the fields with the commands of the page
-        for key, val in page_commands.items():
-            embed.add_field(
-                name=f"{ctx.prefix}{key}",
-                value=f"{val['brief']}",
-                inline=False
-            )
-
-        # Field that shows what is the current page and how many the total pages are
-        embed.add_field(name="Page", value=f"{page_number+1}/{total_pages+1}")
-
-        # Set the footer of the embed to the icon of the author, the nickanme
-        # and the current time the page was requested
-        embed.set_footer(text=ctx.author.nick, icon_url=ctx.author.avatar_url)
-        embed.timestamp = datetime.now()
-
-        return embed
-
-
 # Initialize helpers object to be used inside commands
-client.helpers = Helpers()
+client.helpers = helpers.Helpers(client, commands_on_page=4)
 
 
 @client.command(brief="Test the bot")
@@ -632,9 +251,9 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
         except discord.errors.HTTPException:
             await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
 
-        await ctx.message.add_reaction(TICK_EMOJI)
+        await ctx.message.add_reaction(helpers.TICK_EMOJI)
     else:
-        await ctx.message.add_reaction(X_EMOJI)
+        await ctx.message.add_reaction(helpers.X_EMOJI)
         await ctx.send("```Couldn't find announcement.```")
 
 
@@ -646,16 +265,17 @@ async def change_last_id(ctx: commands.Context, id_num: int = None) -> None:
 
     :return: None
     """
-    global last_id
-    if ctx.author.id == MY_ID:
+    global LAST_ID
+
+    if ctx.author.id == helpers.MY_ID:
         if id_num:
             try:
-                last_id = int(id_num)
-                await ctx.send(f"ID Changed to {last_id}")
+                LAST_ID = int(id_num)
+                await ctx.send(f"ID Changed to {LAST_ID}")
             except ValueError:
                 await ctx.send("Please input a number")
         else:
-            await ctx.send(f"Last ID is {last_id}")
+            await ctx.send(f"Last ID is {LAST_ID}")
     else:
         await ctx.send(f"`{ctx.author}` you dont have enough permissions")
 
@@ -669,17 +289,17 @@ async def run_bot(ctx: commands.Context) -> None:
 
     :return: None
     """
-    global last_id
+    global LAST_ID
 
     # Only I am allowed to run this command, so other member don't mess with it
     # since we don't want multiple instances of this command running, unless it's for different channels
-    if ctx.author.id == MY_ID:
+    if ctx.author.id == helpers.MY_ID:
         client.is_running = True
-        await ctx.message.add_reaction(TICK_EMOJI)
+        await ctx.message.add_reaction(helpers.TICK_EMOJI)
 
         while True:
             # GET the page and find all the paragraphs
-            req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id+1}")
+            req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={LAST_ID+1}")
             soup = BeautifulSoup(req.text, "html.parser")
             paragraphs = soup.find_all("p")
 
@@ -706,8 +326,8 @@ async def run_bot(ctx: commands.Context) -> None:
 
             # If there is a new announcement, send it to the channel the command was executed
             if new_announce:
-                last_id += 1
-                link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id}"
+                LAST_ID += 1
+                link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={LAST_ID}"
                 to_delete = [
                     """$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31","""
                     """toolbarVisible:false,readOnly:true});});""",
@@ -718,15 +338,6 @@ async def run_bot(ctx: commands.Context) -> None:
 
                 # Update the latest announcement dictionary
                 client.latest_announcement = {"text": final_text, "link": link}
-
-                # Write the new data to `info.json`
-                # * This can only be used in servers with read/write permissions
-                # ! Removed when hosted on Heroku
-                # info["last_id"] = last_id
-                # info["last_message"] = final_text
-                # info["last_link"] = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={last_id}"
-                # with open("info.json", "w", encoding="utf8") as file:
-                #     json.dump(info, file, indent=4)
 
                 try:
                     await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text} ```")
@@ -749,9 +360,9 @@ async def waiting_list(ctx: commands.Context, member: discord.Member) -> None:
     execute = client.helpers.can_execute(ctx, manage_roles=True)
 
     if execute:
-        waiting_room_role = ctx.guild.get_role(WAITING_ROOM_ID)
+        waiting_room_role = ctx.guild.get_role(helpers.WAITING_ROOM_ID)
         for role in member.roles:
-            if role.id == WAITING_ROOM_ID:
+            if role.id == helpers.WAITING_ROOM_ID:
                 await member.remove_roles(waiting_room_role)
                 await ctx.send(f"{member.mention} has be removed from the waiting room")
                 break
@@ -812,7 +423,7 @@ async def react(ctx: commands.Context, msg: discord.Message, *, text: str) -> No
     for char in text:
         if char.isalpha():
             # The unicode value for each emoji characters
-            await msg.add_reaction(f"{characters[char.lower()]}")
+            await msg.add_reaction(f"{helpers.CHARACTERS[char.lower()]}")
         elif char.isdigit():
             # The emoji for digits is different from the characters
             await msg.add_reaction(f"{char}" + "\N{variation selector-16}\N{combining enclosing keycap}")
@@ -827,9 +438,9 @@ async def say(ctx: commands.Context, *, text: str) -> None:
     """
 
     execute = False
-    if ctx.guild.id == PANEPISTHMIO_ID:  # Panephstimio ID
+    if ctx.guild.id == helpers.PANEPISTHMIO_ID:  # Panephstimio ID
         # This command is not allowed in the general chat
-        if ctx.channel.id == GENERAL_ID:
+        if ctx.channel.id == helpers.GENERAL_ID:
             execute = client.helpers.can_execute(ctx)
 
     if execute:
@@ -850,7 +461,7 @@ async def say(ctx: commands.Context, *, text: str) -> None:
         else:
             await ctx.send(f"{ctx.author.mention} There was a runtime error")
     else:
-        await ctx.send(f"{ctx.author.mention} You can't use this command in <#{GENERAL_ID}>")
+        await ctx.send(f"{ctx.author.mention} You can't use this command in <#{helpers.GENERAL_ID}>")
 
 
 @client.command(brief="Delete messages", aliases=["del"])
@@ -996,7 +607,7 @@ async def view_allowed_file_extentions(ctx: commands.Context) -> None:
     Send a list of all the allowed file types to the channel the command was ran from
     """
     output = ""
-    for file in allowed_files:
+    for file in helpers.ALLOWED_FILES:
         output += f".{file} "
 
     await ctx.send(f"{ctx.author.mention}. Allowed file extentions are:\n```{output} ```")
@@ -1014,13 +625,13 @@ async def filip(ctx: commands.Context, person: discord.Member) -> None:
     execute = client.helpers.can_execute(ctx, manage_roles=True)
 
     if execute:
-        filip_role = ctx.guild.get_role(FILIP_ROLE_ID)
+        filip_role = ctx.guild.get_role(helpers.FILIP_ROLE_ID)
 
         # The role will be removed if
         # the member already has it
         remove = False
         for role in person.roles:
-            if role.id == FILIP_ROLE_ID:
+            if role.id == helpers.FILIP_ROLE_ID:
                 remove = True
         if remove:
             await person.remove_roles(filip_role)
@@ -1090,11 +701,11 @@ async def unmute(ctx: commands.Context, member: discord.Member) -> None:
     if execute:
         try:
             # Remove muted role
-            muted_role = ctx.guild.get_role(MUTED_ROLE_ID)
+            muted_role = ctx.guild.get_role(helpers.MUTE_ROLE_ID)
             await member.remove_roles(muted_role)
 
             # Add synaelfos role again
-            synadelfos_role = ctx.guild.get_role(SYNADELFOS_ROLE_ID)
+            synadelfos_role = ctx.guild.get_role(helpers.SYNADELFOS_ROLE_ID)
             await member.add_roles(synadelfos_role)
         except Exception:
             await ctx.send(f"{member.mention} is not muted")
@@ -1122,7 +733,7 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float) ->
     execute = client.helpers.can_execute(ctx, mute_members=True)
 
     if execute:
-        muted_role = ctx.guild.get_role(MUTED_ROLE_ID)
+        muted_role = ctx.guild.get_role(helpers.MUTE_ROLE_ID)
 
         # If the member is already muted return
         if muted_role in member.roles:
@@ -1134,7 +745,7 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float) ->
         await ctx.send(f"{ctx.author.mention} muted {member.mention} for {minutes} minutes")
 
         # 2) Remove role named "Synadelfos"
-        synadelfos_role = ctx.guild.get_role(SYNADELFOS_ROLE_ID)
+        synadelfos_role = ctx.guild.get_role(helpers.SYNADELFOS_ROLE_ID)
         await member.remove_roles(synadelfos_role)
 
         # 3) Add timer that will check every second if it should remove the role prematurely
@@ -1154,7 +765,7 @@ async def execute_python(ctx: commands.Context, *, script: str) -> None:
     """
 
     # Eval is not allowed in general, except moderators that can execute it
-    if ctx.channel.id == GENERAL_ID:
+    if ctx.channel.id == helpers.GENERAL_ID:
         allowed_in_general = client.helpers.can_execute(ctx)
         if not allowed_in_general:
             await ctx.send(f"Not allowed to use **{ctx.prefix}e** in {ctx.channel.mention}")
@@ -1262,7 +873,7 @@ async def on_message(msg: discord.Message) -> None:
     """
     This is an event listener. This is run whenever a member sends a message to a channel.
     """
-    global last_message
+    global LAST_MESSAGE
 
     # If the author is the bot return
     if msg.author == client.user:
@@ -1275,7 +886,7 @@ async def on_message(msg: discord.Message) -> None:
     await client.helpers.remove_unallowed_files(msg)
 
     # If the message is not in the spam-chat, check if it should be allowed
-    if not msg.channel.id == SPAM_CHAT_ID:
+    if not msg.channel.id == helpers.SPAM_CHAT_ID:
         if not client.helpers.valid_message(check_msg):
             await asyncio.sleep(0.5)
             await msg.delete()
@@ -1291,7 +902,7 @@ async def on_member_join(member: discord.Member) -> None:
 
     :param member: The member joining, to add the role to
     """
-    synadelfos_role = member.guild.get_role(SYNADELFOS_ROLE_ID)
+    synadelfos_role = member.guild.get_role(helpers.SYNADELFOS_ROLE_ID)
     await member.add_roles(synadelfos_role)
 
 
