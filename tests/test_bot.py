@@ -12,4 +12,4 @@ from notificator import commands_logic as cl  # noqa
 
 # Write tests here
 def test_version():
-    assert notificator.__version__ == "0.8.0"
+    assert notificator.__version__ == "0.8.5"
