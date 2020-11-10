@@ -63,8 +63,10 @@ PANEPISTHMIO_ID = 760047749482807327
 MUTED_ROLE_ID = 773396782129348610
 TICK_EMOJI = "\U00002705"
 X_EMOJI = "\U0000274c"
+START_EMOJI = "\U000023ee"
 ARROW_BACKWARD = "\U000025c0"
 ARROW_FORWARD = "\U000025b6"
+END_EMOJI = "\U000023ed"
 
 
 class Helpers:
@@ -74,7 +76,7 @@ class Helpers:
     def __init__(self):
         self.max_commands_on_page = 4
         self.total_pages = len(client.commands_dict["commands"]) // self.max_commands_on_page
-        self.help_command_reactions = [ARROW_BACKWARD, ARROW_FORWARD]
+        self.help_command_reactions = [START_EMOJI, ARROW_BACKWARD, ARROW_FORWARD, END_EMOJI]
 
     async def mute_timer(self, ctx: commands.Context, member: discord.Member, minutes: float) -> None:
         """
@@ -201,10 +203,13 @@ class Helpers:
             # only if it is after the first page
             if current_page > 0:
                 current_page -= 1
+        elif reaction.emoji == START_EMOJI:
+            current_page = 0
+        elif reaction.emoji == END_EMOJI:
+            current_page = self.total_pages
         else:
             return False, current_page
 
-        print(current_page)
         return True, current_page
 
     async def _wait_for_page_change(self, ctx: commands.Context, msg: discord.Message, current_page: int) -> bool:
