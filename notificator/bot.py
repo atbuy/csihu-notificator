@@ -78,6 +78,12 @@ class Helpers:
         self.total_pages = len(client.commands_dict["commands"]) // self.max_commands_on_page
         self.help_command_reactions = [START_EMOJI, ARROW_BACKWARD, ARROW_FORWARD, END_EMOJI]
 
+    async def remove_previous_color_roles(self, ctx: commands.Context) -> None:
+        """Removes all color roles from the member"""
+        for role in ctx.author.roles:
+            if role.name.startswith("clr-"):
+                await ctx.author.remove_roles(role)
+
     async def mute_timer(self, ctx: commands.Context, member: discord.Member, minutes: float) -> None:
         """
         Timer until the specified time, to remove the `mute` role
@@ -431,12 +437,12 @@ async def change_role_color(ctx: commands.Context, red=None, green=None, blue=No
         return
 
     # If the hex contains a `#`, remove it
+    # Account for the hex, even without the `#`
+    # Check if the user passed an rgb value and convert it to hex
     if "#" in red:
         hex_val = red.replace("#", "")
-    # Account the hex, even without the `#`
     elif not ("#" in red) and not (green or blue):
         hex_val = red
-    # Check if the user passed an rgb value and convert it to hex
     elif red and green and blue:
         hex_val = "%02x%02x%02x" % (int(red), int(green), int(blue))
     else:
@@ -450,7 +456,9 @@ async def change_role_color(ctx: commands.Context, red=None, green=None, blue=No
         # Convert the hex to an integer base16
         await color_role.edit(colour=discord.Color(int(hex_val, 16)))
     else:
-        # If it doesn't exist, create it and give it to the author
+        await client.helpers.remove_previous_color_roles(ctx)
+
+        # Create a new color role and give it to the author
         color_role = await ctx.guild.create_role(name=f"clr-{ctx.author.name}", color=discord.Color(int(hex_val, 16)))
         await ctx.author.add_roles(color_role)
 
