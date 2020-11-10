@@ -432,7 +432,7 @@ async def change_role_color(ctx: commands.Context, red=None, green=None, blue=No
     :param green: Can be None when hex is passed. This is the green value of rgb.
     :param blue: Can be None when hex is passed. This is the green value of rgb.
     """
-    # * !A!B!C = !!(!A * !B * !C) = !(A + B + C)
+    # * !A!B!C = !!(!A * !B * !C) = !(!!A + !!B + !!C) = !(A + B + C)
     if not (red or green or blue):
         return
 
@@ -1286,6 +1286,11 @@ async def on_message(msg: discord.Message) -> None:
 
 @client.event
 async def on_member_join(member: discord.Member) -> None:
+    """
+    Add the Synadelfos role to the member joining
+
+    :param member: The member joining, to add the role to
+    """
     synadelfos_role = member.guild.get_role(SYNADELFOS_ROLE_ID)
     await member.add_roles(synadelfos_role)
 
