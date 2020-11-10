@@ -1032,7 +1032,7 @@ async def translate(ctx: commands.Context, *, text: str) -> None:
     :param text: The text to translate to greek
     """
     blob = textblob.TextBlob(text)
-    translate_from = "en"
+    translate_from = blob.detect_language()
     translate_to = "el"
     try:
         text = str(blob.translate(to=translate_to))
