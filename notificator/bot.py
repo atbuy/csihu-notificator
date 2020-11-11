@@ -25,7 +25,8 @@ client = commands.Bot(
     help_command=None,
     activity=discord.Activity(type=discord.ActivityType.listening, name=".help")
 )
-client.latest_announcement = {"text": LAST_MESSAGE, "link": LAST_LINK}
+client.info_data = helpers.info
+client.latest_announcement = {"text": LAST_MESSAGE, "link": LAST_LINK, "id": LAST_ID}
 client.is_running = False
 
 with open(helpers.COMMANDS_FILE, encoding="utf8") as file:
@@ -338,13 +339,16 @@ async def run_bot(ctx: commands.Context) -> None:
                     final_text = final_text.replace(item, "").strip()
 
                 # Update the latest announcement dictionary
-                client.latest_announcement = {"text": final_text, "link": link}
+                client.latest_announcement = {"text": final_text, "link": link, "id": LAST_ID}
 
                 # Update info file on the server. This is the file the API uses to return the info data
-                helpers.info["last_id"] = LAST_ID
-                helpers.info["last_link"] = link
-                helpers.info["last_message"] = final_text
-                client.helpers.post_file_info_data(helpers.info)
+                client.info_data["last_id"] = LAST_ID
+                client.info_data["last_link"] = link
+                client.info_data["last_message"] = final_text
+
+                # Upload data to server
+                data_dict_as_str = json.dumps(client.info_data)
+                client.helpers.post_info_file_data(data_dict_as_str)
 
                 try:
                     await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text} ```")
@@ -444,11 +448,13 @@ async def say(ctx: commands.Context, *, text: str) -> None:
     :param text: The text to be converted to emojis
     """
 
-    execute = False
+    execute = True
     if ctx.guild.id == helpers.PANEPISTHMIO_ID:  # Panephstimio ID
         # This command is not allowed in the general chat
         if ctx.channel.id == helpers.GENERAL_ID:
             execute = client.helpers.can_execute(ctx)
+        else:
+            execute = True
 
     if execute:
         output = ""

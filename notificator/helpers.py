@@ -33,7 +33,7 @@ def _get_info_file_data() -> dict:
     return data
 
 
-def _post_file_info_data(data: dict) -> requests.Response:
+def _post_info_file_data(data: str) -> requests.Response:
     """
     Send a post request to the info file API
 
@@ -51,8 +51,7 @@ def _post_file_info_data(data: dict) -> requests.Response:
         "referer": url,
         "user-agent": user_agent
     }
-    with requests.Session() as s:
-        req = s.post(url, headers=headers, data=data)
+    req = requests.post(url, headers=headers, data=data)
 
     return req
 
@@ -443,7 +442,7 @@ class Helpers:
         """
         return _get_info_file_data()
 
-    def post_file_info_data(self, data: dict) -> requests.Response:
+    def post_info_file_data(self, data: dict) -> requests.Response:
         """
         Send a post request to the info file API
 
@@ -452,4 +451,4 @@ class Helpers:
 
         :return req: The response from the API
         """
-        return _post_file_info_data(data)
+        return _post_info_file_data(data)
