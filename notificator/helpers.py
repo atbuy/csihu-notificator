@@ -194,7 +194,7 @@ class Helpers:
             for attach in attachments:
                 # Get the text after the last dot (.)
                 extension = attach.filename.split(".")[-1].lower()
-                if not (extension in self.ALLOWED_FILES):
+                if not (extension in ALLOWED_FILES):
                     await msg.delete()
                     await msg.channel.send(
                         f"{msg.author.mention} you are not to upload `.{extension}` files"

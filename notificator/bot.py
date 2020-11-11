@@ -714,7 +714,7 @@ async def unmute(ctx: commands.Context, member: discord.Member) -> None:
     if execute:
         try:
             # Remove muted role
-            muted_role = ctx.guild.get_role(helpers.MUTE_ROLE_ID)
+            muted_role = ctx.guild.get_role(helpers.MUTED_ROLE_ID)
             await member.remove_roles(muted_role)
 
             # Add synaelfos role again
@@ -746,7 +746,7 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float) ->
     execute = client.helpers.can_execute(ctx, mute_members=True)
 
     if execute:
-        muted_role = ctx.guild.get_role(helpers.MUTE_ROLE_ID)
+        muted_role = ctx.guild.get_role(helpers.MUTED_ROLE_ID)
 
         # If the member is already muted return
         if muted_role in member.roles:
