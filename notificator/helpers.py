@@ -18,8 +18,18 @@ def _get_info_file_data() -> dict:
     :return data: The dictionary with the data
     """
     url = os.environ.get("INFO_FILE_URL")
-    req = requests.get(url)
-    data = json.loads(req.text)
+    user_agent = (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        "(KHTML, like Gecko) Chrome/86.0.4240.193 Safari/537.36"
+    )
+    headers = {
+        "referer": url,
+        "user-agent": user_agent
+    }
+    with requests.Session() as s:
+        req = s.get(url, headers=headers)
+        data = json.loads(req.text)
+
     return data
 
 
@@ -33,7 +43,17 @@ def _post_file_info_data(data: dict) -> requests.Response:
     :return req: The response from the API
     """
     url = os.environ.get("INFO_FILE_URL")
-    req = requests.post(url, data=data)
+    user_agent = (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        "(KHTML, like Gecko) Chrome/86.0.4240.193 Safari/537.36"
+    )
+    headers = {
+        "referer": url,
+        "user-agent": user_agent
+    }
+    with requests.Session() as s:
+        req = s.post(url, headers=headers, data=data)
+
     return req
 
 
