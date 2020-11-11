@@ -340,6 +340,12 @@ async def run_bot(ctx: commands.Context) -> None:
                 # Update the latest announcement dictionary
                 client.latest_announcement = {"text": final_text, "link": link}
 
+                # Update info file on the server. This is the file the API uses to return the info data
+                helpers.info["last_id"] = LAST_ID
+                helpers.info["last_link"] = link
+                helpers.info["last_message"] = final_text
+                client.helpers.post_file_info_data(helpers.info)
+
                 try:
                     await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text} ```")
                 except discord.errors.HTTPException:

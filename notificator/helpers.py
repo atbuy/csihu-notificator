@@ -11,14 +11,40 @@ from discord.ext import commands
 from jishaku.repl.compilation import AsyncCodeExecutor
 
 
+def _get_info_file_data() -> dict:
+    """
+    Get the info data from the API
+
+    :return data: The dictionary with the data
+    """
+    url = os.environ.get("INFO_FILE_URL")
+    req = requests.get(url)
+    data = json.loads(req.text)
+    return data
+
+
+def _post_file_info_data(data: dict) -> requests.Response:
+    """
+    Send a post request to the info file API
+
+    :param data: This is the data to send.
+                    It contains a multiple keys but only `last_id`, `last_message` and `last_link` should be modified.
+
+    :return req: The response from the API
+    """
+    url = os.environ.get("INFO_FILE_URL")
+    req = requests.post(url, data=data)
+    return req
+
+
 # The files inside the data folder
 ROOT_DIR = Path(__file__).parent.parent
 DATA_FOLDER = os.path.join(ROOT_DIR, "data")
 INFO_FILE = os.path.join(DATA_FOLDER, "info.json")
 COMMANDS_FILE = os.path.join(DATA_FOLDER, "commands.json")
 
-with open(INFO_FILE, encoding="utf8") as file:
-    info = json.load(file)
+# Load info data from the API
+info = _get_info_file_data()
 
 LAST_ID = info["last_id"]
 LAST_LINK = info["last_link"]
@@ -27,6 +53,7 @@ ALLOWED_FILES = info["allowed_files"]
 CHARACTERS = info["emoji_characters"]
 SPECIAL_CHARACTERS = info["special_characters"]
 
+# Declare constants
 MY_ID = 222950176770228225
 MODERATOR_ID = 760078403264184341
 OWNER_ID = 760085688133222420
@@ -394,10 +421,7 @@ class Helpers:
 
         :return data: The dictionary with the data"
         """
-        url = os.environ.get("INFO_FILE_URL")
-        req = requests.get(url)
-        data = json.loads(req.text)
-        return data
+        return _get_info_file_data()
 
     def post_file_info_data(self, data: dict) -> requests.Response:
         """
@@ -408,6 +432,4 @@ class Helpers:
 
         :return req: The response from the API
         """
-        url = os.environ.get("INFO_FILE_URL")
-        req = requests.post(url, data=data)
-        return req
+        return _post_file_info_data(data)

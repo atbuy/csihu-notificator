@@ -7,9 +7,13 @@ path = os.path.join(root)
 sys.path.append(path)
 
 import notificator  # noqa
-from notificator import commands_logic as cl  # noqa
 
 
 # Write tests here
 def test_version():
     assert notificator.__version__ == "0.8.7-alpha"
+
+
+# TODO Add slice dict tests
+# TODO Add sort dict tests
+# TODO Maybe add valid message tests
