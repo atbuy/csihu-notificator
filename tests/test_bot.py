@@ -9,7 +9,8 @@ path = os.path.join(root)
 sys.path.append(path)
 
 import notificator  # noqa
-from notificator import helpers # noqa
+# from notificator import helpers # noqa
+from notificator.helpers import Helpers  # noqa
 
 
 # Write tests here
@@ -20,11 +21,11 @@ def test_version():
 def test_flatten_commands():
     intents = discord.Intents.all()
     client = commands.Bot(command_prefix=".", intents=intents)
-    _commands = helpers.Helpers(client).flatten_commands()
+    _commands = Helpers(client).flatten_commands()
 
     # Check the length of the commands
     # ! This should be updated after every command addition
-    assert len(_commands) == 49
+    assert len(_commands) == 28
 
 
 # TODO Add slice dict tests

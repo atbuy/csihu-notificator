@@ -499,10 +499,14 @@ class Helpers:
         :return command_names: The list that contains all the command names and their aliases
         """
 
-        command_names = []
+        out = []
         for key in COMMANDS_DICT:
+            command_names = []
+
             command_names.append(key)
             for alias in COMMANDS_DICT[key]["aliases"]:
                 command_names.append(alias)
 
-        return command_names
+            out.append(command_names)
+
+        return out

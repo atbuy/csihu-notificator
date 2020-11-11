@@ -60,15 +60,17 @@ async def disable_command(ctx: commands.Context, command_name: str) -> None:
 
     if execute:
         # If the command is already disabled send error message
-        if command_name in client.FLAT_COMMANDS:
+        if command_name in client.DISABLED_COMMANDS:
             await ctx.send(f"{ctx.author.mention} this command is already disabled.")
             return
 
         # If the command exists, disable it.
         # If the command doesn't exist send error message
-        if command_name in client.commands_dict:
-            client.DISABLED_COMMANDS.append(command_name)
-            await ctx.send(f"{ctx.author.mention} command `{command_name}` is now disabled.")
+        for command_list in client.FLAT_COMMANDS:
+            if command_name in command_list:
+                for name in command_list:
+                    client.DISABLED_COMMANDS.append(command_name)
+                await ctx.send(f"{ctx.author.mention} command `{command_name}` is now disabled.")
         else:
             await ctx.send(f"{ctx.author.mention}, `{command_name}` is not a valid command name.")
     else:
@@ -94,9 +96,11 @@ async def enable_command(ctx: commands.Context, command_name: str) -> None:
 
         # If the command exists enable it
         # If it doesn't doesn't exist send error message
-        if command_name in client.FLAT_COMMANDS:
-            # enable command
-            pass
+        for command_list in client.FLAT_COMMANDS:
+            if command_name in command_list:
+                index = client.FLAT_COMMANDS.index(command_list)
+                client.FLAT_COMMANDS.pop(index)
+                break
         else:
             await ctx.send(f"{ctx.author.mention}, `{command_name}` is not a valid command name.")
     else:
