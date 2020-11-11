@@ -27,7 +27,6 @@ client = commands.Bot(
 )
 client.info_data = helpers.info
 client.DISABLED_COMMANDS = helpers.DISABLED_COMMANDS
-client.FLAT_COMMANDS = helpers.Helpers.flatten_commands()
 client.latest_announcement = {"text": LAST_MESSAGE, "link": LAST_LINK, "id": LAST_ID}
 client.commands_dict = helpers.COMMANDS_DICT
 client.is_running = False
@@ -37,6 +36,7 @@ with open(helpers.COMMANDS_FILE, encoding="utf8") as file:
 
 # Initialize helpers object to be used inside commands
 client.helpers = helpers.Helpers(client, commands_on_page=4)
+client.FLAT_COMMANDS = client.helpers.flatten_commands()
 
 
 @client.command(brief="Test the bot")
@@ -55,6 +55,10 @@ async def disable_command(ctx: commands.Context, command_name: str) -> None:
     :param command_name: The name of the command. The command with this name and all it's aliases, will be disabled.
     """
 
+    # Can't disable this command
+    if command_name == "disable":
+        return
+
     # Check if the member can execute this command
     execute = client.helpers.can_execute(ctx)
 
@@ -69,8 +73,15 @@ async def disable_command(ctx: commands.Context, command_name: str) -> None:
         for command_list in client.FLAT_COMMANDS:
             if command_name in command_list:
                 for name in command_list:
-                    client.DISABLED_COMMANDS.append(command_name)
+                    client.DISABLED_COMMANDS.append(name)
                 await ctx.send(f"{ctx.author.mention} command `{command_name}` is now disabled.")
+
+                # Update the API to disable the command
+                client.info["disabled_commands"] = client.DISABLED_COMMANDS
+
+                disabled_commands_dict_as_str = json.dumps(client.info)
+                client.helpers.post_info_file_data(disabled_commands_dict_as_str)
+                return
         else:
             await ctx.send(f"{ctx.author.mention}, `{command_name}` is not a valid command name.")
     else:
@@ -85,22 +96,34 @@ async def enable_command(ctx: commands.Context, command_name: str) -> None:
     :param command_name: The name of the command to enable
     """
 
+    # Can't enable this command
+    if command_name == "enable":
+        return
+
     # Check if the member can execute the command
     execute = client.helpers.can_execute(ctx)
 
     if execute:
         # If the command is already enabled return
         if not (command_name in client.DISABLED_COMMANDS):
-            await ctx.send(f"{ctx.author.mention} command {command_name} is already enabled.")
+            await ctx.send(f"{ctx.author.mention} command `{command_name}` is already enabled.")
             return
 
         # If the command exists enable it
         # If it doesn't doesn't exist send error message
         for command_list in client.FLAT_COMMANDS:
             if command_name in command_list:
-                index = client.FLAT_COMMANDS.index(command_list)
-                client.FLAT_COMMANDS.pop(index)
-                break
+                for dcommand in command_list:
+                    index = client.DISABLED_COMMANDS.index(dcommand)
+                    client.DISABLED_COMMANDS.pop(index)
+                await ctx.send(f"{ctx.author.mention} command `{command_name}` is now enabled.")
+
+                # Update the API file to enable the command
+                client.info["disabled_commands"] = client.DISABLED_COMMANDS
+
+                disabled_commands_dict_as_str = json.dumps(client.info)
+                client.helpers.post_info_file_data(disabled_commands_dict_as_str)
+                return
         else:
             await ctx.send(f"{ctx.author.mention}, `{command_name}` is not a valid command name.")
     else:
@@ -833,7 +856,7 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float) ->
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
 
 
-@client.command(name="eval", aliases=["e"], brief="Execute a python script")
+@client.command(name="eval", aliases=["e", "py"], brief="Execute a python script")
 async def execute_python(ctx: commands.Context, *, script: str) -> None:
     """
     Command that executes a python script.
@@ -956,6 +979,7 @@ async def on_message(msg: discord.Message) -> None:
     if msg.author == client.user:
         return
 
+    ctx = await client.get_context(msg)
     check_msg = msg.content.lower()
 
     # If there are attachments to the message
@@ -968,10 +992,18 @@ async def on_message(msg: discord.Message) -> None:
             await asyncio.sleep(0.5)
             await msg.delete()
 
-    ctx = await client.get_context(msg)
-    if not (ctx.command in client.DISABLED_COMMANDS):
-        # Check if the message was supposed to be a command
-        await client.process_commands(msg)
+    if ctx.command:
+        # Concatanate the name of the command with the rest of it's aliases
+        names = [ctx.command.name] + ctx.command.aliases
+
+        # Check if those names are disabled
+        for name in names:
+            if name in client.DISABLED_COMMANDS:
+                await ctx.send(f"{ctx.author.mention} this command is disabled.")
+                return
+        else:
+            # Check if the message was supposed to be a command
+            await client.process_commands(msg)
 
 
 @client.event
