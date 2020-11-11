@@ -10,7 +10,7 @@ sys.path.append(path)
 
 import notificator  # noqa
 # from notificator import helpers # noqa
-from notificator.helpers import Helpers  # noqa
+# from notificator.helpers import Helpers  # noqa
 
 
 # Write tests here
