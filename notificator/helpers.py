@@ -71,6 +71,10 @@ LAST_MESSAGE = info["last_message"]
 ALLOWED_FILES = info["allowed_files"]
 CHARACTERS = info["emoji_characters"]
 SPECIAL_CHARACTERS = info["special_characters"]
+DISABLED_COMMANDS = info["disabled_commands"]
+
+with open(COMMANDS_FILE) as file:
+    COMMANDS_DICT = json.load(file)["commands"]
 
 # Declare constants
 MY_ID = 222950176770228225
@@ -99,8 +103,43 @@ class Helpers:
     def __init__(self, client: commands.Bot, commands_on_page: int = 4):
         self.client = client
         self.max_commands_on_page = commands_on_page
-        self.total_pages = len(self.client.commands_dict["commands"]) // self.max_commands_on_page
+        self.total_pages = len(COMMANDS_DICT) // self.max_commands_on_page
         self.help_command_reactions = [START_EMOJI, ARROW_BACKWARD, ARROW_FORWARD, END_EMOJI]
+
+    async def member_has_role(member: discord.Member, role_id: int, force_name: bool = False, **kwargs) -> bool:
+        """
+        Check if a guild member has a certain role
+
+        :param role_id: Check if the member has a role with this id
+        :param name: (Optional) Check if the member has a role with that contains this text
+        :param force_name: (Optional) If this is set to True then check if the role name is exact as the `name`.
+        :param color_role: (Optional) Check if the member has a color role
+        """
+        name = None
+        force_name = False
+        color_role = False
+        if "name" in kwargs:
+            name = kwargs["name"]
+        if "force_name" in kwargs:
+            force_name = kwargs["force_name"]
+        if "color_role" in kwargs:
+            color_role = kwargs["color_role"]
+
+        if color_role and name:
+            raise RuntimeError("Can't specify keyword argument 'name' and 'color_role'")
+
+        for role in member.roles:
+            if color_role:
+                if role.name.startswith("clr-"):
+                    return True
+            elif name:
+                if force_name:
+                    if role.name == name:
+                        return True
+                else:
+                    if name in role.name:
+                        return True
+        return False
 
     async def remove_previous_color_roles(self, ctx: commands.Context) -> None:
         """Removes all color roles from the member"""
@@ -452,3 +491,18 @@ class Helpers:
         :return req: The response from the API
         """
         return _post_info_file_data(data)
+
+    def flatten_commands(self) -> list:
+        """
+        Returns a list of all the command names, including their aliases
+
+        :return command_names: The list that contains all the command names and their aliases
+        """
+
+        command_names = []
+        for key in COMMANDS_DICT:
+            command_names.append(key)
+            for alias in COMMANDS_DICT[key]["aliases"]:
+                command_names.append(alias)
+
+        return command_names

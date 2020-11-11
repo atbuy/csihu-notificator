@@ -26,7 +26,10 @@ client = commands.Bot(
     activity=discord.Activity(type=discord.ActivityType.listening, name=".help")
 )
 client.info_data = helpers.info
+client.DISABLED_COMMANDS = helpers.DISABLED_COMMANDS
+client.FLAT_COMMANDS = helpers.Helpers.flatten_commands()
 client.latest_announcement = {"text": LAST_MESSAGE, "link": LAST_LINK, "id": LAST_ID}
+client.commands_dict = helpers.COMMANDS_DICT
 client.is_running = False
 
 with open(helpers.COMMANDS_FILE, encoding="utf8") as file:
@@ -42,6 +45,62 @@ async def test(ctx: commands.Context) -> None:
     Reply to the bot to check if it's working
     """
     await ctx.send(f"Hey {ctx.author.mention}!")
+
+
+@client.command(name="disable", brief="Disable a command")
+async def disable_command(ctx: commands.Context, command_name: str) -> None:
+    """
+    Disables a command until it is re-enabled
+
+    :param command_name: The name of the command. The command with this name and all it's aliases, will be disabled.
+    """
+
+    # Check if the member can execute this command
+    execute = client.helpers.can_execute(ctx)
+
+    if execute:
+        # If the command is already disabled send error message
+        if command_name in client.FLAT_COMMANDS:
+            await ctx.send(f"{ctx.author.mention} this command is already disabled.")
+            return
+
+        # If the command exists, disable it.
+        # If the command doesn't exist send error message
+        if command_name in client.commands_dict:
+            client.DISABLED_COMMANDS.append(command_name)
+            await ctx.send(f"{ctx.author.mention} command `{command_name}` is now disabled.")
+        else:
+            await ctx.send(f"{ctx.author.mention}, `{command_name}` is not a valid command name.")
+    else:
+        await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action.")
+
+
+@client.command(name="enable", brief="Enable a command")
+async def enable_command(ctx: commands.Context, command_name: str) -> None:
+    """
+    Enables the use of commands if they are disabled
+
+    :param command_name: The name of the command to enable
+    """
+
+    # Check if the member can execute the command
+    execute = client.helpers.can_execute(ctx)
+
+    if execute:
+        # If the command is already enabled return
+        if not (command_name in client.DISABLED_COMMANDS):
+            await ctx.send(f"{ctx.author.mention} command {command_name} is already enabled.")
+            return
+
+        # If the command exists enable it
+        # If it doesn't doesn't exist send error message
+        if command_name in client.FLAT_COMMANDS:
+            # enable command
+            pass
+        else:
+            await ctx.send(f"{ctx.author.mention}, `{command_name}` is not a valid command name.")
+    else:
+        await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action.")
 
 
 @client.command(name="setc", aliases=["color", "role-color"], brief="Change your color")
@@ -723,6 +782,7 @@ async def unmute(ctx: commands.Context, member: discord.Member) -> None:
         except Exception:
             await ctx.send(f"{member.mention} is not muted")
             return
+
         await ctx.send(f"{ctx.author.mention} unmuted {member.mention}")
     else:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action.")
@@ -904,8 +964,10 @@ async def on_message(msg: discord.Message) -> None:
             await asyncio.sleep(0.5)
             await msg.delete()
 
-    # Check if the message was supposed to be a command
-    await client.process_commands(msg)
+    ctx = await client.get_context(msg)
+    if not (ctx.command in client.DISABLED_COMMANDS):
+        # Check if the message was supposed to be a command
+        await client.process_commands(msg)
 
 
 @client.event
