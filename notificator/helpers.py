@@ -3,6 +3,7 @@ import json
 import time
 import asyncio
 import discord
+import requests
 import traceback
 from pathlib import Path
 from datetime import datetime
@@ -386,3 +387,27 @@ class Helpers:
         embed.timestamp = datetime.now()
 
         return embed
+
+    def get_info_file_data(self) -> dict:
+        """
+        Get the info data from the API
+
+        :return data: The dictionary with the data"
+        """
+        url = os.environ.get("INFO_FILE_URL")
+        req = requests.get(url)
+        data = json.loads(req.text)
+        return data
+
+    def post_file_info_data(self, data: dict) -> requests.Response:
+        """
+        Send a post request to the info file API
+
+        :param data: This is the data to send.
+                     It contains a multiple keys but only `last_id`, `last_message` and `last_link` should be modified.
+
+        :return req: The response from the API
+        """
+        url = os.environ.get("INFO_FILE_URL")
+        req = requests.post(url, data=data)
+        return req
