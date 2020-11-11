@@ -47,7 +47,7 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
-@client.command(name="disabled", aliases=["disabled-commands"])
+@client.command(name="disabled", aliases=["disabled-commands"], brief="View all the disabled commands")
 async def view_disabled_commands(ctx: commands.Context):
     """Shows all the disabled commands"""
 

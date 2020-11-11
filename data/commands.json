@@ -218,6 +218,27 @@
                 "[green]",
                 "[blue]"
             ]
+        },
+        "enable": {
+            "brief": "Enable a command",
+            "aliases": [],
+            "parameters": [
+                "<command_name>"
+            ]
+        },
+        "disable": {
+            "brief": "Disabled a command",
+            "aliases": [],
+            "parameters": [
+                "<command_name>"
+            ]
+        },
+        "disabled": {
+            "brief": "View all the disabled commands",
+            "aliases": [
+                "disabled-commands"
+            ],
+            "parameters": []
         }
     },
     "prefix": "."
