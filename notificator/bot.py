@@ -109,10 +109,6 @@ async def enable_command(ctx: commands.Context, command_name: str) -> None:
     :param command_name: The name of the command to enable
     """
 
-    # Can't enable this command
-    if command_name == "enable":
-        return
-
     # Check if the member can execute the command
     execute = client.helpers.can_execute(ctx)
 
