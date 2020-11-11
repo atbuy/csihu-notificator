@@ -219,6 +219,11 @@
                 "[blue]"
             ]
         },
+        "test": {
+            "brief": "Test the bot",
+            "aliases": [],
+            "parameters": []
+        },
         "enable": {
             "brief": "Enable a command",
             "aliases": [],
