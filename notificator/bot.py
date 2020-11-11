@@ -47,6 +47,19 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="disabled", aliases=["disabled-commands"])
+async def view_disabled_commands(ctx: commands.Context):
+    """Shows all the disabled commands"""
+
+    disabled_commands = ""
+    for comm in client.DISABLED_COMMANDS:
+        disabled_commands += f"{comm} "
+    if disabled_commands:
+        await ctx.send(f"{ctx.author.mention} the disabled commands are:\n```{disabled_commands} ```")
+    else:
+        await ctx.send(f"{ctx.author.mention} there are no disabled commands.")
+
+
 @client.command(name="disable", brief="Disable a command")
 async def disable_command(ctx: commands.Context, command_name: str) -> None:
     """
@@ -77,9 +90,9 @@ async def disable_command(ctx: commands.Context, command_name: str) -> None:
                 await ctx.send(f"{ctx.author.mention} command `{command_name}` is now disabled.")
 
                 # Update the API to disable the command
-                client.info["disabled_commands"] = client.DISABLED_COMMANDS
+                client.info_data["disabled_commands"] = client.DISABLED_COMMANDS
 
-                disabled_commands_dict_as_str = json.dumps(client.info)
+                disabled_commands_dict_as_str = json.dumps(client.info_data)
                 client.helpers.post_info_file_data(disabled_commands_dict_as_str)
                 return
         else:
@@ -119,9 +132,9 @@ async def enable_command(ctx: commands.Context, command_name: str) -> None:
                 await ctx.send(f"{ctx.author.mention} command `{command_name}` is now enabled.")
 
                 # Update the API file to enable the command
-                client.info["disabled_commands"] = client.DISABLED_COMMANDS
+                client.info_data["disabled_commands"] = client.DISABLED_COMMANDS
 
-                disabled_commands_dict_as_str = json.dumps(client.info)
+                disabled_commands_dict_as_str = json.dumps(client.info_data)
                 client.helpers.post_info_file_data(disabled_commands_dict_as_str)
                 return
         else:
