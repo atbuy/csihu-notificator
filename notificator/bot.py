@@ -69,7 +69,7 @@ async def disable_command(ctx: commands.Context, command_name: str) -> None:
     """
 
     # Can't disable this command
-    if command_name == "disable":
+    if command_name in ("disable", "enable"):
         return
 
     # Check if the member can execute this command
