@@ -106,7 +106,7 @@ class Helpers:
         self.total_pages = len(COMMANDS_DICT) // self.max_commands_on_page
         self.help_command_reactions = [START_EMOJI, ARROW_BACKWARD, ARROW_FORWARD, END_EMOJI]
 
-    async def member_has_role(member: discord.Member, role_id: int, force_name: bool = False, **kwargs) -> bool:
+    async def member_has_role(member: discord.Member, role_id: int, force_name: bool = False, name: str = None, color_role: bool = False) -> bool:  # noqa
         """
         Check if a guild member has a certain role
 
@@ -114,19 +114,12 @@ class Helpers:
         :param name: (Optional) Check if the member has a role with that contains this text
         :param force_name: (Optional) If this is set to True then check if the role name is exact as the `name`.
         :param color_role: (Optional) Check if the member has a color role
-        """
-        name = None
-        force_name = False
-        color_role = False
-        if "name" in kwargs:
-            name = kwargs["name"]
-        if "force_name" in kwargs:
-            force_name = kwargs["force_name"]
-        if "color_role" in kwargs:
-            color_role = kwargs["color_role"]
 
+        .. note::
+            You should specify kwargs and not use positional arguments.
+        """
         if color_role and name:
-            raise RuntimeError("Can't specify keyword argument 'name' and 'color_role'")
+            raise RuntimeError("Can't specify keyword argument 'name' and 'color_role' at the same time.")
 
         for role in member.roles:
             if color_role:
