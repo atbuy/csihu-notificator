@@ -51,9 +51,8 @@ async def test(ctx: commands.Context) -> None:
 async def view_disabled_commands(ctx: commands.Context):
     """Shows all the disabled commands"""
 
-    disabled_commands = ""
-    for comm in client.DISABLED_COMMANDS:
-        disabled_commands += f"{comm} "
+    disabled_commands = ", ".join(client.DISABLED_COMMANDS)
+
     if disabled_commands:
         await ctx.send(f"{ctx.author.mention} the disabled commands are:\n```{disabled_commands} ```")
     else:
