@@ -54,16 +54,21 @@ async def disallow_mention(ctx: commands.Context, role: discord.Role) -> None:
 
     :param role:
     """
+
+    # Check if the member can execute this command
     execute = client.helpers.can_execute(ctx)
 
     if execute:
         if role.mentionable:
+            # If the role is mentionable, make it unmentionable
             await role.edit(mentionable=False)
-            await ctx.send(f"{ctx.author.mention} made {role} unmentionable.")
+            await ctx.send(f"{ctx.author.mention} made `@{role.name.replace('@', '')}` unmentionable.")
         else:
+            # if the role is unmentionable, make it mentionable
             await role.edit(mentionable=True)
-            await ctx.send(f"{ctx.author.mention} made {role} mentionable.")
+            await ctx.send(f"{ctx.author.mention} made `@{role.name.replace('@', '')}` mentionable.")
     else:
+        # Send error message if the member can't execute this command
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action.")
 
 
