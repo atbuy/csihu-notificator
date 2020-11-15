@@ -282,15 +282,22 @@ async def timer(ctx: commands.Context, value: str) -> None:
     time_type = {"s": "seconds", "m": "minutes", "h": "hours"}
 
     # The multiplier is set to 1 because the time would be in seconds
+    ending = None
     mult = 1
-    if value.isdigit() or value.endswith("s"):
+    if value.isdigit():
         mult = 1
+        ending = False
+    elif value.endswith("s"):
+        mult = 1
+        ending = "s"
     elif value.endswith("m"):
         # Multiply minutes by 60 to get seconds
         mult = 60
+        ending = "m"
     elif value.endswith("h"):
         # Multiply hours by 360 to get seconds
         mult = 60*60
+        ending = "h"
     else:
         # Send error message if the input was wrong
         await ctx.send("Invalid time input")
@@ -298,20 +305,36 @@ async def timer(ctx: commands.Context, value: str) -> None:
 
     # Convert the time to an integer
     try:
-        timed = int(value[:len(value) - 1])
+        if ending:
+            timed = int(value[:len(value) - 1])
+            # Send success message
+            await ctx.send(f"{ctx.author.mention} set an alarm for {timed} {time_type[ending]}")
+        else:
+            timed = int(value)
+            # Send success message
+            await ctx.send(f"{ctx.author.mention} set an alarm for {timed} seconds.")
     except ValueError:
         await ctx.send("Invalid time input")
         return
-
-    # Send success message
-    await ctx.send(f"{ctx.author.mention} set an alarm for {timed} {time_type[value[-1]]}")
 
     # Sleep for the amount of time specified
     await asyncio.sleep(timed * mult)
 
     # Create the embed to send to the channel and tag the member that caled the command
     embed = discord.Embed(title="Timer", description="Mention the author after the specified time", color=0xff0000)
-    embed.add_field(name=f"{ctx.author}", value=f"Time is up! You set a timer for {timed} {time_type[value[-1]]}", inline=True)
+
+    if ending:
+        embed.add_field(
+            name=f"{ctx.author}",
+            value=f"Time is up! You set a timer for {timed} {time_type[value[-1]]}",
+            inline=True
+        )
+    else:
+        embed.add_field(
+            name=f"{ctx.author}",
+            value=f"Time is up! You set a timer for {timed} seconds.",
+            inline=True
+        )
     await ctx.send(f"{ctx.author.mention}", embed=embed)
 
 
