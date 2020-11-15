@@ -47,6 +47,26 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="nomention", aliases=["disallow"], brief="Disable members tagging this role")
+async def disallow_mention(ctx: commands.Context, role: discord.Role) -> None:
+    """
+    Makes the role passed unmentionable for members
+
+    :param role:
+    """
+    execute = client.helpers.can_execute(ctx)
+
+    if execute:
+        if role.mentionable:
+            await role.edit(mentionable=False)
+            await ctx.send(f"{ctx.author.mention} made {role} unmentionable.")
+        else:
+            await role.edit(mentionable=True)
+            await ctx.send(f"{ctx.author.mention} made {role} mentionable.")
+    else:
+        await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action.")
+
+
 @client.command(name="disabled", aliases=["disabled-commands"], brief="View all the disabled commands")
 async def view_disabled_commands(ctx: commands.Context):
     """Shows all the disabled commands"""
