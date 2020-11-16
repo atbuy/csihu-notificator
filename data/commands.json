@@ -255,7 +255,7 @@
             ]
         },
         "count": {
-            "brief": "Count from 0 to a number",
+            "brief": "Count from 0 up to a 100",
             "aliases": [],
             "parameters": [
                 "[number]"

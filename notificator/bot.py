@@ -47,15 +47,25 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
-@client.command(name="count", brief="Count from 0 to a number")
+@client.command(name="count", brief="Count from 0 to a 100")
+@commands.cooldown(1, 30, commands.BucketType.user)
 async def number_count(ctx: commands, number: int = 10) -> None:
     """
     Counts from 0 to the number given and sends the output to the channel
 
     :param number: The number to count up to. This is inclusive
     """
-    numbers = [str(i) for i in range(number+1)]
-    await ctx.send(f"{ctx.author.mention} counting...\n```{' '.join(numbers)} ```")
+
+    # If the number is inside the allowed boundaries create the message
+    if 0 < number <= 100:
+        numbers = " ".join([str(i) for i in range(number+1)])
+    else:
+        # If the number is outside the boundaries, send error messae
+        await ctx.send(f"{ctx.author.mention}. Can't count after 100 or less than 1")
+        return
+
+    # If all filters are passed, send the output message.
+    await ctx.send(f"{ctx.author.mention} counting...\n```{numbers} ```")
 
 
 @client.command(name="nomention", aliases=["disallow"], brief="Disable members tagging this role")
