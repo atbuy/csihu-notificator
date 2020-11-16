@@ -47,12 +47,23 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="count", brief="Count from 0 to a number")
+async def number_count(ctx: commands, number: int = 10) -> None:
+    """
+    Counts from 0 to the number given and sends the output to the channel
+
+    :param number: The number to count up to. This is inclusive
+    """
+    numbers = [str(i) for i in range(number+1)]
+    await ctx.send(f"{ctx.author.mention} counting...\n```{' '.join(numbers)} ```")
+
+
 @client.command(name="nomention", aliases=["disallow"], brief="Disable members tagging this role")
 async def disallow_mention(ctx: commands.Context, role: discord.Role) -> None:
     """
     Makes the role passed unmentionable for members
 
-    :param role:
+    :param role: The role to modify
     """
 
     # Check if the member can execute this command
@@ -73,7 +84,7 @@ async def disallow_mention(ctx: commands.Context, role: discord.Role) -> None:
 
 
 @client.command(name="disabled", aliases=["disabled-commands"], brief="View all the disabled commands")
-async def view_disabled_commands(ctx: commands.Context):
+async def view_disabled_commands(ctx: commands.Context) -> None:
     """Shows all the disabled commands"""
 
     disabled_commands = ", ".join(client.DISABLED_COMMANDS)
