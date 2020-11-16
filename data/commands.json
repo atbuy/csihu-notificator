@@ -253,6 +253,13 @@
             "parameters": [
                 "<role>"
             ]
+        },
+        "count": {
+            "brief": "Count from 0 to a number",
+            "aliases": [],
+            "parameters": [
+                "[number]"
+            ]
         }
     },
     "prefix": "."
