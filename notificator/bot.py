@@ -649,7 +649,7 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message = 
     if number < 0:
         return
 
-    if number > 10:
+    if number > 20:
         await ctx.send(f"{ctx.author.mention}. Can't purge more than 10 messages")
         return
 
@@ -881,7 +881,7 @@ async def unmute(ctx: commands.Context, member: discord.Member) -> None:
 
 
 @client.command(name="mute", brief="Mute a member", description="Mute a member for the specified amount of minutes")
-async def mute(ctx: commands.Context, member: discord.Member, minutes: float) -> None:
+async def mute(ctx: commands.Context, member: discord.Member, minutes: float = 5.0) -> None:
     """
     Mutes a member for the specified amount of minutes
 
