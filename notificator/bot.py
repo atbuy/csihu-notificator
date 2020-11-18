@@ -56,7 +56,7 @@ async def gtpm(ctx: commands.Context) -> None:
     await troll.gtpm_troll.run(ctx)
 
 
-@client.command(name="gamwtoxristo", brief=troll.gtx.brief)
+@client.command(name="gamwtoxristo", brief=troll.gtx_troll.brief)
 async def gtx(ctx: commands.Context) -> None:
     """
     Sends reply to the author

@@ -318,13 +318,13 @@ class Helpers:
         while execute:
             execute, current_page = await self._wait_for_page_change(ctx, msg, current_page)
 
-    async def check_mention(self, ctx: commands.Context) -> None:
+    async def check_for_mention(self, ctx: commands.Context) -> None:
         """
         Check if the bot is mentioned
         """
         mentions = ctx.message.mentions
         for mention in mentions:
-            if mention.id == self.client.id:
+            if mention.id == self.client.user.id:
                 await ctx.send("SKACE")
                 return
 
