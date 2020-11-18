@@ -4,4 +4,4 @@ add_commands.py
 deprecated.txt
 .pytest_cache
 data/info.json
-notificator/troll.py
+data/troll_data.json
