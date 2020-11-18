@@ -7,7 +7,8 @@ from discord.ext import commands
 with requests.Session() as s:
     url = os.environ.get("CSIHU_NOTIFICATOR_API_TROLL_URL")
     req = s.get(url)
-    data = json.load(req.text)
+    print(req.text)
+    data = json.loads(req.text)
 
 
 don_data = data["donate_troll"]
