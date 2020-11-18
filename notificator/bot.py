@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 import os
+import troll
 import json
 import random
 import asyncio
@@ -45,6 +46,11 @@ async def test(ctx: commands.Context) -> None:
     Reply to the bot to check if it's working
     """
     await ctx.send(f"Hey {ctx.author.mention}!")
+
+
+@client.command(name="donate", aliases=["donations", "donation"], brief=troll.donate_troll.brief)
+async def donate(ctx: commands.Context):
+    await troll.donate_troll(ctx)
 
 
 @client.command(name="count", brief="Count from 0 to a 100")
