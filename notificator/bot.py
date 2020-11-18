@@ -48,8 +48,27 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="gtpm", brief=troll.gtpm_troll.brief)
+async def gtpm(ctx: commands.Context) -> None:
+    """
+    Tags the user with the specific ID in the data file
+    """
+    await troll.gtpm_troll.run(ctx)
+
+
+@client.command(name="gamwtoxristo", brief=troll.gtx.brief)
+async def gtx(ctx: commands.Context) -> None:
+    """
+    Sends reply to the author
+    """
+    await troll.gtx_troll.run(ctx)
+
+
 @client.command(name="donate", aliases=["donations", "donation"], brief=troll.donate_troll.brief)
 async def donate(ctx: commands.Context):
+    """
+    Sends fake "donation" links
+    """
     await troll.donate_troll.run(ctx)
 
 
@@ -1073,6 +1092,9 @@ async def on_message(msg: discord.Message) -> None:
 
     ctx = await client.get_context(msg)
     check_msg = msg.content.lower()
+
+    # Check if the bot is mentioned
+    await client.helpers.check_for_mention(ctx)
 
     # If there are attachments to the message
     # check if the extension is allowed on the server

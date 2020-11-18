@@ -318,6 +318,16 @@ class Helpers:
         while execute:
             execute, current_page = await self._wait_for_page_change(ctx, msg, current_page)
 
+    async def check_mention(self, ctx: commands.Context) -> None:
+        """
+        Check if the bot is mentioned
+        """
+        mentions = ctx.message.mentions
+        for mention in mentions:
+            if mention.id == self.client.id:
+                await ctx.send("SKACE")
+                return
+
     def can_execute(self, ctx: commands.Context, **kwargs) -> bool:
         """
         Checks if the member that executed the command

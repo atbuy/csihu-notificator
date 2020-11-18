@@ -19,6 +19,8 @@ with requests.Session() as s:
 
 
 don_data = data["donate_troll"]
+gtpm_data = data["gtpm_troll"]
+gtx_data = data["gtx_troll"]
 
 
 class donate_troll:
@@ -26,10 +28,32 @@ class donate_troll:
 
     async def run(ctx: commands.Context) -> None:
         """
-        Sends fake "donation" links of professors
+        Sends fake "donation" links
         """
         names = don_data["names"]
         output = ""
         for name in names:
             output += f"<https://www.twitch.tv/{name}/donate/>\n"
         await ctx.send(f"Donation links:\n{output}")
+
+
+class gtpm_troll:
+    brief = gtpm_data["brief"]
+
+    async def run(ctx: commands.Context) -> None:
+        """
+        Tags the user with the specific ID in the data file
+        """
+        ID = gtpm_data["ID"]
+        await ctx.send(f"<@{ID}>")
+
+
+class gtx_troll:
+    brief = gtx_data["brief"]
+
+    async def run(ctx: commands.Context) -> None:
+        """
+        Sends reply to the author
+        """
+        text = gtx_data["text"]
+        await ctx.send(f"{ctx.author.mention} {text}")
