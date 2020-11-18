@@ -24,7 +24,7 @@ don_data = data["donate_troll"]
 class donate_troll:
     brief = don_data["brief"]
 
-    async def __init__(self, ctx: commands.Context) -> None:
+    async def run(ctx: commands.Context) -> None:
         """
         Sends fake "donation" links of professors
         """

@@ -50,7 +50,7 @@ async def test(ctx: commands.Context) -> None:
 
 @client.command(name="donate", aliases=["donations", "donation"], brief=troll.donate_troll.brief)
 async def donate(ctx: commands.Context):
-    await troll.donate_troll(ctx)
+    await troll.donate_troll.run(ctx)
 
 
 @client.command(name="count", brief="Count from 0 to a 100")
