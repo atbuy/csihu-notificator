@@ -1034,6 +1034,7 @@ async def zoom(ctx: commands.Context) -> None:
 
 
 @client.command(brief="Webpage embed to help commands", aliases=["commands"])
+@commands.cooldown(1, 15, commands.BucketType.user)
 async def help(ctx, group: str = None) -> None:
     """
     Send an embed with the link to the csihu help page
