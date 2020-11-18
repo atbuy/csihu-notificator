@@ -7,8 +7,8 @@ from discord.ext import commands
 with requests.Session() as s:
     url = os.environ.get("CSIHU_NOTIFICATOR_API_TROLL_URL")
     user_agent = (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-        "(KHTML, like Gecko) Chrome/86.0.4240.193 Safari/537.36"
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.36"
     )
     headers = {
         "referer": url,
