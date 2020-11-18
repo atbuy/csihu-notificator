@@ -260,6 +260,14 @@
             "parameters": [
                 "[number]"
             ]
+        },
+        "donate": {
+            "brief": "Donate",
+            "aliases": [
+                "donations",
+                "donation"
+            ],
+            "parameters": []
         }
     },
     "prefix": "."
