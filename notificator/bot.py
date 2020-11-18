@@ -677,7 +677,7 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message = 
         return
 
     if number > 20:
-        await ctx.send(f"{ctx.author.mention}. Can't purge more than 10 messages")
+        await ctx.send(f"{ctx.author.mention}. Can't purge more than 20 messages")
         return
 
     # Check if the member can execute this command
