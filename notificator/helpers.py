@@ -318,15 +318,25 @@ class Helpers:
         while execute:
             execute, current_page = await self._wait_for_page_change(ctx, msg, current_page)
 
-    async def check_for_mention(self, ctx: commands.Context) -> None:
+    async def check_for_mention(self, ctx: commands.Context) -> bool:
         """
         Check if the bot is mentioned
+
+        :return bool: True is the bot is mentioned and False if it isn't
         """
         mentions = ctx.message.mentions
         for mention in mentions:
             if mention.id == self.client.user.id:
-                await ctx.send("SKACE")
-                return
+                return True
+        return False
+
+    async def mention_reaction(self, ctx: commands.Context) -> None:
+        """
+        React with emojis to the message
+        """
+        chars = ["s", "k", "a", "c", "e"]
+        for char in chars:
+            await ctx.message.add_reaction(f"{CHARACTERS[char]}")
 
     def can_execute(self, ctx: commands.Context, **kwargs) -> bool:
         """

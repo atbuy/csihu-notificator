@@ -1093,8 +1093,10 @@ async def on_message(msg: discord.Message) -> None:
     ctx = await client.get_context(msg)
     check_msg = msg.content.lower()
 
-    # Check if the bot is mentioned
-    await client.helpers.check_for_mention(ctx)
+    # Check if the bot is mentioned, and add reactions to it, if it is.
+    mentioned = await client.helpers.check_for_mention(ctx)
+    if mentioned:
+        await client.helpers.mention_reaction(ctx)
 
     # If there are attachments to the message
     # check if the extension is allowed on the server
