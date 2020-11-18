@@ -21,7 +21,7 @@ LAST_MESSAGE = helpers.LAST_MESSAGE
 TOKEN = os.environ.get("CSIHU_NOTIFICATOR_BOT_TOKEN")
 intents = discord.Intents.all()
 client = commands.Bot(
-    command_prefix=commands.when_mentioned_or("."),
+    command_prefix=".",
     intents=intents,
     help_command=None,
     activity=discord.Activity(type=discord.ActivityType.listening, name=".help")
@@ -1097,6 +1097,7 @@ async def on_message(msg: discord.Message) -> None:
     mentioned = await client.helpers.check_for_mention(ctx)
     if mentioned:
         await client.helpers.mention_reaction(ctx)
+        return
 
     # If there are attachments to the message
     # check if the extension is allowed on the server
