@@ -94,7 +94,7 @@ async def number_count(ctx: commands, number: int = 10) -> None:
 
 
 @client.command(name="nomention", aliases=["disallow"], brief="Disable members tagging this role")
-async def disallow_mention(ctx: commands.Context, role: discord.Role) -> None:
+async def disallow_mention(ctx: commands.Context, *, role: discord.Role) -> None:
     """
     Makes the role passed unmentionable for members
 
