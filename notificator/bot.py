@@ -1046,31 +1046,13 @@ async def help(ctx, group: str = None) -> None:
     # If it exists format the output like discord's help command does.
     # Return the aliases and the parameters of the command formatted, if there are any
     if group:
-        # Check if the command exists
-        if group in client.commands_dict["commands"]:
-            help_text = f"{ctx.prefix}"
-            aliases = client.commands_dict["commands"][group]["aliases"]
-
-            # Check if the command has any aliases
-            if aliases:
-                help_text += f"[{group}"
-                for alias in aliases:
-                    help_text += f"|{alias}"
-                help_text += "] "
-            else:
-                help_text += f"{group} "
-
-            parameters = client.commands_dict["commands"][group]["parameters"]
-            # Add any parameters the command takes
-            for parameter in parameters:
-                help_text += f"{parameter} "
-
-            await ctx.send(f"```{help_text} ```")
+        if group in client.helpers.available_commands:
+            await client.helpers.send_help_group_embed(ctx, group)
         else:
-            await ctx.send(f"Couldn't find command `{group}`")
-
+            await ctx.send(f"{ctx.author.mention}. Couldn't find command `{group}`.")
         return
 
+    # If no group is found, send the normal help embed
     await client.helpers.send_help_embed(ctx)
 
 

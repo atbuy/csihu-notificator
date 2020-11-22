@@ -102,6 +102,7 @@ class Helpers:
     """
     def __init__(self, client: commands.Bot, commands_on_page: int = 4):
         self.client = client
+        self.available_commands = {c.name: c.brief for c in client.walk_commands()}
         self.max_commands_on_page = commands_on_page
         self.total_pages = len(COMMANDS_DICT) // self.max_commands_on_page
         self.help_command_reactions = [START_EMOJI, ARROW_BACKWARD, ARROW_FORWARD, END_EMOJI]
@@ -318,6 +319,62 @@ class Helpers:
         while execute:
             execute, current_page = await self._wait_for_page_change(ctx, msg, current_page)
 
+    async def send_help_group_embed(self, ctx: commands.Context, group: str) -> None:
+        """
+        Create an embed about the command (group) that is passed
+
+        :param group: The command's name
+        """
+
+        # Initialize the embed object
+        embed = discord.Embed(
+            title=f"Help for {ctx.prefix}{group}",
+            color=0xff0000
+        )
+
+        # Set the bot as the author
+        embed.set_author(
+            name="CSIHU Notificator",
+            icon_url=self.client.user.avatar_url
+        )
+
+        # Get the command object
+        comm = self.get_command(group)
+
+        # Format the aliases of the command
+        aliases = comm.aliases
+        if aliases:
+            outalias = f"{ctx.prefix}[{comm.name}"
+            for alias in aliases:
+                outalias += f"|{alias}"
+            outalias += "] "
+        else:
+            outalias = f"{ctx.prefix}{comm.name}"
+
+        # Get the parameters of the command formatted
+        params = comm.signature
+
+        # Check what the embed should look like depending on
+        # if it has any aliases, if it has any parameters,
+        # of if it has both, or none
+        if outalias and params:
+            par = f"{outalias} {params}"
+        elif outalias:
+            par = f"{outalias} "
+        else:
+            par = f"{ctx.prefix}{group} "
+
+        embed.add_field(
+            name=f"{ctx.prefix}{group}",
+            value=f"{par}",
+            inline=False
+        )
+
+        embed.set_footer(text=ctx.author.name, icon_url=ctx.author.avatar_url)
+        embed.timestamp = datetime.now()
+
+        await ctx.send(f"{ctx.author.mention}", embed=embed)
+
     async def check_for_mention(self, ctx: commands.Context) -> bool:
         """
         Check if the bot is mentioned
@@ -337,6 +394,19 @@ class Helpers:
         chars = ["s", "k", "a", "c", "e"]
         for char in chars:
             await ctx.message.add_reaction(f"{CHARACTERS[char]}")
+
+    def get_command(self, name: str) -> commands.Command:
+        """
+        Gets the name of the command and returns the command if it's not found, or it returns False if it didn't find it
+
+        :param name: The name of the command to search for
+        """
+
+        for comm in self.client.walk_commands():
+            if comm.name == name:
+                return comm
+
+        return False
 
     def can_execute(self, ctx: commands.Context, **kwargs) -> bool:
         """
@@ -448,13 +518,13 @@ class Helpers:
         # Set the bot as the author
         embed.set_author(
             name="CSIHU Notificator",
-            icon_url="https://csihu.pythonanywhere.com/static/images/csihu_icon.png"
+            icon_url=self.client.user.avatar_url
         )
 
         # All the available commands
-        available_commands = self.client.commands_dict["commands"]
+        available_commands = self.available_commands
 
-        # How many command can appear on the page
+        # The maximum number of commands that can be shown in one page
         max_commands_on_page = self.max_commands_on_page
 
         # The number of pages needed to show all the commands
@@ -465,14 +535,14 @@ class Helpers:
         page_commands = self.slice_dict(
             self.sort_dict(available_commands),
             page_number*max_commands_on_page,
-            page_number*max_commands_on_page+4
+            page_number*max_commands_on_page*2
         )
 
         # Add all the fields with the commands of the page
         for key, val in page_commands.items():
             embed.add_field(
                 name=f"{ctx.prefix}{key}",
-                value=f"{val['brief']}",
+                value=f"{val}",
                 inline=False
             )
 
