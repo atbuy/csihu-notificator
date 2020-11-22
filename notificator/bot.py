@@ -29,15 +29,7 @@ client = commands.Bot(
 client.info_data = helpers.info
 client.DISABLED_COMMANDS = helpers.DISABLED_COMMANDS
 client.latest_announcement = {"text": LAST_MESSAGE, "link": LAST_LINK, "id": LAST_ID}
-client.commands_dict = helpers.COMMANDS_DICT
 client.is_running = False
-
-with open(helpers.COMMANDS_FILE, encoding="utf8") as file:
-    client.commands_dict = json.load(file)
-
-# Initialize helpers object to be used inside commands
-client.helpers = helpers.Helpers(client, commands_on_page=4)
-client.FLAT_COMMANDS = client.helpers.flatten_commands()
 
 
 @client.command(brief="Test the bot")
@@ -209,7 +201,7 @@ async def enable_command(ctx: commands.Context, command_name: str) -> None:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action.")
 
 
-@client.command(name="setc", aliases=["color", "role-color"], brief="Change your color")
+@client.command(name="setc", aliases=["color", "role-color"], brief="Change your name's color")
 async def change_role_color(ctx: commands.Context, red=None, green=None, blue=None) -> None:
     """
     Changes the author's name color to either the hex value passed, or the rgb one.
@@ -260,7 +252,7 @@ async def roll(ctx: commands.Context, start: int = 0, end: int = 10_000) -> None
     await ctx.send(f"{ctx.author.mention} your number is: `{random_number}`")
 
 
-@client.command(name="gsearch", brief="Search google", aliases=["gs", "googlesearch"])
+@client.command(name="gsearch", aliases=["gs", "googlesearch"], brief="Search google")
 async def gsearch(ctx: commands.Context, *, query: str) -> None:
     """
     Searches google and returns the first 10 results
@@ -396,7 +388,7 @@ async def latest(ctx: commands.Context) -> None:
     await ctx.send(f"Latest announcement link: <{link}>\n```{text} ```")
 
 
-@client.command(brief="Search for an announcement", name="search-id")
+@client.command(name="search-id", brief="Search for an announcement")
 async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
     """
     Searches the announcements webpage for the ID given
@@ -479,7 +471,7 @@ async def change_last_id(ctx: commands.Context, id_num: int = None) -> None:
         await ctx.send(f"`{ctx.author}` you dont have enough permissions")
 
 
-@client.command(brief="Starts the bot", aliases=["run"])
+@client.command(aliases=["run"], brief="Starts the bot")
 async def run_bot(ctx: commands.Context) -> None:
     """
     Starts pinging the announcements webpage
@@ -557,7 +549,7 @@ async def run_bot(ctx: commands.Context) -> None:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions")
 
 
-@client.command(brief="Move/Remove someone to the waiting list", aliases=["waiting_room"])
+@client.command(aliases=["waiting_room"], brief="Move/Remove someone to the waiting list")
 async def waiting_list(ctx: commands.Context, member: discord.Member) -> None:
     """
     Check if a member has the role `waiting room reception`. If he has then remove it,
@@ -674,7 +666,7 @@ async def say(ctx: commands.Context, *, text: str) -> None:
         await ctx.send(f"{ctx.author.mention} You can't use this command in <#{helpers.GENERAL_ID}>")
 
 
-@client.command(brief="Delete messages", aliases=["del"])
+@client.command(aliases=["del"], brief="Delete messages")
 async def delete(ctx: commands.Context, number: int, message: discord.Message = None, member: discord.Member = None) -> None:
     """
     Delete an ammount of messages from the author's channel
@@ -767,7 +759,7 @@ async def remove_reactions(ctx: commands.Context, amount: int, message: discord.
         return
 
 
-@client.command(name="slow", brief="Change slow mode duration in a channel", aliases=["slowmode", "sm"])
+@client.command(name="slow", aliases=["slowmode", "sm"], brief="Change slow mode duration in a channel")
 async def slow(ctx: commands.Context, time: str) -> None:
     """
     Change the slow mode delay of a channel to the specified `time`
@@ -853,7 +845,7 @@ async def filip(ctx: commands.Context, person: discord.Member) -> None:
         await ctx.send("You don't have enough permission to filip someone")
 
 
-@client.command(name="translate", aliases=["trans", "tr"])
+@client.command(name="translate", aliases=["trans", "tr"], brief="Translate text from a language to greek")
 @commands.cooldown(1, 15, commands.BucketType.channel)
 async def translate(ctx: commands.Context, *, text: str) -> None:
     """
@@ -875,7 +867,7 @@ async def translate(ctx: commands.Context, *, text: str) -> None:
         await ctx.send(f"{ctx.author.mention}. Couldn't translate")
 
 
-@client.command(name="f", aliases=["fmode", "f-mode"])
+@client.command(name="f", aliases=["fmode", "f-mode"], brief="Set slow mode in a channel")
 async def slowmode_f(ctx: commands.Context) -> None:
     """
     Change the slow mode of the channel
@@ -1033,8 +1025,8 @@ async def zoom(ctx: commands.Context) -> None:
     await ctx.send("Zoom Link: <https://zoom.us/j/95316736704>")
 
 
-@client.command(brief="Webpage embed to help commands", aliases=["commands"])
-@commands.cooldown(1, 15, commands.BucketType.user)
+@client.command(aliases=["commands"], brief="Webpage embed to help commands")
+# @commands.cooldown(1, 15, commands.BucketType.user)
 async def help(ctx, group: str = None) -> None:
     """
     Send an embed with the link to the csihu help page
@@ -1046,8 +1038,11 @@ async def help(ctx, group: str = None) -> None:
     # If it exists format the output like discord's help command does.
     # Return the aliases and the parameters of the command formatted, if there are any
     if group:
-        if group in client.helpers.available_commands:
-            await client.helpers.send_help_group_embed(ctx, group)
+        # Check if the group is a command name or onw of it's aliases
+        for comms in client.FLAT_COMMANDS:
+            if group in comms:
+                await client.helpers.send_help_group_embed(ctx, comms[0])
+                return
         else:
             await ctx.send(f"{ctx.author.mention}. Couldn't find command `{group}`.")
         return
@@ -1115,6 +1110,11 @@ async def on_member_join(member: discord.Member) -> None:
     """
     synadelfos_role = member.guild.get_role(helpers.SYNADELFOS_ROLE_ID)
     await member.add_roles(synadelfos_role)
+
+
+# Initialize helpers object to be used inside commands
+client.helpers = helpers.Helpers(client, commands_on_page=4)
+client.FLAT_COMMANDS = client.helpers.flatten_commands()
 
 
 def start():

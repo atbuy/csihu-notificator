@@ -102,7 +102,7 @@ class Helpers:
     """
     def __init__(self, client: commands.Bot, commands_on_page: int = 4):
         self.client = client
-        self.available_commands = {c.name: c.brief for c in client.walk_commands()}
+        self.available_commands = {c.name: c.brief for c in self.client.walk_commands()}
         self.max_commands_on_page = commands_on_page
         self.total_pages = len(COMMANDS_DICT) // self.max_commands_on_page
         self.help_command_reactions = [START_EMOJI, ARROW_BACKWARD, ARROW_FORWARD, END_EMOJI]
@@ -326,9 +326,13 @@ class Helpers:
         :param group: The command's name
         """
 
+        # Get the command object
+        comm = self.get_command(group)
+
         # Initialize the embed object
         embed = discord.Embed(
             title=f"Help for {ctx.prefix}{group}",
+            description=f"{comm.brief}",
             color=0xff0000
         )
 
@@ -337,9 +341,6 @@ class Helpers:
             name="CSIHU Notificator",
             icon_url=self.client.user.avatar_url
         )
-
-        # Get the command object
-        comm = self.get_command(group)
 
         # Format the aliases of the command
         aliases = comm.aliases
@@ -535,7 +536,7 @@ class Helpers:
         page_commands = self.slice_dict(
             self.sort_dict(available_commands),
             page_number*max_commands_on_page,
-            page_number*max_commands_on_page*2
+            page_number*max_commands_on_page+max_commands_on_page
         )
 
         # Add all the fields with the commands of the page
@@ -551,7 +552,7 @@ class Helpers:
 
         # Set the footer of the embed to the icon of the author, the nickanme
         # and the current time the page was requested
-        embed.set_footer(text=ctx.author.nick, icon_url=ctx.author.avatar_url)
+        embed.set_footer(text=ctx.author.name, icon_url=ctx.author.avatar_url)
         embed.timestamp = datetime.now()
 
         return embed
