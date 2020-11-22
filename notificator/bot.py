@@ -546,12 +546,12 @@ async def run_bot(ctx: commands.Context) -> None:
                 # Upload data to server
                 data_dict_as_str = json.dumps(client.info_data)
                 client.helpers.post_info_file_data(data_dict_as_str)
-                
+
                 try:
                     await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text} ```")
                 except discord.errors.HTTPException:
                     await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
-            
+
             await asyncio.sleep(10)
     else:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions")
