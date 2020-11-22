@@ -15,7 +15,7 @@ import notificator  # noqa
 
 # Write tests here
 def test_version():
-    assert notificator.__version__ == "0.8.7-alpha"
+    assert notificator.__version__ == "0.9.0"
 
 
 # * Removed test because github kept failing it for the environment variable
