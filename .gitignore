@@ -5,3 +5,4 @@ deprecated.txt
 .pytest_cache
 data/info.json
 data/troll_data.json
+data/commands.json
