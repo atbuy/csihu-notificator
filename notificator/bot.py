@@ -1136,7 +1136,7 @@ async def on_member_join(member: discord.Member) -> None:
 
 # Initialize helpers object to be used inside commands
 client.helpers = helpers.Helpers(client)
-client.FLAT_COMMANDS = client.helpers.reshape_commands()
+client.FLAT_COMMANDS = client.helpers.fold_commands()
 
 
 def start():
