@@ -35,9 +35,7 @@ client.is_running = False
 
 @client.command(brief="Test the bot")
 async def test(ctx: commands.Context) -> None:
-    """
-    Reply to the bot to check if it's working
-    """
+    """Reply to the bot to check if it's working"""
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
@@ -55,22 +53,24 @@ async def rm_blacklist(ctx: commands.Context, *, text: str) -> None:
         await ctx.send(f"{ctx.author.mention} you don't have enough permission to perform this action.")
         return
 
+    # If it's not blacklisted word then send an error message
     blacklisted = client.helpers.is_blacklisted(ctx)
-    if blacklisted:
-        # Get the index of the text to remove it from the blacklist
-        index = client.BLACKLIST.index(text)
-        client.BLACKLIST.pop(index)
-
-        # Update the info dict with the new `blacklist` key
-        client.indo_data["blacklist"] = client.BLACKLIST
-
-        # Update info.json from the API
-        data_dict_as_str = json.dumps(client.info_data)
-        client.helpers.post_info_file_data(data_dict_as_str)
-
-        await ctx.send(f"{ctx.author.mention} removed {text} from the blacklist")
-    else:
+    if not blacklisted:
         await ctx.send(f"{ctx.author.mention}, {text} is not a blacklisted word")
+        return
+
+    # Get the index of the text to remove it from the blacklist
+    index = client.BLACKLIST.index(text)
+    client.BLACKLIST.pop(index)
+
+    # Update the info dict with the new `blacklist` key
+    client.info_data["blacklist"] = client.BLACKLIST
+
+    # Update info.json from the API
+    data_dict_as_str = json.dumps(client.info_data)
+    client.helpers.post_info_file_data(data_dict_as_str)
+
+    await ctx.send(f"{ctx.author.mention} removed {text} from the blacklist")
 
 
 @client.command(name="blacklist", brief="Blacklist text")
@@ -85,16 +85,25 @@ async def blacklist(ctx: commands.Context, *, text: str = None) -> None:
     # Check if the member can execute this command
     execute = client.helpers.can_execute(ctx)
 
+    # If the member can't execute this command then send an error message
     if not execute:
         await ctx.send(f"{ctx.author.mention} you don't have enough permission to perform this action.")
         return
 
+    # If there was no text passed, then just show the blacklist
     if not text:
         blacklisted_words = ", ".join(client.BLACKLIST)
         if blacklisted_words:
             await ctx.send(f"{ctx.author.mention}\n```{blacklisted_words} ```")
         else:
             await ctx.send(f"{ctx.author.mention} there are no blacklisted words.")
+        return
+
+    # If the word is alrady blacklisted don't add it to the the blacklist.
+    # This is done to prevent breaking the list and spamming
+    blacklisted = client.helpers.is_blacklisted(ctx)
+    if blacklisted:
+        await ctx.send(f"{ctx.author.mention} this word is already blacklisted")
         return
 
     # Add the text to the blacklist
