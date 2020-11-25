@@ -45,12 +45,14 @@ async def tag_voice_channel(ctx: commands.Context) -> None:
     """Tags all the members connected to the author's voice channel"""
 
     voice = ctx.author.voice
+
     # If the author is not connected to a voice channel, return
     if not voice:
         await ctx.send(f"{ctx.author.mention} you are not connected to a voice channel")
         return
 
     vc_members = voice.channel.members
+
     # Get all the members connected to the author's voice channel
     mentions = [member.mention for member in vc_members if member != ctx.author and not member.bot]
     if mentions:
@@ -1133,7 +1135,7 @@ async def on_member_join(member: discord.Member) -> None:
 
 
 # Initialize helpers object to be used inside commands
-client.helpers = helpers.Helpers(client, commands_on_page=4)
+client.helpers = helpers.Helpers(client)
 client.FLAT_COMMANDS = client.helpers.flatten_commands()
 
 

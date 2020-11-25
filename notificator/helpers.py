@@ -584,11 +584,14 @@ class Helpers:
         """
 
         out = []
-        for key in COMMANDS_DICT:
-            command_names = []
+        for comm in self.available_commands:
+            # Get the command object from it's name
+            command = self.get_command(comm)
 
-            command_names.append(key)
-            for alias in COMMANDS_DICT[key]["aliases"]:
+            command_names = [command.name]
+
+            # If the command has aliases add them too
+            for alias in command.aliases:
                 command_names.append(alias)
 
             out.append(command_names)
