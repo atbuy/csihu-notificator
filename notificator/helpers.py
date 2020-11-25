@@ -65,6 +65,7 @@ COMMANDS_FILE = os.path.join(DATA_FOLDER, "commands.json")
 # Load info data from the API
 info = _get_info_file_data()
 
+# Declare constants
 LAST_ID = info["last_id"]
 LAST_LINK = info["last_link"]
 LAST_MESSAGE = info["last_message"]
@@ -73,10 +74,7 @@ CHARACTERS = info["emoji_characters"]
 SPECIAL_CHARACTERS = info["special_characters"]
 DISABLED_COMMANDS = info["disabled_commands"]
 
-with open(COMMANDS_FILE) as file:
-    COMMANDS_DICT = json.load(file)["commands"]
 
-# Declare constants
 MY_ID = 222950176770228225
 MODERATOR_ID = 760078403264184341
 OWNER_ID = 760085688133222420
@@ -100,12 +98,15 @@ class Helpers:
     """
     This class contains all the functions used inside commands and event listeners
     """
-    def __init__(self, client: commands.Bot, commands_on_page: int = 4):
-        self.client = client
-        self.available_commands = {c.name: c.brief for c in self.client.walk_commands()}
-        self.max_commands_on_page = commands_on_page
-        self.total_pages = len(COMMANDS_DICT) // self.max_commands_on_page
-        self.help_command_reactions = [START_EMOJI, ARROW_BACKWARD, ARROW_FORWARD, END_EMOJI]
+    def __init__(self, client: commands.Bot = None, commands_on_page: int = 4):
+        if client:
+            self.client = client
+            self.available_commands = {c.name: c.brief for c in self.client.walk_commands()}
+            self.max_commands_on_page = commands_on_page
+            self.total_pages = len(self.available_commands) // self.max_commands_on_page
+            self.help_command_reactions = [START_EMOJI, ARROW_BACKWARD, ARROW_FORWARD, END_EMOJI]
+        else:
+            self.testing = True
 
     async def member_has_role(member: discord.Member, role_id: int, force_name: bool = False, name: str = None, color_role: bool = False) -> bool:  # noqa
         """
