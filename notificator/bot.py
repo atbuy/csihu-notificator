@@ -40,6 +40,22 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="tag", aliases=["tagvc"], brief="Tags all the members connected to your voice channel")
+async def tag_voice_channel(ctx: commands.Context) -> None:
+    """Tags all the members connected to the author's voice channel"""
+
+    voice = ctx.author.voice
+    # If the author is not connected to a voice channel, return
+    if not voice:
+        await ctx.send(f"{ctx.author.mention} you are not connected to a voice channel")
+        return
+
+    # Get all the members connected to the author's voice channel
+    mentions = [member.mention for member in voice.channel.members]
+    mention_members = " - ".join(mentions)
+    await ctx.send(f"{ctx.author.mention} tagged: {mention_members}")
+
+
 @client.command(name="gtpm", brief=troll.gtpm_troll.brief)
 async def gtpm(ctx: commands.Context) -> None:
     """
