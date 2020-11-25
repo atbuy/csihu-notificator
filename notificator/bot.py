@@ -50,10 +50,14 @@ async def tag_voice_channel(ctx: commands.Context) -> None:
         await ctx.send(f"{ctx.author.mention} you are not connected to a voice channel")
         return
 
+    vc_members = voice.channel.members
     # Get all the members connected to the author's voice channel
-    mentions = [member.mention for member in voice.channel.members]
-    mention_members = " - ".join(mentions)
-    await ctx.send(f"{ctx.author.mention} tagged: {mention_members}")
+    mentions = [member.mention for member in vc_members if member != ctx.author and not member.bot]
+    if mentions:
+        mention_members = " - ".join(mentions)
+        await ctx.send(f"{ctx.author.mention} tagged: {mention_members}")
+    else:
+        await ctx.send(f"{ctx.author.mention} you are alone in the voice channel")
 
 
 @client.command(name="gtpm", brief=troll.gtpm_troll.brief)
