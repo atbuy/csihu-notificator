@@ -5,7 +5,6 @@ import asyncio
 import discord
 import requests
 import traceback
-from pathlib import Path
 from datetime import datetime
 from discord.ext import commands
 from jishaku.repl.compilation import AsyncCodeExecutor
@@ -17,7 +16,7 @@ def _get_info_file_data() -> dict:
 
     :return data: The dictionary with the data
     """
-    url = os.environ.get("INFO_FILE_URL")
+    url = os.environ.get("INFO_FILE_URL", "https://www.vitaman02.com/api/csihu-info")
     user_agent = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
         "(KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.36"
@@ -38,7 +37,9 @@ def _post_info_file_data(data: str) -> requests.Response:
     Send a post request to the info file API
 
     :param data: This is the data to send.
-                    It contains a multiple keys but only `last_id`, `last_message` and `last_link` should be modified.
+                 It contains a multiple keys but only
+                 `last_id`, `last_message`, `last_link`, `blacklist`
+                 should be modified.
 
     :return req: The response from the API
     """
@@ -56,12 +57,6 @@ def _post_info_file_data(data: str) -> requests.Response:
     return req
 
 
-# The files inside the data folder
-ROOT_DIR = Path(__file__).parent.parent
-DATA_FOLDER = os.path.join(ROOT_DIR, "data")
-INFO_FILE = os.path.join(DATA_FOLDER, "info.json")
-COMMANDS_FILE = os.path.join(DATA_FOLDER, "commands.json")
-
 # Load info data from the API
 info = _get_info_file_data()
 
@@ -73,7 +68,7 @@ ALLOWED_FILES = info["allowed_files"]
 CHARACTERS = info["emoji_characters"]
 SPECIAL_CHARACTERS = info["special_characters"]
 DISABLED_COMMANDS = info["disabled_commands"]
-
+BLACKLIST = info["blacklist"]
 
 MY_ID = 222950176770228225
 MODERATOR_ID = 760078403264184341
@@ -102,9 +97,11 @@ class Helpers:
         if client:
             self.client = client
             self.available_commands = {c.name: c.brief for c in self.client.walk_commands()}
+            self.blacklist = BLACKLIST
             self.max_commands_on_page = commands_on_page
             self.total_pages = len(self.available_commands) // self.max_commands_on_page
             self.help_command_reactions = [START_EMOJI, ARROW_BACKWARD, ARROW_FORWARD, END_EMOJI]
+            self.testing = False
         else:
             self.testing = True
 
@@ -377,7 +374,15 @@ class Helpers:
 
         await ctx.send(f"{ctx.author.mention}", embed=embed)
 
-    async def check_for_mention(self, ctx: commands.Context) -> bool:
+    async def mention_reaction(self, ctx: commands.Context) -> None:
+        """
+        React with emojis to the message
+        """
+        chars = ["s", "k", "a", "c", "e"]
+        for char in chars:
+            await ctx.message.add_reaction(f"{CHARACTERS[char]}")
+
+    def check_for_mention(self, ctx: commands.Context) -> bool:
         """
         Check if the bot is mentioned
 
@@ -388,14 +393,6 @@ class Helpers:
             if mention.id == self.client.user.id:
                 return True
         return False
-
-    async def mention_reaction(self, ctx: commands.Context) -> None:
-        """
-        React with emojis to the message
-        """
-        chars = ["s", "k", "a", "c", "e"]
-        for char in chars:
-            await ctx.message.add_reaction(f"{CHARACTERS[char]}")
 
     def get_command(self, name: str) -> commands.Command:
         """
@@ -598,3 +595,15 @@ class Helpers:
             out.append(command_names)
 
         return out
+
+    def is_blacklisted(self, ctx: commands.Context) -> bool:
+        """
+        Check if a message contains any blacklisted word
+
+        :return bool: Returns True if it does contain blacklisted words and False if not
+        """
+        for word in self.blacklist:
+            if word in ctx.message.content.lower():
+                return True
+
+        return False

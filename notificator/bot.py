@@ -26,8 +26,9 @@ client = commands.Bot(
     help_command=None,
     activity=discord.Activity(type=discord.ActivityType.listening, name=".help")
 )
-client.info_data = helpers.info
-client.DISABLED_COMMANDS = helpers.DISABLED_COMMANDS
+client.info_data: dict = helpers.info
+client.DISABLED_COMMANDS: dict = helpers.DISABLED_COMMANDS
+client.BLACKLIST: list = helpers.BLACKLIST
 client.latest_announcement = {"text": LAST_MESSAGE, "link": LAST_LINK, "id": LAST_ID}
 client.is_running = False
 
@@ -38,6 +39,75 @@ async def test(ctx: commands.Context) -> None:
     Reply to the bot to check if it's working
     """
     await ctx.send(f"Hey {ctx.author.mention}!")
+
+
+@client.command(name="rm-blacklist", brief="Remove word from blacklist")
+async def rm_blacklist(ctx: commands.Context, *, text: str) -> None:
+    """
+    Removes a word that is in the blacklist
+
+    :param text: The text in the blacklist
+    """
+
+    # Check if the member can execute this command
+    execute = client.helpers.can_execute(ctx)
+    if not execute:
+        await ctx.send(f"{ctx.author.mention} you don't have enough permission to perform this action.")
+        return
+
+    blacklisted = client.helpers.is_blacklisted(ctx)
+    if blacklisted:
+        # Get the index of the text to remove it from the blacklist
+        index = client.BLACKLIST.index(text)
+        client.BLACKLIST.pop(index)
+
+        # Update the info dict with the new `blacklist` key
+        client.indo_data["blacklist"] = client.BLACKLIST
+
+        # Update info.json from the API
+        data_dict_as_str = json.dumps(client.info_data)
+        client.helpers.post_info_file_data(data_dict_as_str)
+
+        await ctx.send(f"{ctx.author.mention} removed {text} from the blacklist")
+    else:
+        await ctx.send(f"{ctx.author.mention}, {text} is not a blacklisted word")
+
+
+@client.command(name="blacklist", brief="Blacklist text")
+async def blacklist(ctx: commands.Context, *, text: str = None) -> None:
+    """
+    Add text to the word blacklist.
+    Any message that contains text from inside `client.BLACKLIST` will be removed.
+
+    :param text: The text to blacklist
+    """
+
+    # Check if the member can execute this command
+    execute = client.helpers.can_execute(ctx)
+
+    if not execute:
+        await ctx.send(f"{ctx.author.mention} you don't have enough permission to perform this action.")
+        return
+
+    if not text:
+        blacklisted_words = ", ".join(client.BLACKLIST)
+        if blacklisted_words:
+            await ctx.send(f"{ctx.author.mention}\n```{blacklisted_words} ```")
+        else:
+            await ctx.send(f"{ctx.author.mention} there are no blacklisted words.")
+        return
+
+    # Add the text to the blacklist
+    client.BLACKLIST.append(text)
+
+    # Update the info dict with the new `blacklist` key
+    client.info_data["blacklist"] = client.BLACKLIST
+
+    # Update the info.json file from the API
+    data_dict_as_str = json.dumps(client.info_data)
+    client.helpers.post_info_file_data(data_dict_as_str)
+
+    await ctx.send(f"{ctx.author.mention} blacklisted `{text}`")
 
 
 @client.command(name="tag", aliases=["tagvc"], brief="Tags all the members connected to your voice channel")
@@ -118,18 +188,19 @@ async def disallow_mention(ctx: commands.Context,  *, role: discord.Role) -> Non
     # Check if the member can execute this command
     execute = client.helpers.can_execute(ctx)
 
-    if execute:
-        if role.mentionable:
-            # If the role is mentionable, make it unmentionable
-            await role.edit(mentionable=False)
-            await ctx.send(f"{ctx.author.mention} made `@{role.name.replace('@', '')}` unmentionable.")
-        else:
-            # if the role is unmentionable, make it mentionable
-            await role.edit(mentionable=True)
-            await ctx.send(f"{ctx.author.mention} made `@{role.name.replace('@', '')}` mentionable.")
-    else:
-        # Send error message if the member can't execute this command
+    # Send error message if the member can't execute this command
+    if not execute:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action.")
+        return
+
+    if role.mentionable:
+        # If the role is mentionable, make it unmentionable
+        await role.edit(mentionable=False)
+        await ctx.send(f"{ctx.author.mention} made `@{role.name.replace('@', '')}` unmentionable.")
+    else:
+        # if the role is unmentionable, make it mentionable
+        await role.edit(mentionable=True)
+        await ctx.send(f"{ctx.author.mention} made `@{role.name.replace('@', '')}` mentionable.")
 
 
 @client.command(name="disabled", aliases=["disabled-commands"], brief="View all the disabled commands")
@@ -159,30 +230,31 @@ async def disable_command(ctx: commands.Context, command_name: str) -> None:
     # Check if the member can execute this command
     execute = client.helpers.can_execute(ctx)
 
-    if execute:
-        # If the command is already disabled send error message
-        if command_name in client.DISABLED_COMMANDS:
-            await ctx.send(f"{ctx.author.mention} this command is already disabled.")
-            return
-
-        # If the command exists, disable it.
-        # If the command doesn't exist send error message
-        for command_list in client.FLAT_COMMANDS:
-            if command_name in command_list:
-                for name in command_list:
-                    client.DISABLED_COMMANDS.append(name)
-                await ctx.send(f"{ctx.author.mention} command `{command_name}` is now disabled.")
-
-                # Update the API to disable the command
-                client.info_data["disabled_commands"] = client.DISABLED_COMMANDS
-
-                disabled_commands_dict_as_str = json.dumps(client.info_data)
-                client.helpers.post_info_file_data(disabled_commands_dict_as_str)
-                return
-        else:
-            await ctx.send(f"{ctx.author.mention}, `{command_name}` is not a valid command name.")
-    else:
+    if not execute:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action.")
+        return
+
+    # If the command is already disabled send error message
+    if command_name in client.DISABLED_COMMANDS:
+        await ctx.send(f"{ctx.author.mention} this command is already disabled.")
+        return
+
+    # If the command exists, disable it.
+    # If the command doesn't exist send error message
+    for command_list in client.FOLDED_COMMANDS:
+        if command_name in command_list:
+            for name in command_list:
+                client.DISABLED_COMMANDS.append(name)
+            await ctx.send(f"{ctx.author.mention} command `{command_name}` is now disabled.")
+
+            # Update the API to disable the command
+            client.info_data["disabled_commands"] = client.DISABLED_COMMANDS
+
+            disabled_commands_dict_as_str = json.dumps(client.info_data)
+            client.helpers.post_info_file_data(disabled_commands_dict_as_str)
+            return
+    else:
+        await ctx.send(f"{ctx.author.mention}, `{command_name}` is not a valid command name.")
 
 
 @client.command(name="enable", brief="Enable a command")
@@ -196,31 +268,32 @@ async def enable_command(ctx: commands.Context, command_name: str) -> None:
     # Check if the member can execute the command
     execute = client.helpers.can_execute(ctx)
 
-    if execute:
-        # If the command is already enabled return
-        if not (command_name in client.DISABLED_COMMANDS):
-            await ctx.send(f"{ctx.author.mention} command `{command_name}` is already enabled.")
-            return
-
-        # If the command exists enable it
-        # If it doesn't doesn't exist send error message
-        for command_list in client.FLAT_COMMANDS:
-            if command_name in command_list:
-                for dcommand in command_list:
-                    index = client.DISABLED_COMMANDS.index(dcommand)
-                    client.DISABLED_COMMANDS.pop(index)
-                await ctx.send(f"{ctx.author.mention} command `{command_name}` is now enabled.")
-
-                # Update the API file to enable the command
-                client.info_data["disabled_commands"] = client.DISABLED_COMMANDS
-
-                disabled_commands_dict_as_str = json.dumps(client.info_data)
-                client.helpers.post_info_file_data(disabled_commands_dict_as_str)
-                return
-        else:
-            await ctx.send(f"{ctx.author.mention}, `{command_name}` is not a valid command name.")
-    else:
+    if not execute:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action.")
+        return
+
+    # If the command is already enabled return
+    if not (command_name in client.DISABLED_COMMANDS):
+        await ctx.send(f"{ctx.author.mention} command `{command_name}` is already enabled.")
+        return
+
+    # If the command exists enable it
+    # If it doesn't doesn't exist send error message
+    for command_list in client.FLAT_COMMANDS:
+        if command_name in command_list:
+            for dcommand in command_list:
+                index = client.DISABLED_COMMANDS.index(dcommand)
+                client.DISABLED_COMMANDS.pop(index)
+            await ctx.send(f"{ctx.author.mention} command `{command_name}` is now enabled.")
+
+            # Update the API file to enable the command
+            client.info_data["disabled_commands"] = client.DISABLED_COMMANDS
+
+            disabled_commands_dict_as_str = json.dumps(client.info_data)
+            client.helpers.post_info_file_data(disabled_commands_dict_as_str)
+            return
+    else:
+        await ctx.send(f"{ctx.author.mention}, `{command_name}` is not a valid command name.")
 
 
 @client.command(name="setc", aliases=["color", "role-color"], brief="Change your name's color")
@@ -506,69 +579,71 @@ async def run_bot(ctx: commands.Context) -> None:
 
     # Only I am allowed to run this command, so other member don't mess with it
     # since we don't want multiple instances of this command running, unless it's for different channels
-    if ctx.author.id == helpers.MY_ID:
-        client.is_running = True
-        await ctx.message.add_reaction(helpers.TICK_EMOJI)
+    if not ctx.author.id == helpers.MY_ID:
+        await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
+        return
 
-        while True:
-            # GET the page and find all the paragraphs
-            req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={LAST_ID+1}")
-            soup = BeautifulSoup(req.text, "html.parser")
-            paragraphs = soup.find_all("p")
+    client.is_running = True
+    await ctx.message.add_reaction(helpers.TICK_EMOJI)
 
-            # The first element contains all the text, so remove it
-            # to iterate over the other elements which also contain
-            # the text.
-            # ! Spaghetti here
+    while True:
+        # GET the page and find all the paragraphs
+        req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={LAST_ID+1}")
+        soup = BeautifulSoup(req.text, "html.parser")
+        paragraphs = soup.find_all("p")
+
+        # The first element contains all the text, so remove it
+        # to iterate over the other elements which also contain
+        # the text.
+        # ! Spaghetti here
+        try:
+            paragraphs.pop(0)
+        except IndexError:
+            pass
+
+        # Get all the text of the page
+        final_text = ""
+        for item in paragraphs:
+            final_text += item.get_text()
+
+        # Check if there is a new announcement, or if the page is empty
+        new_announce = False
+        to_delete = """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
+        if final_text.replace("\n", "") != "":
+            if final_text.strip().replace(to_delete, "") != "":
+                new_announce = True
+
+        # If there is a new announcement, send it to the channel the command was executed
+        if new_announce:
+            LAST_ID += 1
+            link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={LAST_ID}"
+            to_delete = [
+                """$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31","""
+                """toolbarVisible:false,readOnly:true});});""",
+                """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
+            ]
+            for item in to_delete:
+                final_text = final_text.replace(item, "").strip()
+
+            # Update the latest announcement dictionary
+            client.latest_announcement = {"text": final_text, "link": link, "id": LAST_ID}
+
+            # Update info file on the server. This is the file the API uses to return the info data
+            client.info_data["last_id"] = LAST_ID
+            client.info_data["last_link"] = link
+            client.info_data["last_message"] = final_text
+
+            # Upload data to server
+            data_dict_as_str = json.dumps(client.info_data)
+            client.helpers.post_info_file_data(data_dict_as_str)
+
             try:
-                paragraphs.pop(0)
-            except IndexError:
-                pass
+                await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text} ```")
+            except discord.errors.HTTPException:
+                await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
 
-            # Get all the text of the page
-            final_text = ""
-            for item in paragraphs:
-                final_text += item.get_text()
-
-            # Check if there is a new announcement, or if the page is empty
-            new_announce = False
-            to_delete = """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
-            if final_text.replace("\n", "") != "":
-                if final_text.strip().replace(to_delete, "") != "":
-                    new_announce = True
-
-            # If there is a new announcement, send it to the channel the command was executed
-            if new_announce:
-                LAST_ID += 1
-                link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={LAST_ID}"
-                to_delete = [
-                    """$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31","""
-                    """toolbarVisible:false,readOnly:true});});""",
-                    """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
-                ]
-                for item in to_delete:
-                    final_text = final_text.replace(item, "").strip()
-
-                # Update the latest announcement dictionary
-                client.latest_announcement = {"text": final_text, "link": link, "id": LAST_ID}
-
-                # Update info file on the server. This is the file the API uses to return the info data
-                client.info_data["last_id"] = LAST_ID
-                client.info_data["last_link"] = link
-                client.info_data["last_message"] = final_text
-
-                # Upload data to server
-                data_dict_as_str = json.dumps(client.info_data)
-                client.helpers.post_info_file_data(data_dict_as_str)
-
-                try:
-                    await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text} ```")
-                except discord.errors.HTTPException:
-                    await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
-
-            await asyncio.sleep(10)
-    else:
-        await ctx.send(f"{ctx.author.mention} you don't have enough permissions")
+        # Sleep for 5 minutes before pinging the website again
+        await asyncio.sleep(300)
 
 
 @client.command(aliases=["waiting_room"], brief="Move/Remove someone to the waiting list")
@@ -579,20 +654,24 @@ async def waiting_list(ctx: commands.Context, member: discord.Member) -> None:
 
     :param member: The member to add/remove the role
     """
+
+    # Check if the member can execute this command
     execute = client.helpers.can_execute(ctx, manage_roles=True)
 
-    if execute:
-        waiting_room_role = ctx.guild.get_role(helpers.WAITING_ROOM_ID)
-        for role in member.roles:
-            if role.id == helpers.WAITING_ROOM_ID:
-                await member.remove_roles(waiting_room_role)
-                await ctx.send(f"{member.mention} has be removed from the waiting room")
-                break
-        else:
-            await member.add_roles(waiting_room_role)
-            await ctx.send(f"{member.mention} has been moved to the waiting room")
-    else:
+    # If he can't send an error message
+    if not execute:
         await ctx.send(f"{ctx.author.mention}, you don't have enough permissions to perform this action")
+        return
+
+    waiting_room_role = ctx.guild.get_role(helpers.WAITING_ROOM_ID)
+    for role in member.roles:
+        if role.id == helpers.WAITING_ROOM_ID:
+            await member.remove_roles(waiting_room_role)
+            await ctx.send(f"{member.mention} has be removed from the waiting room")
+            break
+    else:
+        await member.add_roles(waiting_room_role)
+        await ctx.send(f"{member.mention} has been moved to the waiting room")
 
 
 @client.command(brief="Check if the bot is looking for new announcements")
@@ -663,29 +742,31 @@ async def say(ctx: commands.Context, *, text: str) -> None:
     if ctx.guild.id == helpers.PANEPISTHMIO_ID:  # Panephstimio ID
         # This command is not allowed in the general chat
         if ctx.channel.id == helpers.GENERAL_ID:
+            # If the message is in the general chat, then only moderators can execute it
             execute = client.helpers.can_execute(ctx)
         else:
             execute = True
 
-    if execute:
-        output = ""
-        for char in text:
-            if char.isalpha():
-                # The emoji for characters
-                output += f":regional_indicator_{char.lower()}: "
-            elif char.isdigit():
-                # The emoji for digits is different
-                output += str(char) + "\N{variation selector-16}\N{combining enclosing keycap} "
-            elif char == "?":
-                output += "\U00002753 "
-            else:
-                output += char + " "
-        if output:
-            await ctx.send(f"{ctx.author.mention} said: {output}")
-        else:
-            await ctx.send(f"{ctx.author.mention} There was a runtime error")
-    else:
+    if not execute:
         await ctx.send(f"{ctx.author.mention} You can't use this command in <#{helpers.GENERAL_ID}>")
+        return
+
+    output = ""
+    for char in text:
+        if char.isalpha():
+            # The emoji for characters
+            output += f":regional_indicator_{char.lower()}: "
+        elif char.isdigit():
+            # The emoji for digits is different
+            output += str(char) + "\N{variation selector-16}\N{combining enclosing keycap} "
+        elif char == "?":
+            output += "\U00002753 "
+        else:
+            output += char + " "
+    if output:
+        await ctx.send(f"{ctx.author.mention} said: {output}")
+    else:
+        await ctx.send(f"{ctx.author.mention} There was a runtime error")
 
 
 @client.command(aliases=["del"], brief="Delete messages")
@@ -716,29 +797,30 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message = 
     # Check if the member can execute this command
     execute = client.helpers.can_execute(ctx, manage_messages=True)
 
-    if execute:
-        # If the starting message is not specified, purge the last `amount` messages
-        if not message:
-            number += 1
-            await ctx.channel.purge(limit=number)
-        # If the starting message is specified, delete the specified message
-        # delete `amount` message before it, delete the `delete` command message
-        elif not member:
-            await ctx.channel.purge(limit=number, before=message.created_at)
-            await message.delete()
-            await ctx.message.delete()
-            print(f"{ctx.author} did {ctx.prefix}delete {number} {message.id}")
-        # If message and member are given, then retrieve `amount` messages
-        # and delete the messages sent from `member`
-        elif message and member:
-            await ctx.channel.purge(limit=number, before=message.created_at, check=check)
-            await message.delete()
-            await ctx.message.delete()
-
-            # Just for logs
-            print(f"{ctx.author} did {ctx.prefix}delete {number} {message.id} {member}")
-    else:
+    if not execute:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to use {ctx.prefix}delete")
+        return
+
+    # If the starting message is not specified, purge the last `amount` messages
+    if not message:
+        number += 1
+        await ctx.channel.purge(limit=number)
+    # If the starting message is specified, delete the specified message
+    # delete `amount` message before it, delete the `delete` command message
+    elif not member:
+        await ctx.channel.purge(limit=number, before=message.created_at)
+        await message.delete()
+        await ctx.message.delete()
+        print(f"{ctx.author} did {ctx.prefix}delete {number} {message.id}")
+    # If message and member are given, then retrieve `amount` messages
+    # and delete the messages sent from `member`
+    elif message and member:
+        await ctx.channel.purge(limit=number, before=message.created_at, check=check)
+        await message.delete()
+        await ctx.message.delete()
+
+        # Just for logs
+        print(f"{ctx.author} did {ctx.prefix}delete {number} {message.id} {member}")
 
 
 @client.command(name="rr", brief="Remove reactions from messages")
@@ -766,19 +848,19 @@ async def remove_reactions(ctx: commands.Context, amount: int, message: discord.
     # Check if the member can execute this command
     execute = client.helpers.can_execute(ctx, manage_messages=True)
 
-    if execute:
-        if message:
-            history = await ctx.channel.history(limit=amount, before=message.created_at).flatten()
-        else:
-            history = await ctx.channel.history(limit=amount+1).flatten()
-
-        for msg in history:
-            await msg.clear_reactions()
-
-        await ctx.message.delete()
-    else:
+    if not execute:
         await ctx.send(f"{ctx.author.mention} you don't have enough permission to perform this action")
         return
+
+    if message:
+        history = await ctx.channel.history(limit=amount, before=message.created_at).flatten()
+    else:
+        history = await ctx.channel.history(limit=amount+1).flatten()
+
+    for msg in history:
+        await msg.clear_reactions()
+
+    await ctx.message.delete()
 
 
 @client.command(name="slow", aliases=["slowmode", "sm"], brief="Change slow mode duration in a channel")
@@ -796,37 +878,38 @@ async def slow(ctx: commands.Context, time: str) -> None:
     # Check if the member can execute this command
     execute = client.helpers.can_execute(ctx, manage_channels=True)
 
-    if execute:
-        slowed, time_type = time[0:len(time)-1], time[-1]
-        if not (time_type in ("s", "m", "h")):
-            slowed += time_type
-
-        if slowed:
-            slowed = int(slowed)
-        else:
-            slowed = int(time[:])
-        if not time_type:
-            mult = 1
-        else:
-            mult = 1
-            if time_type.endswith("s"):
-                mult = 1
-            elif time_type.endswith("m"):
-                mult = 60
-            elif time_type.endswith("h"):
-                mult = 60 * 60
-            # Maximum slow mode set by discord
-            delay = slowed * mult
-            if delay > 21600:
-                await ctx.send("Can't delay more than 6 hours")
-                return
-        await ctx.channel.edit(slowmode_delay=delay)
-    else:
+    if not execute:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
+        return
+
+    slowed, time_type = time[0:len(time)-1], time[-1]
+    if not (time_type in ("s", "m", "h")):
+        slowed += time_type
+
+    if slowed:
+        slowed = int(slowed)
+    else:
+        slowed = int(time[:])
+    if not time_type:
+        mult = 1
+    else:
+        mult = 1
+        if time_type.endswith("s"):
+            mult = 1
+        elif time_type.endswith("m"):
+            mult = 60
+        elif time_type.endswith("h"):
+            mult = 60 * 60
+        # Maximum slow mode set by discord
+        delay = slowed * mult
+        if delay > 21600:
+            await ctx.send("Can't delay more than 6 hours")
+            return
+    await ctx.channel.edit(slowmode_delay=delay)
 
 
 @client.command(name="allowedfiles", brief="View allowed file types")
-async def view_allowed_file_extentions(ctx: commands.Context) -> None:
+async def view_allowed_file_extensions(ctx: commands.Context) -> None:
     """
     Send a list of all the allowed file types to the channel the command was ran from
     """
@@ -848,23 +931,25 @@ async def filip(ctx: commands.Context, person: discord.Member) -> None:
     # Check if the member can execute this command
     execute = client.helpers.can_execute(ctx, manage_roles=True)
 
-    if execute:
-        filip_role = ctx.guild.get_role(helpers.FILIP_ROLE_ID)
+    if not execute:
+        await ctx.send(f"{ctx.author.mention} you don't have enough permission to filip someone")
+        return
 
-        # The role will be removed if
-        # the member already has it
-        remove = False
-        for role in person.roles:
-            if role.id == helpers.FILIP_ROLE_ID:
-                remove = True
-        if remove:
-            await person.remove_roles(filip_role)
-            await ctx.send(f"{person.mention} has left the cult.")
-        else:
-            await person.add_roles(filip_role)
-            await ctx.send(f"{person.mention}. You are now part of the cult")
+    # Get the filip role
+    filip_role = ctx.guild.get_role(helpers.FILIP_ROLE_ID)
+
+    # The role will be removed if
+    # the member already has it
+    remove = False
+    for role in person.roles:
+        if role.id == helpers.FILIP_ROLE_ID:
+            remove = True
+    if remove:
+        await person.remove_roles(filip_role)
+        await ctx.send(f"{person.mention} has left the cult.")
     else:
-        await ctx.send("You don't have enough permission to filip someone")
+        await person.add_roles(filip_role)
+        await ctx.send(f"{person.mention}. You are now part of the cult")
 
 
 @client.command(name="translate", aliases=["trans", "tr"], brief="Translate text from a language to greek")
@@ -899,12 +984,13 @@ async def slowmode_f(ctx: commands.Context) -> None:
     # (Only moderators+ can use this command)
     execute = client.helpers.can_execute(ctx, manage_channels=True)
 
-    if execute:
-        # Change the slow mode delay of the channel to 6000 seconds
-        delay = 6000
-        await ctx.channel.edit(slowmode_delay=delay)
-    else:
+    if not execute:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
+        return
+
+    # Change the slow mode delay of the channel to 6000 seconds
+    delay = 6000
+    await ctx.channel.edit(slowmode_delay=delay)
 
 
 @client.command(name="unmute", brief="Unmute a muted member")
@@ -920,24 +1006,26 @@ async def unmute(ctx: commands.Context, member: discord.Member) -> None:
         an error message is sent to the channel.
     """
 
+    # Check if the member can execute this command
     execute = client.helpers.can_execute(ctx, mute_members=True)
 
-    if execute:
-        try:
-            # Remove muted role
-            muted_role = ctx.guild.get_role(helpers.MUTED_ROLE_ID)
-            await member.remove_roles(muted_role)
-
-            # Add synaelfos role again
-            synadelfos_role = ctx.guild.get_role(helpers.SYNADELFOS_ROLE_ID)
-            await member.add_roles(synadelfos_role)
-        except Exception:
-            await ctx.send(f"{member.mention} is not muted")
-            return
-
-        await ctx.send(f"{ctx.author.mention} unmuted {member.mention}")
-    else:
+    if not execute:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action.")
+        return
+
+    try:
+        # Remove muted role
+        muted_role = ctx.guild.get_role(helpers.MUTED_ROLE_ID)
+        await member.remove_roles(muted_role)
+
+        # Add synaelfos role again
+        synadelfos_role = ctx.guild.get_role(helpers.SYNADELFOS_ROLE_ID)
+        await member.add_roles(synadelfos_role)
+    except Exception:
+        await ctx.send(f"{member.mention} is not muted")
+        return
+
+    await ctx.send(f"{ctx.author.mention} unmuted {member.mention}")
 
 
 @client.command(name="mute", brief="Mute a member", description="Mute a member for the specified amount of minutes")
@@ -957,28 +1045,30 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float = 5
     # Check if the author can mute someone else
     execute = client.helpers.can_execute(ctx, mute_members=True)
 
-    if execute:
-        muted_role = ctx.guild.get_role(helpers.MUTED_ROLE_ID)
-
-        # If the member is already muted return
-        if muted_role in member.roles:
-            await ctx.send(f"{member.mention} is already muted")
-            return
-
-        # 1) Add role named "Muted" to member
-        await member.add_roles(muted_role)
-        await ctx.send(f"{ctx.author.mention} muted {member.mention} for {minutes} minutes")
-
-        # 2) Remove role named "Synadelfos"
-        synadelfos_role = ctx.guild.get_role(helpers.SYNADELFOS_ROLE_ID)
-        await member.remove_roles(synadelfos_role)
-
-        # 3) Add timer that will check every second if it should remove the role prematurely
-        # 3.a) If the command ".unmute <member>" is executed, then the loop should stop
-        # and the role is removed
-        await client.helpers.mute_timer(ctx, member, minutes)
-    else:
+    if not execute:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
+        return
+
+    # Get the muted role
+    muted_role = ctx.guild.get_role(helpers.MUTED_ROLE_ID)
+
+    # If the member is already muted return
+    if muted_role in member.roles:
+        await ctx.send(f"{member.mention} is already muted")
+        return
+
+    # 1) Add role named "Muted" to member
+    await member.add_roles(muted_role)
+    await ctx.send(f"{ctx.author.mention} muted {member.mention} for {minutes} minutes")
+
+    # 2) Remove role named "Synadelfos"
+    synadelfos_role = ctx.guild.get_role(helpers.SYNADELFOS_ROLE_ID)
+    await member.remove_roles(synadelfos_role)
+
+    # 3) Add timer that will check every second if it should remove the role prematurely
+    # 3.a) If the command ".unmute <member>" is executed, then the loop should stop
+    # and the role is removed
+    await client.helpers.mute_timer(ctx, member, minutes)
 
 
 @client.command(name="eval", aliases=["e", "py"], brief="Execute a python script")
@@ -1061,7 +1151,7 @@ async def help(ctx, group: str = None) -> None:
     # Return the aliases and the parameters of the command formatted, if there are any
     if group:
         # Check if the group is a command name or onw of it's aliases
-        for comms in client.FLAT_COMMANDS:
+        for comms in client.FOLDED_COMMANDS:
             if group in comms:
                 await client.helpers.send_help_group_embed(ctx, comms[0])
                 return
@@ -1093,8 +1183,14 @@ async def on_message(msg: discord.Message) -> None:
     ctx = await client.get_context(msg)
     check_msg = msg.content.lower()
 
+    # Delte the message if it contains any blacklisted words
+    blacklisted = client.helpers.is_blacklisted(ctx)
+    if blacklisted:
+        await asyncio.sleep(0.5)
+        await msg.delete()
+
     # Check if the bot is mentioned, and add reactions to it, if it is.
-    mentioned = await client.helpers.check_for_mention(ctx)
+    mentioned = client.helpers.check_for_mention(ctx)
     if mentioned:
         await client.helpers.mention_reaction(ctx)
         return
@@ -1136,7 +1232,7 @@ async def on_member_join(member: discord.Member) -> None:
 
 # Initialize helpers object to be used inside commands
 client.helpers = helpers.Helpers(client)
-client.FLAT_COMMANDS = client.helpers.fold_commands()
+client.FOLDED_COMMANDS = client.helpers.fold_commands()
 
 
 def start():

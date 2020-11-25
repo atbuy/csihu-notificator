@@ -17,7 +17,8 @@ def test_version():
 
 
 def test_sort_dict():
-    """Check the sort_dict method"""
+    """Test the Helpers.sort_dict method"""
+
     helpers = Helpers()
 
     d1 = {}
@@ -40,6 +41,8 @@ def test_sort_dict():
 
 
 def test_slice_dict():
+    """Test the Helpers.slice_dict method"""
+
     helpers = Helpers()
 
     d0 = {}
