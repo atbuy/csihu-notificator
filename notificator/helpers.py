@@ -576,7 +576,7 @@ class Helpers:
         """
         return _post_info_file_data(data)
 
-    def flatten_commands(self) -> list:
+    def reshape_commands(self) -> list:
         """
         Returns a list of all the command names, including their aliases
 
