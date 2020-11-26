@@ -100,9 +100,13 @@ class Helpers:
             self.available_commands = {c.name: c.brief for c in self.client.walk_commands()}
             self.blacklist = BLACKLIST
             self.max_commands_on_page = commands_on_page
-            self.total_pages = len(self.available_commands) // self.max_commands_on_page
+            self.total_pages = (len(self.available_commands) // self.max_commands_on_page)
             self.help_command_reactions = [START_EMOJI, ARROW_BACKWARD, ARROW_FORWARD, END_EMOJI]
             self.testing = False
+
+            # Decrement the total pages by one to fix empty last page error
+            if self.total_pages % 4 == 0:
+                self.total_pages -= 1
 
     async def member_has_role(member: discord.Member, role_id: int, force_name: bool = False, name: str = None, color_role: bool = False) -> bool:  # noqa
         """
@@ -302,6 +306,7 @@ class Helpers:
         """
         Create the help embed when no group is passed
         """
+
         # Paginate the help command
         current_page = 0
         embed = self.get_help_page(ctx, current_page)
@@ -526,7 +531,7 @@ class Helpers:
         max_commands_on_page = self.max_commands_on_page
 
         # The number of pages needed to show all the commands
-        total_pages = len(available_commands) // max_commands_on_page
+        total_pages = self.total_pages
 
         # Current page's commands.
         # This is a dictionary with `max_commands_on_page` keys
