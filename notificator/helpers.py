@@ -108,6 +108,7 @@ class Helpers:
             if self.total_pages % 4 == 0:
                 self.total_pages -= 1
 
+
     async def member_has_role(member: discord.Member, role_id: int, force_name: bool = False, name: str = None, color_role: bool = False) -> bool:  # noqa
         """
         Check if a guild member has a certain role
