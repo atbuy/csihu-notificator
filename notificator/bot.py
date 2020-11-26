@@ -9,8 +9,10 @@ import requests
 import textblob
 import urbandict
 import googlesearch
+from itertools import product
 from bs4 import BeautifulSoup
 from discord.ext import commands
+
 
 import morse
 import helpers
@@ -39,6 +41,33 @@ client.is_running = False
 async def test(ctx: commands.Context) -> None:
     """Reply to the bot to check if it's working"""
     await ctx.send(f"Hey {ctx.author.mention}!")
+
+
+@client.command(name="truthtable", aliases=["tt"], brief="Makes the truth table from a circuit function")
+async def truth_table(ctx: commands.Context, *, text: str) -> None:
+    """
+    Creates the truth table from a circuit function
+
+    :param text: The circuit function
+    """
+
+    # Get all the inputs from the function
+    inputs = client.helpers.get_inputs(text)
+    up_text = text.upper()
+
+    output = f"{' '.join(inputs)} - F\n"
+    for prod in product(range(2), repeat=len(inputs)):
+        text = client.helpers.replace_inputs(up_text, prod)
+        text = client.helpers.replace_operators(text)
+
+        # Evaluate the expression
+        f = eval(text)
+
+        # Create the product list and append the result to the output
+        prod_list = list(map(lambda x: str(x), prod))
+        output += f"{' '.join(prod_list)} - {int(f)}\n"
+
+    await ctx.send(f"{ctx.author.mention}\n```{output.strip()} ```")
 
 
 @client.command(name="dmorse", brief="Decode morse code to text")

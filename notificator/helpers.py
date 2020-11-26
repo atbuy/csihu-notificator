@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import string
 import asyncio
 import discord
 import requests
@@ -611,3 +612,45 @@ class Helpers:
                 return True
 
         return False
+
+    def get_inputs(self, text: str) -> set:
+        """
+        Get all the variables in a circuit function
+
+        :param text: The circuit function
+        """
+
+        out = [char for char in text.upper() if char in string.ascii_uppercase]
+        return sorted(set(out))
+
+    def replace_inputs(self, text: str, inputs: tuple) -> str:
+        """
+        Replaces circuit function variables with inputs
+
+        :param text: The circuit function to manipulate
+        :param inputs: The inputs to change
+        """
+
+        counter = 0
+        for char in text:
+            # If the character is a letter (or variable) replace it with an input
+            if char.upper() in string.ascii_uppercase:
+                try:
+                    text = text.replace(char, str(inputs[counter]))
+                except IndexError:
+                    return text
+                counter += 1
+        return text
+
+    def replace_operators(self, text: str) -> str:
+        """
+        Replace the operators with logical `and` and `or`
+
+        :param text: The circuit function
+        """
+
+        text = text.replace("*", " and ")
+        text = text.replace("+", " or ")
+        text = text.replace("!", " not ")
+
+        return text
