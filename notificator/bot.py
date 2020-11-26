@@ -59,6 +59,7 @@ async def truth_table(ctx: commands.Context, *, text: str) -> None:
     for prod in product(range(2), repeat=len(inputs)):
         text = client.helpers.replace_inputs(up_text, prod)
         text = client.helpers.replace_operators(text)
+        text = client.helpers.clean_expression(text)
 
         # Evaluate the expression
         f = eval(text)

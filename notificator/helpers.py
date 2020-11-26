@@ -632,24 +632,14 @@ class Helpers:
         """
 
         counter = 0
-        next_char = False
-        for i in range(len(text)-1):
-            # If the previous character was a letter then add a `*` between them
-            if text[i].upper() in string.ascii_uppercase or text[i+1].upper() in string.ascii_uppercase:
-                next_char = True
-
+        for char in text:
             # If the character is a letter (or variable) replace it with an input
-            if text[i].upper() in string.ascii_uppercase:
+            if char.upper() in string.ascii_uppercase:
                 try:
-                    text = text.replace(text[i], str(inputs[counter]))
+                    text = text.replace(char, str(inputs[counter]))
                 except IndexError:
-                    return text
+                    print("index error")
                 counter += 1
-            else:
-                next_char = False
-
-            if next_char:
-                text = text[:i+1] + " * " + text[i+1:]
 
         return text
 
@@ -663,5 +653,21 @@ class Helpers:
         text = text.replace("*", " and ")
         text = text.replace("+", " or ")
         text = text.replace("!", " not ")
+
+        return text
+
+    def clean_expression(self, text: str) -> str:
+        """
+        Adds `*` where there are 2 digits together
+
+        :param text: The function to clean
+        """
+
+        for i in range(1, len(text)):
+            if text[i].isdigit() and text[i-1].isdigit():
+                text = text[:i] + " * " + text[i:]
+
+        if text[-1].isdigit() and text[-2].isdigit():
+            text = text[:len(text)-1] + " * " + text[len(text)-1:]
 
         return text
