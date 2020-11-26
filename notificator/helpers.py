@@ -632,14 +632,25 @@ class Helpers:
         """
 
         counter = 0
-        for char in text:
+        next_char = False
+        for i in range(len(text)-1):
+            # If the previous character was a letter then add a `*` between them
+            if text[i].upper() in string.ascii_uppercase or text[i+1].upper() in string.ascii_uppercase:
+                next_char = True
+
             # If the character is a letter (or variable) replace it with an input
-            if char.upper() in string.ascii_uppercase:
+            if text[i].upper() in string.ascii_uppercase:
                 try:
-                    text = text.replace(char, str(inputs[counter]))
+                    text = text.replace(text[i], str(inputs[counter]))
                 except IndexError:
                     return text
                 counter += 1
+            else:
+                next_char = False
+
+            if next_char:
+                text = text[:i+1] + " * " + text[i+1:]
+
         return text
 
     def replace_operators(self, text: str) -> str:
