@@ -663,11 +663,12 @@ class Helpers:
         :param text: The function to clean
         """
 
-        for i in range(1, len(text)):
-            if text[i].isdigit() and text[i-1].isdigit():
-                text = text[:i] + " * " + text[i:]
+        new_list = []
+        for i in range(len(text)-1):
+            new_list.append(text[i])
+            if text[i].isdigit() and text[i+1].isdigit():
+                new_list.append(" * ")
 
-        if text[-1].isdigit() and text[-2].isdigit():
-            text = text[:len(text)-1] + " * " + text[len(text)-1:]
+        new_list.append(text[-1])
 
-        return text
+        return "".join(new_list)
