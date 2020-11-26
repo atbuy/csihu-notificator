@@ -83,7 +83,7 @@ async def rm_blacklist(ctx: commands.Context, *, text: str) -> None:
     # If it's not blacklisted word then send an error message
     blacklisted = client.helpers.is_blacklisted(ctx)
     if not blacklisted:
-        await ctx.send(f"{ctx.author.mention}, {text} is not a blacklisted word")
+        await ctx.send(f"{ctx.author.mention}, `{text}` is not a blacklisted word")
         return
 
     # Get the index of the text to remove it from the blacklist
@@ -97,7 +97,7 @@ async def rm_blacklist(ctx: commands.Context, *, text: str) -> None:
     data_dict_as_str = json.dumps(client.info_data)
     client.helpers.post_info_file_data(data_dict_as_str)
 
-    await ctx.send(f"{ctx.author.mention} removed {text} from the blacklist")
+    await ctx.send(f"{ctx.author.mention} removed `{text}` from the blacklist")
 
 
 @client.command(name="blacklist", brief="Blacklist text")
@@ -1219,12 +1219,6 @@ async def on_message(msg: discord.Message) -> None:
     ctx = await client.get_context(msg)
     check_msg = msg.content.lower()
 
-    # Delte the message if it contains any blacklisted words
-    blacklisted = client.helpers.is_blacklisted(ctx)
-    if blacklisted:
-        await asyncio.sleep(0.5)
-        await msg.delete()
-
     # Check if the bot is mentioned, and add reactions to it, if it is.
     mentioned = client.helpers.check_for_mention(ctx)
     if mentioned:
@@ -1253,6 +1247,13 @@ async def on_message(msg: discord.Message) -> None:
         else:
             # Check if the message was supposed to be a command
             await client.process_commands(msg)
+            return
+
+    # Delte the message if it contains any blacklisted words
+    blacklisted = client.helpers.is_blacklisted(ctx)
+    if blacklisted:
+        await asyncio.sleep(0.5)
+        await msg.delete()
 
 
 @client.event
