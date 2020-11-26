@@ -666,7 +666,7 @@ class Helpers:
         new_list = []
         for i in range(len(text)-1):
             new_list.append(text[i])
-            if text[i].isdigit() and text[i+1].isdigit():
+            if text[i].isdigit() and text[i+1].isdigit() or text[i].isdigit() and text[i+1] == "!":
                 new_list.append(" * ")
 
         new_list.append(text[-1])
