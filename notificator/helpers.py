@@ -94,6 +94,8 @@ class Helpers:
     This class contains all the functions used inside commands and event listeners
     """
     def __init__(self, client: commands.Bot = None, commands_on_page: int = 4):
+        self.testing = True
+
         if client:
             self.client = client
             self.available_commands = {c.name: c.brief for c in self.client.walk_commands()}
@@ -102,8 +104,6 @@ class Helpers:
             self.total_pages = len(self.available_commands) // self.max_commands_on_page
             self.help_command_reactions = [START_EMOJI, ARROW_BACKWARD, ARROW_FORWARD, END_EMOJI]
             self.testing = False
-        else:
-            self.testing = True
 
     async def member_has_role(member: discord.Member, role_id: int, force_name: bool = False, name: str = None, color_role: bool = False) -> bool:  # noqa
         """

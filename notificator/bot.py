@@ -12,6 +12,7 @@ import googlesearch
 from bs4 import BeautifulSoup
 from discord.ext import commands
 
+import morse
 import helpers
 
 LAST_ID = helpers.LAST_ID
@@ -39,7 +40,33 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
-@client.command(name="rm-blacklist", brief="Remove word from blacklist")
+@client.command(name="dmorse", brief="Decode morse code to text")
+async def morse_decoder(ctx: commands.Context, *, text: str) -> None:
+    """
+    Decrypt morse code to text
+
+    :param text: The morse code to decrypt
+    """
+
+    # Decode the morse code and send it
+    decrypted = morse.decrypt(text)
+    await ctx.send(f"{ctx.author.mention}\n```{decrypted} ```")
+
+
+@client.command(name="morse", brief="Encode text to morse code")
+async def morse_encoder(ctx: commands.Context, *, text: str) -> None:
+    """
+    Encrypt text to morse code
+
+    :param text: The text to encrypt
+    """
+
+    # Encode the text and send it
+    encrypted = morse.encrypt(text)
+    await ctx.send(f"{ctx.author.mention}\n```{encrypted} ```")
+
+
+@client.command(name="rm-blacklist", brief="Remove a word from the blacklist")
 async def rm_blacklist(ctx: commands.Context, *, text: str) -> None:
     """
     Removes a word that is in the blacklist
