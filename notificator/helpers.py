@@ -91,7 +91,7 @@ END_EMOJI = "\U000023ed"
 
 class Helpers:
     """This class contains all the functions used inside commands and event listeners"""
-    
+
     def __init__(self, client: commands.Bot = None, commands_on_page: int = 4):
         self.testing = True
 
