@@ -15,6 +15,7 @@ from discord.ext import commands
 import morse
 import helpers
 
+
 LAST_ID = helpers.LAST_ID
 LAST_LINK = helpers.LAST_LINK
 LAST_MESSAGE = helpers.LAST_MESSAGE
