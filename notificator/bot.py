@@ -54,12 +54,15 @@ async def truth_table(ctx: commands.Context, *, text: str) -> None:
     # Get all the inputs from the function
     inputs = client.helpers.get_inputs(text)
     up_text = text.upper()
+    f_out = client.helpers.clean_expression(text)
+    f_out = client.helpers.replace_operators(f_out)
 
-    output = f"{' '.join(inputs)} - F\n"
+    output = f"F = {f_out}\n"
+    output += f"{' '.join(inputs)} - F\n"
     for prod in product(range(2), repeat=len(inputs)):
         text = client.helpers.replace_inputs(up_text, prod)
-        text = client.helpers.replace_operators(text)
         text = client.helpers.clean_expression(text)
+        text = client.helpers.replace_operators(text)
 
         # Evaluate the expression
         f = eval(text)
@@ -68,7 +71,8 @@ async def truth_table(ctx: commands.Context, *, text: str) -> None:
         prod_list = list(map(lambda x: str(x), prod))
         output += f"{' '.join(prod_list)} - {int(f)}\n"
 
-    await ctx.send(f"{ctx.author.mention}\n```{output.strip()} ```")
+    output = output.strip('\n')
+    await ctx.send(f"{ctx.author.mention}\n```{output} ```")
 
 
 @client.command(name="dmorse", brief="Decode morse code to text")
