@@ -654,9 +654,9 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
         except discord.errors.HTTPException:
             await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
 
-        await ctx.message.add_reaction(helpers.TICK_EMOJI)
+        await ctx.message.add_reaction(const.TICK_EMOJI)
     else:
-        await ctx.message.add_reaction(helpers.X_EMOJI)
+        await ctx.message.add_reaction(const.X_EMOJI)
         await ctx.send("```Couldn't find announcement.```")
 
 
@@ -670,7 +670,7 @@ async def change_last_id(ctx: commands.Context, id_num: int = None) -> None:
     """
     global LAST_ID
 
-    if ctx.author.id == helpers.MY_ID:
+    if ctx.author.id == const.MY_ID:
         if id_num:
             try:
                 LAST_ID = int(id_num)
@@ -696,12 +696,12 @@ async def run_bot(ctx: commands.Context) -> None:
 
     # Only I am allowed to run this command, so other member don't mess with it
     # since we don't want multiple instances of this command running, unless it's for different channels
-    if not ctx.author.id == helpers.MY_ID:
+    if not ctx.author.id == const.MY_ID:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
         return
 
     client.is_running = True
-    await ctx.message.add_reaction(helpers.TICK_EMOJI)
+    await ctx.message.add_reaction(const.TICK_EMOJI)
 
     while True:
         # GET the page and find all the paragraphs
@@ -780,9 +780,9 @@ async def waiting_list(ctx: commands.Context, member: discord.Member) -> None:
         await ctx.send(f"{ctx.author.mention}, you don't have enough permissions to perform this action")
         return
 
-    waiting_room_role = ctx.guild.get_role(helpers.WAITING_ROOM_ID)
+    waiting_room_role = ctx.guild.get_role(const.WAITING_ROOM_ID)
     for role in member.roles:
-        if role.id == helpers.WAITING_ROOM_ID:
+        if role.id == const.WAITING_ROOM_ID:
             await member.remove_roles(waiting_room_role)
             await ctx.send(f"{member.mention} has be removed from the waiting room")
             break
@@ -856,16 +856,16 @@ async def say(ctx: commands.Context, *, text: str) -> None:
     """
 
     execute = True
-    if ctx.guild.id == helpers.PANEPISTHMIO_ID:  # Panephstimio ID
+    if ctx.guild.id == const.PANEPISTHMIO_ID:  # Panephstimio ID
         # This command is not allowed in the general chat
-        if ctx.channel.id == helpers.GENERAL_ID:
+        if ctx.channel.id == const.GENERAL_ID:
             # If the message is in the general chat, then only moderators can execute it
             execute = client.helpers.can_execute(ctx)
         else:
             execute = True
 
     if not execute:
-        await ctx.send(f"{ctx.author.mention} You can't use this command in <#{helpers.GENERAL_ID}>")
+        await ctx.send(f"{ctx.author.mention} You can't use this command in <#{const.GENERAL_ID}>")
         return
 
     output = ""
@@ -1031,7 +1031,7 @@ async def view_allowed_file_extensions(ctx: commands.Context) -> None:
     Send a list of all the allowed file types to the channel the command was ran from
     """
     output = ""
-    for file in helpers.ALLOWED_FILES:
+    for file in const.ALLOWED_FILES:
         output += f".{file} "
 
     await ctx.send(f"{ctx.author.mention}. Allowed file extentions are:\n```{output} ```")
@@ -1053,13 +1053,13 @@ async def filip(ctx: commands.Context, person: discord.Member) -> None:
         return
 
     # Get the filip role
-    filip_role = ctx.guild.get_role(helpers.FILIP_ROLE_ID)
+    filip_role = ctx.guild.get_role(const.FILIP_ROLE_ID)
 
     # The role will be removed if
     # the member already has it
     remove = False
     for role in person.roles:
-        if role.id == helpers.FILIP_ROLE_ID:
+        if role.id == const.FILIP_ROLE_ID:
             remove = True
     if remove:
         await person.remove_roles(filip_role)
@@ -1132,7 +1132,7 @@ async def unmute(ctx: commands.Context, member: discord.Member) -> None:
 
     try:
         # Remove muted role
-        muted_role = ctx.guild.get_role(helpers.MUTED_ROLE_ID)
+        muted_role = ctx.guild.get_role(const.MUTED_ROLE_ID)
         await member.remove_roles(muted_role)
 
         # Add synaelfos role again
@@ -1167,7 +1167,7 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float = 5
         return
 
     # Get the muted role
-    muted_role = ctx.guild.get_role(helpers.MUTED_ROLE_ID)
+    muted_role = ctx.guild.get_role(const.MUTED_ROLE_ID)
 
     # If the member is already muted return
     if muted_role in member.roles:
@@ -1179,7 +1179,7 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float = 5
     await ctx.send(f"{ctx.author.mention} muted {member.mention} for {minutes} minutes")
 
     # 2) Remove role named "Synadelfos"
-    synadelfos_role = ctx.guild.get_role(helpers.SYNADELFOS_ROLE_ID)
+    synadelfos_role = ctx.guild.get_role(const.SYNADELFOS_ROLE_ID)
     await member.remove_roles(synadelfos_role)
 
     # 3) Add timer that will check every second if it should remove the role prematurely
@@ -1197,7 +1197,7 @@ async def execute_python(ctx: commands.Context, *, script: str) -> None:
     """
 
     # Eval is not allowed in general, except moderators that can execute it
-    if ctx.channel.id == helpers.GENERAL_ID:
+    if ctx.channel.id == const.GENERAL_ID:
         allowed_in_general = client.helpers.can_execute(ctx)
         if not allowed_in_general:
             await ctx.send(f"Not allowed to use **{ctx.prefix}e** in {ctx.channel.mention}")
@@ -1311,7 +1311,7 @@ async def on_message(msg: discord.Message) -> None:
     await client.helpers.remove_unallowed_files(msg)
 
     # If the message is not in the spam-chat, check if it should be allowed
-    if not msg.channel.id == helpers.SPAM_CHAT_ID:
+    if not msg.channel.id == const.SPAM_CHAT_ID:
         if not client.helpers.valid_message(check_msg):
             await asyncio.sleep(0.5)
             await msg.delete()
@@ -1344,7 +1344,7 @@ async def on_member_join(member: discord.Member) -> None:
 
     :param member: The member joining, to add the role to
     """
-    synadelfos_role = member.guild.get_role(helpers.SYNADELFOS_ROLE_ID)
+    synadelfos_role = member.guild.get_role(const.SYNADELFOS_ROLE_ID)
     await member.add_roles(synadelfos_role)
 
 
