@@ -61,6 +61,7 @@ async def rules(ctx: commands.Context, rule: int = None) -> None:
         icon_url=client.user.avatar_url
     )
 
+    # Add the author at the footer
     embed.set_footer(text=ctx.author.name, icon_url=ctx.author.avatar_url)
     embed.timestamp = datetime.now()
 
