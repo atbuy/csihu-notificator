@@ -61,18 +61,18 @@ def _post_info_file_data(data: str) -> requests.Response:
 class const:
     def __init__(self):
         # Load info data from the API
-        info = _get_info_file_data()
+        self.info = _get_info_file_data()
 
         # Declare constants
-        self.LAST_ID = info["last_id"]
-        self.LAST_LINK = info["last_link"]
-        self.LAST_MESSAGE = info["last_message"]
-        self.ALLOWED_FILES = info["allowed_files"]
-        self.CHARACTERS = info["emoji_characters"]
-        self.SPECIAL_CHARACTERS = info["special_characters"]
-        self.DISABLED_COMMANDS = info["disabled_commands"]
-        self.BLACKLIST = info["blacklist"]
-        self.RULES = info["rules"]
+        self.LAST_ID = self.info["last_id"]
+        self.LAST_LINK = self.info["last_link"]
+        self.LAST_MESSAGE = self.info["last_message"]
+        self.ALLOWED_FILES = self.info["allowed_files"]
+        self.CHARACTERS = self.info["emoji_characters"]
+        self.SPECIAL_CHARACTERS = self.info["special_characters"]
+        self.DISABLED_COMMANDS = self.info["disabled_commands"]
+        self.BLACKLIST = self.info["blacklist"]
+        self.RULES = self.info["rules"]
 
         self.MY_ID = 222950176770228225
         self.MODERATOR_ID = 760078403264184341
