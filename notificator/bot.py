@@ -54,10 +54,8 @@ async def truth_table(ctx: commands.Context, *, text: str) -> None:
     # Get all the inputs from the function
     inputs = client.helpers.get_inputs(text)
     up_text = text.upper()
-    f_out = client.helpers.clean_expression(text)
-    f_out = client.helpers.replace_operators(f_out)
 
-    output = f"F = {f_out}\n"
+    output = f"F = {up_text}\n\n"
     output += f"{' '.join(inputs)} - F\n"
     for prod in product(range(2), repeat=len(inputs)):
         text = client.helpers.replace_inputs(up_text, prod)
