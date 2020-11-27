@@ -19,9 +19,10 @@ import morse
 import helpers
 
 
-LAST_ID = helpers.LAST_ID
-LAST_LINK = helpers.LAST_LINK
-LAST_MESSAGE = helpers.LAST_MESSAGE
+const = helpers.const()
+LAST_ID = const.LAST_ID
+LAST_LINK = const.LAST_LINK
+LAST_MESSAGE = const.LAST_MESSAGE
 
 TOKEN = os.environ.get("CSIHU_NOTIFICATOR_BOT_TOKEN")
 intents = discord.Intents.all()
@@ -31,10 +32,10 @@ client = commands.Bot(
     help_command=None,
     activity=discord.Activity(type=discord.ActivityType.listening, name=".help")
 )
-client.info_data: dict = helpers.info
-client.DISABLED_COMMANDS: dict = helpers.DISABLED_COMMANDS
-client.BLACKLIST: list = helpers.BLACKLIST
-client.RULES: list = helpers.RULES
+client.info_data: dict = const.info
+client.DISABLED_COMMANDS: dict = const.DISABLED_COMMANDS
+client.BLACKLIST: list = const.BLACKLIST
+client.RULES: list = const.RULES
 client.latest_announcement = {"text": LAST_MESSAGE, "link": LAST_LINK, "id": LAST_ID}
 client.is_running = False
 
