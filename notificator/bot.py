@@ -265,6 +265,12 @@ async def gtx(ctx: commands.Context) -> None:
     await troll.gtx_troll.run(ctx)
 
 
+@client.command(name="akou", brief=troll.akou_troll.brief)
+async def akou_troll(ctx: commands.Context) -> None:
+    """Replies to the author"""
+    await troll.akou_troll.run()
+
+
 @client.command(name="donate", aliases=["donations", "donation"], brief=troll.donate_troll.brief)
 async def donate(ctx: commands.Context):
     """

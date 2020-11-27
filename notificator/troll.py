@@ -21,15 +21,15 @@ with requests.Session() as s:
 don_data = data["donate_troll"]
 gtpm_data = data["gtpm_troll"]
 gtx_data = data["gtx_troll"]
+akou_data = data["akou_troll"]
 
 
 class donate_troll:
     brief = don_data["brief"]
 
     async def run(ctx: commands.Context) -> None:
-        """
-        Sends fake "donation" links
-        """
+        """Sends fake "donation" links"""
+
         names = don_data["names"]
         output = ""
         for name in names:
@@ -41,9 +41,8 @@ class gtpm_troll:
     brief = gtpm_data["brief"]
 
     async def run(ctx: commands.Context) -> None:
-        """
-        Tags the user with the specific ID in the data file
-        """
+        """Tags the user with the specific ID in the data file"""
+
         ID = gtpm_data["ID"]
         await ctx.send(f"<@{ID}>")
 
@@ -52,8 +51,17 @@ class gtx_troll:
     brief = gtx_data["brief"]
 
     async def run(ctx: commands.Context) -> None:
-        """
-        Sends reply to the author
-        """
+        """Sends reply to the author"""
+
         text = gtx_data["text"]
         await ctx.send(f"{ctx.author.mention} {text}")
+
+
+class akou_troll:
+    brief = akou_data["brief"]
+
+    async def run(ctx: commands) -> None:
+        """Replies to the author"""
+
+        text = akou_data["text"]
+        await ctx.send(f"{ctx.author.mention}\n{text}")
