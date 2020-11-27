@@ -9,8 +9,9 @@ import requests
 import textblob
 import urbandict
 import googlesearch
-from itertools import product
 from bs4 import BeautifulSoup
+from datetime import datetime
+from itertools import product
 from discord.ext import commands
 
 
@@ -33,6 +34,7 @@ client = commands.Bot(
 client.info_data: dict = helpers.info
 client.DISABLED_COMMANDS: dict = helpers.DISABLED_COMMANDS
 client.BLACKLIST: list = helpers.BLACKLIST
+client.RULES: list = helpers.RULES
 client.latest_announcement = {"text": LAST_MESSAGE, "link": LAST_LINK, "id": LAST_ID}
 client.is_running = False
 
@@ -41,6 +43,49 @@ client.is_running = False
 async def test(ctx: commands.Context) -> None:
     """Reply to the bot to check if it's working"""
     await ctx.send(f"Hey {ctx.author.mention}!")
+
+
+@client.command(name="rules", aliases=["r", "rule"], brief="View the rules of the server")
+async def rules(ctx: commands.Context, rule: int = None) -> None:
+    """Send an embed with the server's rules"""
+
+    # Initialize the embed
+    embed = discord.Embed(
+        title="Rules",
+        color=0xff0000
+    )
+
+    # Set the bot as the author
+    embed.set_author(
+        name="CSIHU Notificator",
+        icon_url=client.user.avatar_url
+    )
+
+    embed.set_footer(text=ctx.author.name, icon_url=ctx.author.avatar_url)
+    embed.timestamp = datetime.now()
+
+    # If a rule number is passed and its within the limits add it to the emebed
+    if rule:
+        if 0 < rule <= len(client.RULES):
+            embed.add_field(
+                name=f"Rule #{rule}",
+                value=client.RULES[rule-1]
+            )
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send(f"Couldn't find rule #{rule}")
+        return
+
+    # If its a normal command and the author wants to view all the commands
+    # Add all the commands in the embed
+    for i, rule in enumerate(client.RULES, 1):
+        embed.add_field(
+            name=f"Rule #{i}",
+            value=rule,
+            inline=False
+        )
+
+    await ctx.send(embed=embed)
 
 
 @client.command(name="truthtable", aliases=["tt"], brief="Makes the truth table from a circuit function")

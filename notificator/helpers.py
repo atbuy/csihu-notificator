@@ -70,6 +70,7 @@ CHARACTERS = info["emoji_characters"]
 SPECIAL_CHARACTERS = info["special_characters"]
 DISABLED_COMMANDS = info["disabled_commands"]
 BLACKLIST = info["blacklist"]
+RULES = info["rules"]
 
 MY_ID = 222950176770228225
 MODERATOR_ID = 760078403264184341
