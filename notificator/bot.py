@@ -251,24 +251,23 @@ async def tag_voice_channel(ctx: commands.Context) -> None:
 
 @client.command(name="gtpm", brief=troll.gtpm_troll.brief)
 async def gtpm(ctx: commands.Context) -> None:
-    """
-    Tags the user with the specific ID in the data file
-    """
+    """Tags the user with the specific ID in the data file"""
+
     await troll.gtpm_troll.run(ctx)
 
 
 @client.command(name="gamwtoxristo", brief=troll.gtx_troll.brief)
 async def gtx(ctx: commands.Context) -> None:
-    """
-    Sends reply to the author
-    """
+    """Sends reply to the author"""
+
     await troll.gtx_troll.run(ctx)
 
 
 @client.command(name="akou", brief=troll.akou_troll.brief)
 async def akou_troll(ctx: commands.Context) -> None:
     """Replies to the author"""
-    await troll.akou_troll.run()
+
+    await troll.akou_troll.run(ctx)
 
 
 @client.command(name="donate", aliases=["donations", "donation"], brief=troll.donate_troll.brief)
