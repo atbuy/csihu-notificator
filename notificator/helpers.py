@@ -106,7 +106,10 @@ class Helpers:
             self.blacklist = self.const.BLACKLIST
             self.max_commands_on_page = commands_on_page
             self.total_pages = (len(self.available_commands) // self.max_commands_on_page)
-            self.help_command_reactions = [self.const.START_EMOJI, self.const.ARROW_BACKWARD, self.const.ARROW_FORWARD, self.const.END_EMOJI]
+            self.help_command_reactions = [
+                self.const.START_EMOJI, self.const.ARROW_BACKWARD,
+                self.const.ARROW_FORWARD, self.const.END_EMOJI
+            ]
             self.testing = False
 
             # Decrement the total pages by one to fix empty last page error
