@@ -58,37 +58,39 @@ def _post_info_file_data(data: str) -> requests.Response:
     return req
 
 
-# Load info data from the API
-info = _get_info_file_data()
+class const:
+    def __init__(self):
+        # Load info data from the API
+        info = _get_info_file_data()
 
-# Declare constants
-LAST_ID = info["last_id"]
-LAST_LINK = info["last_link"]
-LAST_MESSAGE = info["last_message"]
-ALLOWED_FILES = info["allowed_files"]
-CHARACTERS = info["emoji_characters"]
-SPECIAL_CHARACTERS = info["special_characters"]
-DISABLED_COMMANDS = info["disabled_commands"]
-BLACKLIST = info["blacklist"]
-RULES = info["rules"]
+        # Declare constants
+        self.LAST_ID = info["last_id"]
+        self.LAST_LINK = info["last_link"]
+        self.LAST_MESSAGE = info["last_message"]
+        self.ALLOWED_FILES = info["allowed_files"]
+        self.CHARACTERS = info["emoji_characters"]
+        self.SPECIAL_CHARACTERS = info["special_characters"]
+        self.DISABLED_COMMANDS = info["disabled_commands"]
+        self.BLACKLIST = info["blacklist"]
+        self.RULES = info["rules"]
 
-MY_ID = 222950176770228225
-MODERATOR_ID = 760078403264184341
-OWNER_ID = 760085688133222420
-WAITING_ROOM_ID = 763090286372585522
-BOT_ID = 760473932439879700
-GENERAL_ID = 760047749482807330
-SPAM_CHAT_ID = 766177228198903808
-SYNADELFOS_ROLE_ID = 773654278631850065
-FILIP_ROLE_ID = 770328364913131621
-PANEPISTHMIO_ID = 760047749482807327
-MUTED_ROLE_ID = 773396782129348610
-TICK_EMOJI = "\U00002705"
-X_EMOJI = "\U0000274c"
-START_EMOJI = "\U000023ee"
-ARROW_BACKWARD = "\U000025c0"
-ARROW_FORWARD = "\U000025b6"
-END_EMOJI = "\U000023ed"
+        self.MY_ID = 222950176770228225
+        self.MODERATOR_ID = 760078403264184341
+        self.OWNER_ID = 760085688133222420
+        self.WAITING_ROOM_ID = 763090286372585522
+        self.BOT_ID = 760473932439879700
+        self.GENERAL_ID = 760047749482807330
+        self.SPAM_CHAT_ID = 766177228198903808
+        self.SYNADELFOS_ROLE_ID = 773654278631850065
+        self.FILIP_ROLE_ID = 770328364913131621
+        self.PANEPISTHMIO_ID = 760047749482807327
+        self.MUTED_ROLE_ID = 773396782129348610
+        self.TICK_EMOJI = "\U00002705"
+        self.X_EMOJI = "\U0000274c"
+        self.START_EMOJI = "\U000023ee"
+        self.ARROW_BACKWARD = "\U000025c0"
+        self.ARROW_FORWARD = "\U000025b6"
+        self.END_EMOJI = "\U000023ed"
 
 
 class Helpers:
@@ -99,11 +101,12 @@ class Helpers:
 
         if client:
             self.client = client
+            self.const = const()
             self.available_commands = {c.name: c.brief for c in self.client.walk_commands()}
-            self.blacklist = BLACKLIST
+            self.blacklist = self.const.BLACKLIST
             self.max_commands_on_page = commands_on_page
             self.total_pages = (len(self.available_commands) // self.max_commands_on_page)
-            self.help_command_reactions = [START_EMOJI, ARROW_BACKWARD, ARROW_FORWARD, END_EMOJI]
+            self.help_command_reactions = [self.const.START_EMOJI, self.const.ARROW_BACKWARD, self.const.ARROW_FORWARD, self.const.END_EMOJI]
             self.testing = False
 
             # Decrement the total pages by one to fix empty last page error
@@ -155,7 +158,7 @@ class Helpers:
         while counter > 0:
             muted = False
             for role in member.roles:
-                if role.id == MUTED_ROLE_ID:
+                if role.id == self.const.MUTED_ROLE_ID:
                     muted = True
             if muted:
                 await asyncio.sleep(1)
@@ -167,11 +170,11 @@ class Helpers:
             # This wouldn't be executed if someone unmuted the member prematurely
 
             # Remove muted role
-            muted_role = ctx.guild.get_role(MUTED_ROLE_ID)
+            muted_role = ctx.guild.get_role(self.const.MUTED_ROLE_ID)
             await member.remove_roles(muted_role)
 
             # Add synadelfos role again
-            synadelfos_role = ctx.guild.get_role(SYNADELFOS_ROLE_ID)
+            synadelfos_role = ctx.guild.get_role(self.const.SYNADELFOS_ROLE_ID)
             await member.add_roles(synadelfos_role)
 
             await ctx.send(f"{member.mention} is now unmuted")
@@ -200,12 +203,12 @@ class Helpers:
                     if time.time() - start_time < timeout:
                         output += str(x)
                     else:
-                        await msg.add_reaction(X_EMOJI)
+                        await msg.add_reaction(self.const.X_EMOJI)
                         await msg.channel.send("Error: Process timed out.")
                         break
                 else:
                     # This clause is executed only if there wasn't a timeout error
-                    await msg.add_reaction(TICK_EMOJI)
+                    await msg.add_reaction(self.const.TICK_EMOJI)
 
                     if safe:
                         await msg.channel.send(f"{msg.author.mention}\n{output}")
@@ -214,7 +217,7 @@ class Helpers:
             except Exception:
                 # If there was an error with the code,
                 # send the full traceback
-                await msg.add_reaction(X_EMOJI)
+                await msg.add_reaction(self.const.X_EMOJI)
                 trace = traceback.format_exc()
                 await msg.channel.send(f"{msg.author.mention} Error:\n```python\n{trace} ```")
 
@@ -230,7 +233,7 @@ class Helpers:
             for attach in attachments:
                 # Get the text after the last dot (.)
                 extension = attach.filename.split(".")[-1].lower()
-                if not (extension in ALLOWED_FILES):
+                if not (extension in self.const.ALLOWED_FILES):
                     await msg.delete()
                     await msg.channel.send(
                         f"{msg.author.mention} you are not to upload `.{extension}` files"
@@ -261,17 +264,17 @@ class Helpers:
 
         # If the user wants the next page, increment the current page
         # only if it is before the last page
-        if reaction.emoji == ARROW_FORWARD:
+        if reaction.emoji == self.const.ARROW_FORWARD:
             if current_page < self.total_pages:
                 current_page += 1
-        elif reaction.emoji == ARROW_BACKWARD:
+        elif reaction.emoji == self.const.ARROW_BACKWARD:
             # If the user wants the previous page, decrement the current page
             # only if it is after the first page
             if current_page > 0:
                 current_page -= 1
-        elif reaction.emoji == START_EMOJI:
+        elif reaction.emoji == self.const.START_EMOJI:
             current_page = 0
-        elif reaction.emoji == END_EMOJI:
+        elif reaction.emoji == self.const.END_EMOJI:
             current_page = self.total_pages
         else:
             return False, current_page
@@ -386,7 +389,7 @@ class Helpers:
         """
         chars = ["s", "k", "a", "c", "e"]
         for char in chars:
-            await ctx.message.add_reaction(f"{CHARACTERS[char]}")
+            await ctx.message.add_reaction(f"{self.const.CHARACTERS[char]}")
 
     def check_for_mention(self, ctx: commands.Context) -> bool:
         """
@@ -431,7 +434,7 @@ class Helpers:
         # First check if the member has any of the modderator roles
         execute = False
         for role in ctx.author.roles:
-            if role.id in (MODERATOR_ID, OWNER_ID, BOT_ID):
+            if role.id in (self.const.MODERATOR_ID, self.const.OWNER_ID, self.const.BOT_ID):
                 execute = True
                 break
         if not execute and kwargs:
@@ -458,7 +461,7 @@ class Helpers:
         """
 
         # Check if there are any special characters in the message and remove them
-        characters = list(filter(lambda x: x in msg, SPECIAL_CHARACTERS))
+        characters = list(filter(lambda x: x in msg, self.const.SPECIAL_CHARACTERS))
         if characters:
             for char in characters:
                 msg = msg.replace(char, "")
