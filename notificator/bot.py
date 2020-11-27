@@ -55,6 +55,7 @@ async def truth_table(ctx: commands.Context, *, text: str) -> None:
     inputs = client.helpers.get_inputs(text)
     up_text = text.upper()
 
+    # Create the inputs for the variables and then change the function to evaluate the expression
     output = f"F = {up_text}\n\n"
     output += f"{' '.join(inputs)} - F\n"
     for prod in product(range(2), repeat=len(inputs)):
