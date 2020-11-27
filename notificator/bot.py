@@ -105,7 +105,7 @@ async def truth_table(ctx: commands.Context, *, text: str) -> None:
     # Create the inputs for the variables and then change the function to evaluate the expression
     output = f"F = {up_text}\n\n"
 
-    header = f"{' '.join(inputs)} - F\n"
+    header = f" {' '.join(inputs)} - F\n"
     output += header
     output += "-" * len(header) + "\n"
     for prod in product(range(2), repeat=len(inputs)):
@@ -118,7 +118,7 @@ async def truth_table(ctx: commands.Context, *, text: str) -> None:
 
         # Create the product list and append the result to the output
         prod_list = list(map(lambda x: str(x), prod))
-        output += f"{' '.join(prod_list)} - {int(f)}\n"
+        output += f" {' '.join(prod_list)} - {int(f)}\n"
 
     output = output.strip('\n')
     await ctx.send(f"{ctx.author.mention}\n```{output} ```")
