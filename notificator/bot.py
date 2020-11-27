@@ -264,6 +264,7 @@ async def gtx(ctx: commands.Context) -> None:
 
 
 @client.command(name="akou", brief=troll.akou_troll.brief)
+@commands.cooldown(1, 30, commands.BucketType.channel)
 async def akou_troll(ctx: commands.Context) -> None:
     """Replies to the author"""
 
