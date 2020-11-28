@@ -43,6 +43,7 @@ client.is_running = False
 @client.command(brief="Test the bot")
 async def test(ctx: commands.Context) -> None:
     """Reply to the bot to check if it's working"""
+
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
@@ -160,6 +161,8 @@ async def rm_blacklist(ctx: commands.Context, *, text: str) -> None:
 
     # Check if the member can execute this command
     execute = client.helpers.can_execute(ctx)
+
+    # If the member can't execute this command, send an error message
     if not execute:
         await ctx.send(f"{ctx.author.mention} you don't have enough permission to perform this action.")
         return

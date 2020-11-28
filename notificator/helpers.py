@@ -140,7 +140,7 @@ class Helpers:
                     if role.name == name:
                         return True
                 else:
-                    if name in role.name:
+                    if name.lower() in role.name.lower():
                         return True
         return False
 
@@ -628,7 +628,7 @@ class Helpers:
         """
 
         out = [char for char in text.upper() if char in string.ascii_uppercase]
-        return sorted(set(out))
+        return set(out)
 
     def replace_inputs(self, text: str, inputs: tuple) -> str:
         """
