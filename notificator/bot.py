@@ -47,6 +47,13 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="cpp", aliases=["cpps"], brief="Repository with CPP solutions")
+async def cpp_solutions(ctx: commands.Context) -> None:
+    """Send CPP solutions to the channel"""
+
+    await ctx.send("CPP Solutions Repo: <https://github.com/Vitaman02/CPPSolutions>")
+
+
 @client.command(name="rules", aliases=["r", "rule"], brief="View the rules of the server")
 async def rules(ctx: commands.Context, rule: int = None) -> None:
     """Send an embed with the server's rules"""
