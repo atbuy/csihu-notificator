@@ -628,7 +628,7 @@ class Helpers:
         """
 
         out = [char for char in text.upper() if char in string.ascii_uppercase]
-        return sorted(set(out))
+        return sorted(set(list(out)))
 
     def replace_inputs(self, text: str, inputs: tuple) -> str:
         """

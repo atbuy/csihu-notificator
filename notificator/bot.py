@@ -701,8 +701,6 @@ async def run_bot(ctx: commands.Context) -> None:
     Starts pinging the announcements webpage
     to see if there are any new announcements posted.
     If there are it sends them to the channel the command was ran from.
-
-    :return: None
     """
     global LAST_ID
 
@@ -743,33 +741,38 @@ async def run_bot(ctx: commands.Context) -> None:
                 new_announce = True
 
         # If there is a new announcement, send it to the channel the command was executed
-        if new_announce:
-            LAST_ID += 1
-            link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={LAST_ID}"
-            to_delete = [
-                """$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31","""
-                """toolbarVisible:false,readOnly:true});});""",
-                """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
-            ]
-            for item in to_delete:
-                final_text = final_text.replace(item, "").strip()
+        if not new_announce:
+            # Sleep for 5 minutes before pinging the website again
+            await asyncio.sleep(300)
+            continue
 
-            # Update the latest announcement dictionary
-            client.latest_announcement = {"text": final_text, "link": link, "id": LAST_ID}
+        LAST_ID += 1
+        link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={LAST_ID}"
+        to_delete = [
+            """$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31","""
+            """toolbarVisible:false,readOnly:true});});""",
+            """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
+        ]
 
-            # Update info file on the server. This is the file the API uses to return the info data
-            client.info_data["last_id"] = LAST_ID
-            client.info_data["last_link"] = link
-            client.info_data["last_message"] = final_text
+        for item in to_delete:
+            final_text = final_text.replace(item, "").strip()
 
-            # Upload data to server
-            data_dict_as_str = json.dumps(client.info_data)
-            client.helpers.post_info_file_data(data_dict_as_str)
+        # Update the latest announcement dictionary
+        client.latest_announcement = {"text": final_text, "link": link, "id": LAST_ID}
 
-            try:
-                await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text} ```")
-            except discord.errors.HTTPException:
-                await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
+        # Update info file on the server. This is the file the API uses to return the info data
+        client.info_data["last_id"] = LAST_ID
+        client.info_data["last_link"] = link
+        client.info_data["last_message"] = final_text
+
+        # Upload data to server
+        data_dict_as_str = json.dumps(client.info_data)
+        client.helpers.post_info_file_data(data_dict_as_str)
+
+        try:
+            await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text} ```")
+        except discord.errors.HTTPException:
+            await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
 
         # Sleep for 5 minutes before pinging the website again
         await asyncio.sleep(300)
