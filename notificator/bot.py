@@ -85,7 +85,7 @@ async def kys(ctx: commands.Context, *, user: discord.User = None) -> None:
     base.save(output, "png")
     output.seek(0)
 
-    file = discord.File(output, filename=f"{user.name}.png")
+    file = discord.File(output, filename="why.png")
     await ctx.send(file=file)
 
 
