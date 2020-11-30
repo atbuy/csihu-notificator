@@ -47,6 +47,26 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="help-json", aliases=["helpjson", "help-j", "helpj"], brief="Get a json file of all the commands")
+async def help_json(ctx: commands.Context, indent: int = 4) -> None:
+    """
+    Create a dictionary with all the commands, convert it to a json file ans send it to the author
+
+    :param indent: (Optional) The number of spaces to indent the file.
+    """
+
+    # Create the dictionary with the commands
+    commands_dict = {}
+    for c in client.walk_commands():
+        commands_dict[c.name] = {
+            "aliases": c.aliases,
+            "brief": c.brief,
+            "parameters": c.signature
+        }
+
+    print(commands_dict)
+
+
 @client.command(name="rules", aliases=["r", "rule"], brief="View the rules of the server")
 async def rules(ctx: commands.Context, rule: int = None) -> None:
     """Send an embed with the server's rules"""
@@ -102,7 +122,9 @@ async def truth_table(ctx: commands.Context, *, text: str) -> None:
     # Get all the inputs from the function
     inputs = client.helpers.get_inputs(text)
     up_text = text.upper()
-    formatted_text = client.helpers.clean_expression(up_text)
+    formatted_text = client.helpers.clean_expression(up_text).replace("  ", " ")
+
+    # The function written in logic gates
     logic = client.helpers.clean_expression(up_text)
     logic = client.helpers.replace_operators(logic).replace("  ", " ")
 

@@ -125,7 +125,7 @@ class Helpers:
         :param role_id: Check if the member has a role with this id
         :param name: (Optional) Check if the member has a role with that contains this text
         :param force_name: (Optional) If this is set to True then check if the role name is exact as the `name`.
-        :param color_role: (Optional) Check if the member has a color role
+        :param color_role: (Optional) Check if the member has this color role
 
         .. note::
             You should specify kwargs and not use positional arguments.
@@ -133,10 +133,13 @@ class Helpers:
         if color_role and name:
             raise RuntimeError("Can't specify keyword argument 'name' and 'color_role' at the same time.")
 
+        # Check each of the member's roles
         for role in member.roles:
+            # If the role is supposed to be a color role then check if the role name starts with `clr-`
             if color_role:
                 if role.name.startswith("clr-"):
                     return True
+            # If the role is not a color role check if the member has a role with this name
             elif name:
                 if force_name:
                     if role.name == name:
@@ -684,6 +687,7 @@ class Helpers:
         new_list = []
         for i in range(len(text)-1):
             new_list.append(text[i])
+
             if text[i] in self.const.CHARS_DIGITS and text[i+1] in self.const.CHARS_DIGITS:
                 new_list.append(" * ")
             elif text[i] in self.const.CHARS_DIGITS and text[i+1] == "!":
