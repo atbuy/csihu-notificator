@@ -48,7 +48,23 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
-@client.command(name="help-json", aliases=["helpjson", "help-j", "helpj"], brief="Get a json file of all the commands")
+@client.command(name="word", aliases=["randword"], brief="Get a random word")
+async def random_word(ctx: commands.Context) -> None:
+    """Sends a random word to the author"""
+
+    # Create the path to the word list
+    path = os.path.join(os.getcwd(), "data", "wordlist.txt")
+
+    # Clean all the lines in the file and append them to a list
+    with open(path) as file:
+        words = list(map(lambda x: x.rstrip("\n"), file.readlines()))
+
+    # Get a random word from the list and sent it to the channel
+    word = random.choice(words)
+    await ctx.send(f"{ctx.author.mention}. Your word is: `{word}`")
+
+
+@client.command(name="help-json", aliases=["helpjson", "help-j", "helpj"], brief="Get a JSON file of all the commands")
 async def help_json(ctx: commands.Context, indent: int = 4) -> None:
     """
     Create a dictionary with all the commands, convert it to a json file ans send it to the author
