@@ -70,7 +70,7 @@ async def kys(ctx: commands.Context, *, user: discord.User = None) -> None:
     if user:
         await user.avatar_url.save(img_file)
     else:
-        await ctx.avatar_url.save(img_file)
+        await ctx.author.avatar_url.save(img_file)
     img_file.seek(0)
     img = Image.open(img_file)
 
