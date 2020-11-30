@@ -10,6 +10,7 @@ import requests
 import textblob
 import urbandict
 import googlesearch
+from PIL import Image
 from bs4 import BeautifulSoup
 from datetime import datetime
 from itertools import product
@@ -34,6 +35,7 @@ client = commands.Bot(
     activity=discord.Activity(type=discord.ActivityType.listening, name=".help")
 )
 client.info_data: dict = const.info
+client.DATA_PATH: str = const.DATA_PATH
 client.DISABLED_COMMANDS: dict = const.DISABLED_COMMANDS
 client.BLACKLIST: list = const.BLACKLIST
 client.RULES: list = const.RULES
@@ -46,6 +48,39 @@ async def test(ctx: commands.Context) -> None:
     """Reply to the bot to check if it's working"""
 
     await ctx.send(f"Hey {ctx.author.mention}!")
+
+
+@client.command(name="kys", brief="Tell someone to kill themselves")
+async def kys(ctx: commands.Context, *, user: discord.User) -> None:
+    """
+    Paste's the user's image on another image and sends in on another image
+
+    :param user: The user's image to use
+    """
+
+    # Get the base image to paste the user's avatar
+    base_path = os.path.join(client.DATA_PATH, "images", "suicide.jpg")
+    base = Image.open(base_path)
+
+    # Create an image file to with the user's avatar
+    img_file = io.BytesIO()
+    await user.avatar_url.save(img_file)
+    img_file.seek(0)
+    img = Image.open(img_file)
+
+    # Resize the image and paste it into the right spot
+    size = (100, 100)
+    coords = (200, 65)
+    img = img.resize(size)
+    base.paste(img, coords)
+
+    # Open open an image to output
+    output = io.BytesIO()
+    base.save(output, "png")
+    output.seek(0)
+
+    file = discord.File(output, filename=f"{user.name}.png")
+    await ctx.send(file=file)
 
 
 @client.command(name="icon", brief="Sends your icon's link")

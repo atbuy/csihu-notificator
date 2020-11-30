@@ -60,7 +60,7 @@ class gtx_troll:
 class akou_troll:
     brief = akou_data["brief"]
 
-    async def run(ctx: commands) -> None:
+    async def run(ctx: commands.Context) -> None:
         """Replies to the author"""
 
         text = akou_data["text"]

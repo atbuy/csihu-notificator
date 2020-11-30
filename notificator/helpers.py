@@ -6,6 +6,7 @@ import asyncio
 import discord
 import requests
 import traceback
+from pathlib import Path
 from datetime import datetime
 from discord.ext import commands
 from jishaku.repl.compilation import AsyncCodeExecutor
@@ -85,6 +86,7 @@ class const:
         self.FILIP_ROLE_ID = 770328364913131621
         self.PANEPISTHMIO_ID = 760047749482807327
         self.MUTED_ROLE_ID = 773396782129348610
+
         self.TICK_EMOJI = "\U00002705"
         self.X_EMOJI = "\U0000274c"
         self.START_EMOJI = "\U000023ee"
@@ -93,6 +95,8 @@ class const:
         self.END_EMOJI = "\U000023ed"
 
         self.CHARS_DIGITS = string.ascii_uppercase + string.digits
+        self.ROOT = Path(__file__).parent.parent
+        self.DATA_PATH = os.path.join(self.ROOT, "data")
 
 
 class Helpers:
