@@ -65,7 +65,13 @@ async def help_json(ctx: commands.Context, indent: int = 4) -> None:
             "parameters": c.signature
         }
 
-    data = io.StringIO(json.dumps(commands_dict, indent=indent))
+    # Sort the commands so they are easier to read
+    sorted_commands = client.helpers.sort_dict(commands_dict)
+
+    # Create a file-like object to send over discord
+    data = io.StringIO(json.dumps(sorted_commands, indent=indent))
+
+    # Send the JSON file
     await ctx.send(f"{ctx.author.mention}. Commands:\n", file=discord.File(data, filename="commands.json"))
 
 
