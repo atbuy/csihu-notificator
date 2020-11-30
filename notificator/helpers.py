@@ -676,6 +676,11 @@ class Helpers:
         :param text: The function to clean
         """
 
+        # Replace all `+` with ` + ` so they look better when printed
+        text = text.replace("+", " + ")
+
+        # Create a new list of all the inputs of the function
+        # This also fixes the previous input bug
         new_list = []
         for i in range(len(text)-1):
             new_list.append(text[i])

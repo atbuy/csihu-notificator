@@ -102,11 +102,12 @@ async def truth_table(ctx: commands.Context, *, text: str) -> None:
     # Get all the inputs from the function
     inputs = client.helpers.get_inputs(text)
     up_text = text.upper()
+    formatted_text = client.helpers.clean_expression(up_text)
     logic = client.helpers.clean_expression(up_text)
     logic = client.helpers.replace_operators(logic).replace("  ", " ")
 
     # Create the inputs for the variables and then change the function to evaluate the expression
-    output = f"F = {up_text}\n"
+    output = f"F = {formatted_text}\n"
     output += f"Logic: {logic}\n\n"
     header = f" {' '.join(inputs)} - F\n"
     output += header
