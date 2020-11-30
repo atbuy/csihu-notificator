@@ -48,6 +48,14 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="icon", brief="Sends your icon's link")
+async def get_icon(ctx: commands.Context) -> None:
+    """Send the author's icon url to the channel"""
+
+    url = ctx.author.avatar_url
+    await ctx.send(f"{ctx.author.mention} you icon is located at: {url}")
+
+
 @client.command(name="word", aliases=["randword"], brief="Get a random word")
 async def random_word(ctx: commands.Context) -> None:
     """Sends a random word to the author"""
