@@ -501,7 +501,7 @@ async def enable_command(ctx: commands.Context, command_name: str) -> None:
 
     # If the command exists enable it
     # If it doesn't doesn't exist send error message
-    for command_list in client.FLAT_COMMANDS:
+    for command_list in client.FOLDED_COMMANDS:
         if command_name in command_list:
             for dcommand in command_list:
                 index = client.DISABLED_COMMANDS.index(dcommand)
