@@ -627,8 +627,12 @@ class Helpers:
         :param text: The circuit function
         """
 
-        out = [char for char in text.upper() if char in string.ascii_uppercase]
-        return sorted(set(list(out)))
+        out = []
+        for char in text.upper():
+            if char in string.ascii_uppercase and not (char in out):
+                out.append(char)
+
+        return out
 
     def replace_inputs(self, text: str, inputs: tuple) -> str:
         """
@@ -645,7 +649,7 @@ class Helpers:
                 try:
                     text = text.replace(char, str(inputs[counter]))
                 except IndexError:
-                    print("index error")
+                    pass
                 counter += 1
 
         return text
