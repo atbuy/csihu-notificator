@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 import os
+import io
 import troll
 import json
 import random
@@ -64,7 +65,8 @@ async def help_json(ctx: commands.Context, indent: int = 4) -> None:
             "parameters": c.signature
         }
 
-    print(commands_dict)
+    data = io.StringIO(json.dumps(commands_dict, indent=indent))
+    await ctx.send(f"{ctx.author.mention}. Commands:\n", file=discord.File(data, filename="commands.json"))
 
 
 @client.command(name="rules", aliases=["r", "rule"], brief="View the rules of the server")
