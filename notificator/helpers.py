@@ -92,6 +92,8 @@ class const:
         self.ARROW_FORWARD = "\U000025b6"
         self.END_EMOJI = "\U000023ed"
 
+        self.CHARS_DIGITS = string.ascii_uppercase + string.digits
+
 
 class Helpers:
     """This class contains all the functions used inside commands and event listeners"""
@@ -677,7 +679,9 @@ class Helpers:
         new_list = []
         for i in range(len(text)-1):
             new_list.append(text[i])
-            if text[i].isdigit() and text[i+1].isdigit() or text[i].isdigit() and text[i+1] == "!":
+            if text[i] in self.const.CHARS_DIGITS and text[i+1] in self.const.CHARS_DIGITS:
+                new_list.append(" * ")
+            elif text[i] in self.const.CHARS_DIGITS and text[i+1] == "!":
                 new_list.append(" * ")
 
         new_list.append(text[-1])
