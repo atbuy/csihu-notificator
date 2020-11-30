@@ -52,11 +52,11 @@ async def test(ctx: commands.Context) -> None:
 
 @client.command(name="kys", brief="Tell someone to kill themselves")
 @commands.cooldown(1, 45, commands.BucketType.channel)
-async def kys(ctx: commands.Context, *, user: discord.User) -> None:
+async def kys(ctx: commands.Context, *, user: discord.User = None) -> None:
     """
     Paste's the user's image on another image and sends in on another image
 
-    :param user: The user's image to use
+    :param user: (Optional) The user to get the image from
     """
 
     # Get the base image to paste the user's avatar
@@ -65,7 +65,12 @@ async def kys(ctx: commands.Context, *, user: discord.User) -> None:
 
     # Create an image file to with the user's avatar
     img_file = io.BytesIO()
-    await user.avatar_url.save(img_file)
+    # If a user is passed, copy that user's image
+    # Or if just copy the author's image
+    if user:
+        await user.avatar_url.save(img_file)
+    else:
+        await ctx.avatar_url.save(img_file)
     img_file.seek(0)
     img = Image.open(img_file)
 
