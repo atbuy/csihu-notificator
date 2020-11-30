@@ -51,7 +51,7 @@ async def test(ctx: commands.Context) -> None:
 
 
 @client.command(name="kys", brief="Tell someone to kill themselves")
-@commands.cooldown(1, 60, commands.BucketType.user)
+@commands.cooldown(1, 45, commands.BucketType.channel)
 async def kys(ctx: commands.Context, *, user: discord.User) -> None:
     """
     Paste's the user's image on another image and sends in on another image
