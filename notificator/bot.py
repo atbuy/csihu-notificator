@@ -523,7 +523,7 @@ async def enable_command(ctx: commands.Context, command_name: str) -> None:
         await ctx.send(f"{ctx.author.mention}, `{command_name}` is not a valid command name.")
 
 
-@client.command(name="setc", aliases=["color", "role-color"], brief="Change your name's color")
+@client.command(name="setc", aliases=["clr", "cset", "color", "role-color"], brief="Change your name's color")
 async def change_role_color(ctx: commands.Context, red=None, green=None, blue=None) -> None:
     """
     Changes the author's name color to either the hex value passed, or the rgb one.
