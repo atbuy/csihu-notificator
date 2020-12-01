@@ -90,6 +90,7 @@ async def kys(ctx: commands.Context, *, user: discord.User = None) -> None:
 
 
 @client.command(name="icon", brief="Sends your icon's link")
+@commands.cooldown(3, 60, commands.BucketType.channel)
 async def get_icon(ctx: commands.Context) -> None:
     """Send the author's icon url to the channel"""
 
