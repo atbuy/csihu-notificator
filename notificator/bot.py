@@ -155,12 +155,10 @@ async def claim(ctx: commands.Context) -> None:
     await ctx.author.add_roles(cooldown_role)
 
     # Create the member's channel
-    moderator_role = discord.utils.get(ctx.guild.roles, id=const.MODERATOR_ID)
     overwrites = {
         ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False),
         ctx.guild.me: discord.PermissionOverwrite(read_messages=True),
         ctx.author: discord.PermissionOverwrite(read_messages=True, send_messages=True),
-        moderator_role: discord.PermissionOverwrite(read_messages=True)
     }
     member_channel_name = f"{ctx.author.name}s-channel"
 
