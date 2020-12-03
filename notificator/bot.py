@@ -50,6 +50,23 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="time", aliases=["timeleft"], brief="Check the leftover time for")
+async def check_time(ctx: commands.Context) -> None:
+    """Shows the member's time left"""
+
+    # Get the author's private channel
+    category = discord.utils.get(ctx.guild.categories, id=const.CLAIM_CATEGORY_ID)
+    found, channel = client.helpers.get_channel_from_category(ctx, category, ctx.author.name.lower())
+    if found:
+        private_channel_time = client.helpers.private_channels[ctx.author.id]["timer"]
+        if private_channel_time > 60:
+            await ctx.send(f"{ctx.author.mention} You have {private_channel_time//60} minutes left")
+        else:
+            await ctx.send(f"{ctx.author.mention} You have {private_channel_time} seconds left")
+    else:
+        await ctx.send(f"{ctx.author.mention} you don't have a private channel")
+
+
 @client.command(name="invite", brief="Invite someone to your private channel")
 async def invite(ctx: commands.Context, *, member: discord.Member):
     """
@@ -80,7 +97,8 @@ async def refresh(ctx: commands.Context) -> None:
     refresh_role = discord.utils.get(ctx.guild.roles, id=const.REFRESH_ROLE_ID)
     await ctx.author.add_roles(refresh_role)
 
-    await ctx.send(f"{ctx.author.mention} you time has been reset")
+    private_channel = client.helpers.private_channel[ctx.author.id]
+    await ctx.send(f"{ctx.author.mention} your time has been reset. You have **{private_channel['cooldown']-1} cooldowns left**")
 
 
 @client.command(name="close", brief="Closes your custom channel prematurely")
@@ -166,8 +184,8 @@ async def claim(ctx: commands.Context) -> None:
     await new_claim_channel.edit(position=0)
     await new_claim_channel.send(embed=embed)
 
-    # Set the private channel's deletion countdown
-    await client.helpers.set_custom_channel_timer(ctx, 0.1)
+    # Set the private channel's deletion countdown to 30 minutes
+    await client.helpers.set_custom_channel_timer(ctx, 30)
 
 
 @client.command(name="kys", brief="Tell someone to kill themselves")

@@ -120,6 +120,7 @@ class Helpers:
                 self.const.START_EMOJI, self.const.ARROW_BACKWARD,
                 self.const.ARROW_FORWARD, self.const.END_EMOJI
             ]
+            self.private_channels = {}
             self.testing = False
 
             # Decrement the total pages by one to fix empty last page error
@@ -383,12 +384,19 @@ class Helpers:
         :param _time: The time to set a timer for in minutes
         """
 
+        # Add the member's channel to memory, so they can be used in commands
+        self.private_channels[ctx.author.id] = {
+            "timer": _time,
+            "cooldown": 3
+        }
+
         cooldown_counter = 3
         while cooldown_counter > 0:
             counter = _time * 60
             while counter > 0:
                 await asyncio.sleep(1)
                 counter -= 1
+                self.private_channels[ctx.author.id]["timer"] = counter
 
             # Check if the member has the `refresh` role.
             # If he does then don't exit and only decrement the refreshes
@@ -396,6 +404,7 @@ class Helpers:
                 break
             else:
                 cooldown_counter -= 1
+                self.private_channels[ctx.author.id] = cooldown_counter
 
         # Remove the cooldown role from the member
         cooldown_role = discord.utils.get(ctx.guild.roles, id=self.const.COOLDOWN_ROLE_ID)
