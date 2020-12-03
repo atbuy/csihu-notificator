@@ -50,6 +50,36 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="invite", brief="Invite someone to your private channel")
+async def invite(ctx: commands.Context, *, member: discord.Member):
+    """
+    Allows access to the member that is passed, to the author's private channel
+
+    :param member: The member to grant access to
+    """
+
+    category = discord.utils.get(ctx.guild.categories, id=const.CLAIM_CATEGORY_ID)
+    found, channel = client.helpers.get_channel_from_category(ctx, category, ctx.author.name.lower())
+    if found:
+        overwrites = {
+            member: discord.PermissionOverwrite(read_messages=True, send_messages=True)
+        }
+        await channel.edit(overwrites=overwrites)
+        await ctx.send(f"{ctx.author.mention}, you granted access to {member.mention}")
+    else:
+        await ctx.send(f"{ctx.author.mention} you don't have an active private channel")
+
+
+@client.command(name="refresh", brief="Refresh your private channel by resetting it's time")
+async def refresh(ctx: commands.Context) -> None:
+    """Adds a role to the member so the timer can refresh his private channel's time"""
+
+    refresh_role = discord.utils.get(ctx.guild.roles, id=const.REFRESH_ROLE_ID)
+    await ctx.author.add_roles(refresh_role)
+
+    await ctx.send(f"{ctx.author.mention} you time has been reset")
+
+
 @client.command(name="close", brief="Closes your custom channel prematurely")
 async def close(ctx: commands.Context) -> None:
     """Deletes the custom channel the member created"""
@@ -63,12 +93,9 @@ async def close(ctx: commands.Context) -> None:
 
         # Get the custom channel to delete it
         custom_category = discord.utils.get(ctx.guild.categories, id=const.CLAIM_CATEGORY_ID)
-        found, custom_channel = client.helpers.get_channel_from_category(custom_category, f"{ctx.author.name.lower()}")
+        found, custom_channel = client.helpers.get_channel_from_category(custom_category, ctx.author.name.lower())
         if found:
             await custom_channel.delete()
-        else:
-            print(custom_channel)
-
     else:
         await ctx.send(f"{ctx.author.mention} you don't have an active custom channel")
 
@@ -123,6 +150,11 @@ async def claim(ctx: commands.Context) -> None:
     embed = client.helpers.get_claim_channel_embed(ctx)
 
     # Create a new `claim-channel` channel
+    overwrites = {
+        ctx.guild.me: discord.PermissionOverwrite(read_messages=True),
+        moderator_role: discord.PermissionOverwrite(read_messages=True),
+        cooldown_role: discord.PermissionOverwrite(read_messages=False)
+    }
     new_claim_channel = await ctx.guild.create_text_channel(
         const.CLAIM_CHANNEL_NAME,
         category=category,
@@ -131,7 +163,10 @@ async def claim(ctx: commands.Context) -> None:
     await new_claim_channel.edit(position=0)
     await new_claim_channel.send(embed=embed)
 
-    await client.helpers.set_custom_channel_timer(ctx, 30)
+    # Sleep to prevent bugs
+    await asyncio.sleep(0.1)
+
+    await client.helpers.set_custom_channel_timer(ctx, 0.1)
 
 
 @client.command(name="kys", brief="Tell someone to kill themselves")

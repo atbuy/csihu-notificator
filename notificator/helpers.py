@@ -376,7 +376,7 @@ class Helpers:
         for char in chars:
             await ctx.message.add_reaction(f"{self.const.CHARACTERS[char]}")
 
-    async def set_custom_channel_timer(self, ctx: commands.Context, _time: int) -> None:
+    async def set_custom_channel_timer(self, ctx: commands.Context, _time: float) -> None:
         """
         Sets a timer for the specified time in minutes
 
@@ -390,10 +390,22 @@ class Helpers:
                 await asyncio.sleep(1)
                 counter -= 1
 
+            # Check if the member has the `refresh` role.
+            # If he does then don't exit and only decrement the refreshes
             if not self.member_has_role(ctx.author, name="Refresh"):
                 break
             else:
                 cooldown_counter -= 1
+
+        # Remove the cooldown role from the member
+        cooldown_role = discord.utils.get(ctx.guild.roles, id=self.const.COOLDOWN_ROLE_ID)
+        await ctx.author.remove_roles(cooldown_role)
+
+        # Delete the channel they made
+        custom_category = discord.utils.get(ctx.guild.categories, id=self.const.CLAIM_CATEGORY_ID)
+        found, custom_channel = self.get_channel_from_category(custom_category, ctx.author.name.lower())
+        if found:
+            await custom_channel.delete()
 
     def check_for_mention(self, ctx: commands.Context) -> bool:
         """
@@ -819,14 +831,13 @@ class Helpers:
         # Show the close command
         embed.add_field(
             name=f"{ctx.prefix}close",
-            value=f"If you are done with this channel, you can close it using **{ctx.prefix}close",
+            value=f"If you are done with this channel, you can close it usig **{ctx.prefix}close**",
             inline=False
         )
 
         embed.set_footer(
-            text="If you don't refresh the channel closes after 30 minutes.",
-            icon_url=self.client.user.avatar_url,
-            inline=False
+            text="If you don't refresh, the channel closes after 30 minutes.",
+            icon_url=self.client.user.avatar_url
         )
 
         return embed
