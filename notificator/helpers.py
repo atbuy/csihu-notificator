@@ -387,7 +387,7 @@ class Helpers:
 
         # Add the member's channel to memory, so they can be used in commands
         self.private_channels[ctx.author.id] = {
-            "timer": _time,
+            "timer": _time * 60,
             "cooldown": 3,
             "members": []
         }
