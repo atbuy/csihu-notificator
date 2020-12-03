@@ -395,23 +395,26 @@ class Helpers:
         # Get the refresh role to search for
         refresh_role = discord.utils.get(ctx.guild.roles, id=self.const.REFRESH_ROLE_ID)
 
-        cooldown_counter = 3
-        while cooldown_counter > 0:
-            counter = _time * 60
-            while counter > 0:
-                # Check if the member has the `refresh` role.
-                # If he does then don't exit and only decrement the refreshes
-                if not self.member_has_role(ctx.author, role=refresh_role):
-                    counter = _time * 60
-                    break
-                else:
-                    cooldown_counter -= 1
-                    self.private_channels[ctx.author.id]["cooldown"] = cooldown_counter
-                    break
+        counter = _time * 60
+        while counter >= 0:
+            # If the member has a refresh role then refresh the timer and remove the role from the member
+            if self.member_has_role(ctx.author, role=refresh_role):
+                # Decrement leftover refreshes
+                self.private_channels[ctx.author.id]["cooldown"] -= 1
 
-                await asyncio.sleep(1)
-                counter -= 1
-                self.private_channels[ctx.author.id]["timer"] = counter
+                # Remove the role from the member
+                await ctx.author.remove_roles(refresh_role)
+
+                # Refresh the timer
+                counter = _time * 60
+
+            # If the time is up and there are no more leftover refreshes, exit and send error message
+            if counter == 0 and self.private_channels[ctx.author.id]["cooldown"] == 0:
+                await ctx.send(f"{ctx.author.mention} you don't have any more refreshes and your time is up!")
+                break
+
+            await asyncio.sleep(1)
+            counter -= 1
 
         # Remove the cooldown role from the member
         cooldown_role = discord.utils.get(ctx.guild.roles, id=self.const.COOLDOWN_ROLE_ID)

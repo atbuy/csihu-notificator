@@ -123,9 +123,6 @@ async def refresh(ctx: commands.Context) -> None:
         f"You have **{private_channel['cooldown']-1}** refreshes left."
     )
 
-    await asyncio.sleep(1.5)
-    await ctx.author.remove_roles(refresh_role)
-
 
 @client.command(name="close", brief="Closes your custom channel prematurely")
 async def close(ctx: commands.Context) -> None:
