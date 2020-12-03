@@ -56,7 +56,7 @@ async def check_time(ctx: commands.Context) -> None:
 
     # Get the author's private channel
     category = discord.utils.get(ctx.guild.categories, id=const.CLAIM_CATEGORY_ID)
-    found, channel = client.helpers.get_channel_from_category(ctx, category, ctx.author.name.lower())
+    found, channel = client.helpers.get_channel_from_category(category, ctx.author.name.lower())
     if found:
         private_channel_time = client.helpers.private_channels[ctx.author.id]["timer"]
         if private_channel_time > 60:
@@ -98,7 +98,10 @@ async def refresh(ctx: commands.Context) -> None:
     await ctx.author.add_roles(refresh_role)
 
     private_channel = client.helpers.private_channel[ctx.author.id]
-    await ctx.send(f"{ctx.author.mention} your time has been reset. You have **{private_channel['cooldown']-1} cooldowns left**")
+    await ctx.send(
+        f"{ctx.author.mention} your time has been reset."
+        f"You have **{private_channel['cooldown']-1}** refreshes left."
+    )
 
 
 @client.command(name="close", brief="Closes your custom channel prematurely")
