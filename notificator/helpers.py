@@ -86,6 +86,8 @@ class const:
         self.FILIP_ROLE_ID = 770328364913131621
         self.PANEPISTHMIO_ID = 760047749482807327
         self.MUTED_ROLE_ID = 773396782129348610
+        self.COOLDOWN_ROLE_ID = 783801000258568223
+        self.CLAIM_CATEGORY_ID = 783792706613805077
 
         self.TICK_EMOJI = "\U00002705"
         self.X_EMOJI = "\U0000274c"
@@ -93,6 +95,8 @@ class const:
         self.ARROW_BACKWARD = "\U000025c0"
         self.ARROW_FORWARD = "\U000025b6"
         self.END_EMOJI = "\U000023ed"
+
+        self.CLAIM_CHANNEL_NAME = "claim-channel"
 
         self.CHARS_DIGITS = string.ascii_uppercase + string.digits
         self.ROOT = Path(__file__).parent.parent
@@ -121,37 +125,6 @@ class Helpers:
             # Decrement the total pages by one to fix empty last page error
             if self.total_pages % 4 == 0:
                 self.total_pages -= 1
-
-    async def member_has_role(member: discord.Member, role_id: int, force_name: bool = False, name: str = None, color_role: bool = False) -> bool:  # noqa
-        """
-        Check if a guild member has a certain role
-
-        :param role_id: Check if the member has a role with this id
-        :param name: (Optional) Check if the member has a role with that contains this text
-        :param force_name: (Optional) If this is set to True then check if the role name is exact as the `name`.
-        :param color_role: (Optional) Check if the member has this color role
-
-        .. note::
-            You should specify kwargs and not use positional arguments.
-        """
-        if color_role and name:
-            raise RuntimeError("Can't specify keyword argument 'name' and 'color_role' at the same time.")
-
-        # Check each of the member's roles
-        for role in member.roles:
-            # If the role is supposed to be a color role then check if the role name starts with `clr-`
-            if color_role:
-                if role.name.startswith("clr-"):
-                    return True
-            # If the role is not a color role check if the member has a role with this name
-            elif name:
-                if force_name:
-                    if role.name == name:
-                        return True
-                else:
-                    if name.lower() in role.name.lower():
-                        return True
-        return False
 
     async def remove_previous_color_roles(self, ctx: commands.Context) -> None:
         """Removes all color roles from the member"""
@@ -402,6 +375,25 @@ class Helpers:
         chars = ["s", "k", "a", "c", "e"]
         for char in chars:
             await ctx.message.add_reaction(f"{self.const.CHARACTERS[char]}")
+
+    async def set_custom_channel_timer(self, ctx: commands.Context, _time: int) -> None:
+        """
+        Sets a timer for the specified time in minutes
+
+        :param _time: The time to set a timer for in minutes
+        """
+
+        cooldown_counter = 3
+        while cooldown_counter > 0:
+            counter = _time * 60
+            while counter > 0:
+                await asyncio.sleep(1)
+                counter -= 1
+
+            if not self.member_has_role(ctx.author, name="Refresh"):
+                break
+            else:
+                cooldown_counter -= 1
 
     def check_for_mention(self, ctx: commands.Context) -> bool:
         """
@@ -700,3 +692,141 @@ class Helpers:
         new_list.append(text[-1])
 
         return "".join(new_list)
+
+    def get_channel_from_category(self, category: discord.CategoryChannel, name: str) -> tuple:
+        """
+        Finds a text channel in a category
+
+        :param category: The category to search in
+        :param name: The name of the channel to search for
+        :return tuple: (True, Channel) if the channel is found, or (False, None) if it isn't
+        """
+
+        # Check if any of the channels in the category contain `name` in their name
+        for channel in category.channels:
+            if name in channel.name:
+                return True, channel
+        return False, None
+
+    def member_has_role(self, member: discord.Member, role: discord.Role = None, role_id: int = None, name: str = None) -> bool:  # noqa
+        """
+        Check if a guild member has a certain role
+
+        :param role_id: (Optional) Check if the member has a role with this id
+        :param name: (Optional) Check if the member has a role with that contains this text
+
+        ..note::
+            If no parameters are passed, then the method returns False
+        """
+
+        # If no parameters are passed, return
+        if not (role_id or name or role):
+            return False
+
+        # Faster check if `role` is passed
+        if role:
+            if role in member.roles:
+                return True
+            return False
+
+        # Check all the roles of the member
+        for role in member.roles:
+            if role_id:
+                if role.id == role_id:
+                    return True
+            else:
+                if name in role.name:
+                    return True
+
+        return False
+
+    def get_claim_channel_embed(self, ctx: commands.Context) -> discord.Embed:
+        """
+        Returns an embed to show in the claim channel
+
+        :returrn embed: The embed to show in the channel
+        """
+
+        # Initialize the embed
+        embed = discord.Embed(
+            title="Here you can claim your own private channel!",
+            color=0x7242f5
+        )
+
+        # Set the bot as the author
+        embed.set_author(
+            name="Claimable",
+            icon_url="https://cdn.discordapp.com/emojis/714221559279255583.png?v=1"
+        )
+
+        # Add a field to explain how this channel works
+        embed.add_field(
+            name=f"{ctx.prefix}claim",
+            value=f"You can use **{ctx.prefix}claim**, to claim your private channel.\n"
+                  "You can't use this if you have already claimed a channel."
+        )
+
+        embed.timestamp = datetime.now()
+
+        return embed
+
+    def get_custom_channel_embed(self, ctx: commands.Context) -> discord.Embed:
+        """
+        Creates an embed to send to the new private channel
+
+        :return embed: The embed to send
+        """
+
+        # Initialize the embed
+        embed = discord.Embed(
+            title=f"{ctx.author.name}'s Channel",
+            description="This is your channel and you can use it however you like,\n"
+                        "but make sure what you send here isn't illegal.",
+            color=0x7242f5
+        )
+
+        # Send the member as the author
+        embed.set_author(
+            name=ctx.author.name,
+            icon_url=ctx.author.avatar_url
+        )
+
+        # Separator field
+        embed.add_field(
+            name="Commands",
+            value="These are the commands you can use in your channel",
+            inline=False
+        )
+
+        # Show the invite command
+        embed.add_field(
+            name=f"{ctx.prefix}invite",
+            value=f"You can use **{ctx.prefix}invite <member>** to allow access to your channel to another member\n"
+                  f"Use **{ctx.prefix}help invite** for more help.",
+            inline=False
+        )
+
+        # Show the refresh command
+        embed.add_field(
+            name=f"{ctx.prefix}refresh",
+            value=f"You can use **{ctx.prefix}refresh**, to reset your time to 30 minutes.\n"
+                  "It allows you to access your channel for 30 more minutes.\n"
+                  "This doesn't add more time to your existing time.\n"
+                  f"You can't use **{ctx.prefix}refresh** more than **3** times.",
+            inline=False
+        )
+
+        # Show the close command
+        embed.add_field(
+            name=f"{ctx.prefix}close",
+            value=f"If you are done with this channel, you can close it using **{ctx.prefix}close",
+            inline=False
+        )
+
+        embed.set_footer(
+            text="If you don't refresh the channel closes after 30 minutes.",
+            icon_url=self.client.user.avatar_url,
+            inline=False
+        )
+
+        return embed

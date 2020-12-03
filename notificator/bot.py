@@ -50,6 +50,90 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="close", brief="Closes your custom channel prematurely")
+async def close(ctx: commands.Context) -> None:
+    """Deletes the custom channel the member created"""
+
+    # Get the cooldown role
+    cooldown_role = discord.utils.get(ctx.guild.roles, id=const.COOLDOWN_ROLE_ID)
+
+    # If the member has the cooldown role, remove it and delete his channel
+    if client.helpers.member_has_role(ctx.author, role=cooldown_role):
+        await ctx.author.remove_roles(cooldown_role)
+
+        # Get the custom channel to delete it
+        custom_category = discord.utils.get(ctx.guild.categories, id=const.CLAIM_CATEGORY_ID)
+        found, custom_channel = client.helpers.get_channel_from_category(custom_category, f"{ctx.author.name.lower()}")
+        if found:
+            await custom_channel.delete()
+        else:
+            print(custom_channel)
+
+    else:
+        await ctx.send(f"{ctx.author.mention} you don't have an active custom channel")
+
+
+@client.command(name="claim", brief="Let's you claim your own channel")
+async def claim(ctx: commands.Context) -> None:
+    """Allows the user to claim their own channel"""
+
+    claim_channel = discord.utils.get(ctx.guild.channels, name=const.CLAIM_CHANNEL_NAME)
+
+    # Get the category to create a channel under
+    category = discord.utils.get(ctx.guild.categories, id=const.CLAIM_CATEGORY_ID)
+
+    # Members can only claim the channel from the `claim-channel`
+    if ctx.channel.name != const.CLAIM_CHANNEL_NAME:
+        if claim_channel:
+            await ctx.send(f"{ctx.author.mention} you can't claim a channel outside <#{claim_channel.id}>")
+        return
+
+    # Check if the member is on cooldown (already has a text-channel)
+    if client.helpers.member_has_role(member=ctx.author, role_id=const.COOLDOWN_ROLE_ID):
+        await ctx.send(f"{ctx.author.mention} you have already claimed a channel")
+        return
+
+    # Check if there is a channel with the member's name in this category
+    found, member_channel = client.helpers.get_channel_from_category(category, name=ctx.author.name.lower())
+    if found:
+        await ctx.send(f"{ctx.author.mention} you have already claimed {member_channel.mention}")
+        return
+
+    # Add a cooldown role to the member
+    cooldown_role = discord.utils.get(ctx.guild.roles, id=const.COOLDOWN_ROLE_ID)
+    await ctx.author.add_roles(cooldown_role)
+
+    # Create the member's channel
+    moderator_role = discord.utils.get(ctx.guild.roles, id=const.MODERATOR_ID)
+    overwrites = {
+        ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False),
+        ctx.guild.me: discord.PermissionOverwrite(read_messages=True),
+        ctx.author: discord.PermissionOverwrite(read_messages=True, send_messages=True),
+        moderator_role: discord.PermissionOverwrite(read_messages=True)
+    }
+    member_channel_name = f"{ctx.author.name}s-channel"
+
+    # Edit the current channel to be accessible only from the member, bots and moderators
+    await ctx.channel.edit(name=member_channel_name, overwrites=overwrites)
+
+    embed = client.helpers.get_custom_channel_embed(ctx)
+    await ctx.channel.send(embed=embed)
+
+    # Create an embed to show in the new claim channel
+    embed = client.helpers.get_claim_channel_embed(ctx)
+
+    # Create a new `claim-channel` channel
+    new_claim_channel = await ctx.guild.create_text_channel(
+        const.CLAIM_CHANNEL_NAME,
+        category=category,
+        overwrites=overwrites
+    )
+    await new_claim_channel.edit(position=0)
+    await new_claim_channel.send(embed=embed)
+
+    await client.helpers.set_custom_channel_timer(ctx, 30)
+
+
 @client.command(name="kys", brief="Tell someone to kill themselves")
 @commands.cooldown(2, 45, commands.BucketType.channel)
 async def kys(ctx: commands.Context, *, user: discord.User = None) -> None:
