@@ -58,15 +58,18 @@ async def invite(ctx: commands.Context, *, member: discord.Member):
     :param member: The member to grant access to
     """
 
+    # Check if the author has a private chanel
     category = discord.utils.get(ctx.guild.categories, id=const.CLAIM_CATEGORY_ID)
     found, channel = client.helpers.get_channel_from_category(ctx, category, ctx.author.name.lower())
     if found:
+        # If they do have a private channel, allow the member they passed to view and send messages
         overwrites = {
             member: discord.PermissionOverwrite(read_messages=True, send_messages=True)
         }
         await channel.edit(overwrites=overwrites)
         await ctx.send(f"{ctx.author.mention}, you granted access to {member.mention}")
     else:
+        # Send an error message if they don't have an active private channel
         await ctx.send(f"{ctx.author.mention} you don't have an active private channel")
 
 
@@ -149,7 +152,7 @@ async def claim(ctx: commands.Context) -> None:
     # Create an embed to show in the new claim channel
     embed = client.helpers.get_claim_channel_embed(ctx)
 
-    # Create a new `claim-channel` channel
+    # Create a new `claim-channel`
     overwrites = {
         ctx.guild.me: discord.PermissionOverwrite(read_messages=True),
         moderator_role: discord.PermissionOverwrite(read_messages=True),
@@ -163,9 +166,7 @@ async def claim(ctx: commands.Context) -> None:
     await new_claim_channel.edit(position=0)
     await new_claim_channel.send(embed=embed)
 
-    # Sleep to prevent bugs
-    await asyncio.sleep(0.1)
-
+    # Set the private channel's deletion countdown
     await client.helpers.set_custom_channel_timer(ctx, 0.1)
 
 
