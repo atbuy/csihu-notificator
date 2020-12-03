@@ -112,6 +112,11 @@ async def invite(ctx: commands.Context, *, member: discord.Member) -> None:
 async def refresh(ctx: commands.Context) -> None:
     """Adds a role to the member so the timer can refresh his private channel's time"""
 
+    # Check if the author has any refreshes left
+    if client.helpers.private_channels[ctx.author.id]["cooldown"] <= 0:
+        await ctx.send(f"{ctx.author.mention} you don't have any refreshes left.")
+        return
+
     # get the refresh role and add it to the member
     refresh_role = discord.utils.get(ctx.guild.roles, id=const.REFRESH_ROLE_ID)
     await ctx.author.add_roles(refresh_role)

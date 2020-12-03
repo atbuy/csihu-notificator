@@ -415,6 +415,7 @@ class Helpers:
 
             await asyncio.sleep(1)
             counter -= 1
+            self.private_channels[ctx.author.id]["timer"] -= 1
 
         # Remove the cooldown role from the member
         cooldown_role = discord.utils.get(ctx.guild.roles, id=self.const.COOLDOWN_ROLE_ID)
