@@ -408,6 +408,8 @@ class Helpers:
                 # Refresh the timer
                 counter = int(_time) * 60
 
+                self.private_channels[ctx.author.id]["timer"] = counter
+
             # If the time is up and there are no more leftover refreshes, exit and send error message
             if counter == 0 and self.private_channels[ctx.author.id]["cooldown"] == 0:
                 await ctx.send(f"{ctx.author.mention} you don't have any more refreshes and your time is up!")
@@ -415,7 +417,7 @@ class Helpers:
 
             await asyncio.sleep(1)
             counter -= 1
-            self.private_channels[ctx.author.id]["timer"] -= 1
+            self.private_channels[ctx.author.id]["timer"] = counter
 
         # Remove the cooldown role from the member
         cooldown_role = discord.utils.get(ctx.guild.roles, id=self.const.COOLDOWN_ROLE_ID)
