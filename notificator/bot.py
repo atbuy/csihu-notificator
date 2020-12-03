@@ -68,7 +68,7 @@ async def check_time(ctx: commands.Context) -> None:
     if found:
         private_channel_time = client.helpers.private_channels[ctx.author.id]["timer"] * 60
         if private_channel_time >= 60:
-            await ctx.send(f"{ctx.author.mention} You have {private_channel_time // 60} minutes left")
+            await ctx.send(f"{ctx.author.mention} You have {private_channel_time // 360} minutes left")
         else:
             await ctx.send(f"{ctx.author.mention} You have {private_channel_time} seconds left")
     else:
