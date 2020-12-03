@@ -401,7 +401,7 @@ class Helpers:
             while counter > 0:
                 # Check if the member has the `refresh` role.
                 # If he does then don't exit and only decrement the refreshes
-                if self.member_has_role(ctx.author, role=refresh_role):
+                if not self.member_has_role(ctx.author, role=refresh_role):
                     counter = _time * 60
                     break
                 else:
