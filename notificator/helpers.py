@@ -388,24 +388,30 @@ class Helpers:
         # Add the member's channel to memory, so they can be used in commands
         self.private_channels[ctx.author.id] = {
             "timer": _time,
-            "cooldown": 3
+            "cooldown": 3,
+            "members": []
         }
+
+        # Get the refresh role to search for
+        refresh_role = discord.utils.get(ctx.guild.roles, id=self.const.REFRESH_ROLE_ID)
 
         cooldown_counter = 3
         while cooldown_counter > 0:
             counter = _time * 60
             while counter > 0:
+                # Check if the member has the `refresh` role.
+                # If he does then don't exit and only decrement the refreshes
+                if self.member_has_role(ctx.author, role=refresh_role):
+                    counter = _time * 60
+                    break
+                else:
+                    cooldown_counter -= 1
+                    self.private_channels[ctx.author.id]["cooldown"] = cooldown_counter
+                    break
+
                 await asyncio.sleep(1)
                 counter -= 1
                 self.private_channels[ctx.author.id]["timer"] = counter
-
-            # Check if the member has the `refresh` role.
-            # If he does then don't exit and only decrement the refreshes
-            if not self.member_has_role(ctx.author, name="Refresh"):
-                break
-            else:
-                cooldown_counter -= 1
-                self.private_channels[ctx.author.id] = cooldown_counter
 
         # Remove the cooldown role from the member
         cooldown_role = discord.utils.get(ctx.guild.roles, id=self.const.COOLDOWN_ROLE_ID)
@@ -852,6 +858,7 @@ class Helpers:
             inline=False
         )
 
+        # Set the bot as the author
         embed.set_footer(
             text="If you don't refresh, the channel closes after 30 minutes.",
             icon_url=self.client.user.avatar_url

@@ -88,10 +88,19 @@ async def invite(ctx: commands.Context, *, member: discord.Member) -> None:
     found, channel = client.helpers.get_channel_from_category(category, ctx.author.name.lower())
     if found:
         # If they do have a private channel, allow the member they passed to view and send messages
+
         overwrites = {
             ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False),
-            member: discord.PermissionOverwrite(read_messages=True, send_messages=True)
+            ctx.author: discord.PermissionOverwrite(read_messages=True, send_messages=True),
         }
+
+        # Add the member to the list of members
+        client.helpers.private_channels[ctx.author.id]["members"].append(member)
+
+        # Add all the members that are already in the channel
+        for member in client.helpers.private_channels[ctx.author.id]["members"]:
+            overwrites[member] = discord.PermissionOverwrite(read_messages=True, send_messages=True)
+
         await channel.edit(overwrites=overwrites)
         await ctx.send(f"{ctx.author.mention}, you granted access to {member.mention}")
     else:
@@ -103,14 +112,19 @@ async def invite(ctx: commands.Context, *, member: discord.Member) -> None:
 async def refresh(ctx: commands.Context) -> None:
     """Adds a role to the member so the timer can refresh his private channel's time"""
 
+    # get the refresh role and add it to the member
     refresh_role = discord.utils.get(ctx.guild.roles, id=const.REFRESH_ROLE_ID)
     await ctx.author.add_roles(refresh_role)
 
+    # Get the length of the private channels
     private_channel = client.helpers.private_channels[ctx.author.id]
     await ctx.send(
         f"{ctx.author.mention} your time has been reset."
         f"You have **{private_channel['cooldown']-1}** refreshes left."
     )
+
+    await asyncio.sleep(1.5)
+    await ctx.author.remove_roles(refresh_role)
 
 
 @client.command(name="close", brief="Closes your custom channel prematurely")
@@ -129,6 +143,9 @@ async def close(ctx: commands.Context) -> None:
         found, custom_channel = client.helpers.get_channel_from_category(custom_category, ctx.author.name.lower())
         if found:
             await custom_channel.delete()
+
+        # Remove the channel from the dictionary
+        client.helpers.private_channels.pop(ctx.author.id)
     else:
         await ctx.send(f"{ctx.author.mention} you don't have an active custom channel")
 
