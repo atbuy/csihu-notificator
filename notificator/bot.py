@@ -255,11 +255,19 @@ async def kys(ctx: commands.Context, *, user: discord.User = None) -> None:
 
 @client.command(name="icon", brief="Sends your icon's link")
 @commands.cooldown(3, 60, commands.BucketType.channel)
-async def get_icon(ctx: commands.Context) -> None:
-    """Send the author's icon url to the channel"""
+async def get_icon(ctx: commands.Context, *, member: discord.Member = None) -> None:
+    """
+    Send the author's icon url to the channel
 
-    url = ctx.author.avatar_url
-    await ctx.send(f"{ctx.author.mention} you icon is located at: {url}")
+    :param member: (Optional) you can pass a member if you want to view this member's icon
+    """
+
+    if not member:
+        url = ctx.author.avatar_url
+        await ctx.send(f"{ctx.author.mention} you icon is located at: {url}")
+    else:
+        url = member.avatar_url
+        await ctx.send(f"{ctx.author.mention}. This member's icon is located at: {url}")
 
 
 @client.command(name="word", aliases=["randword"], brief="Get a random word")
