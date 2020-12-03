@@ -76,7 +76,7 @@ async def check_time(ctx: commands.Context) -> None:
 
 
 @client.command(name="invite", brief="Invite someone to your private channel")
-async def invite(ctx: commands.Context, *, member: discord.Member):
+async def invite(ctx: commands.Context, *, member: discord.Member) -> None:
     """
     Allows access to the member that is passed, to the author's private channel
 
@@ -89,6 +89,7 @@ async def invite(ctx: commands.Context, *, member: discord.Member):
     if found:
         # If they do have a private channel, allow the member they passed to view and send messages
         overwrites = {
+            ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False),
             member: discord.PermissionOverwrite(read_messages=True, send_messages=True)
         }
         await channel.edit(overwrites=overwrites)
@@ -105,7 +106,7 @@ async def refresh(ctx: commands.Context) -> None:
     refresh_role = discord.utils.get(ctx.guild.roles, id=const.REFRESH_ROLE_ID)
     await ctx.author.add_roles(refresh_role)
 
-    private_channel = client.helpers.private_channel[ctx.author.id]
+    private_channel = client.helpers.private_channels[ctx.author.id]
     await ctx.send(
         f"{ctx.author.mention} your time has been reset."
         f"You have **{private_channel['cooldown']-1}** refreshes left."
