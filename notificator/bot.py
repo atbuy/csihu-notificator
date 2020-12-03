@@ -182,7 +182,6 @@ async def claim(ctx: commands.Context) -> None:
     # Create a new `claim-channel`
     overwrites = {
         ctx.guild.me: discord.PermissionOverwrite(read_messages=True),
-        moderator_role: discord.PermissionOverwrite(read_messages=True),
         cooldown_role: discord.PermissionOverwrite(read_messages=False)
     }
     new_claim_channel = await ctx.guild.create_text_channel(
