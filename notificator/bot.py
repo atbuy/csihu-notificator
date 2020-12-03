@@ -66,9 +66,9 @@ async def check_time(ctx: commands.Context) -> None:
     category = discord.utils.get(ctx.guild.categories, id=const.CLAIM_CATEGORY_ID)
     found, channel = client.helpers.get_channel_from_category(category, ctx.author.name.lower())
     if found:
-        private_channel_time = client.helpers.private_channels[ctx.author.id]["timer"] * 60
+        private_channel_time = client.helpers.private_channels[ctx.author.id]["timer"]
         if private_channel_time >= 60:
-            await ctx.send(f"{ctx.author.mention} You have {private_channel_time // 360} minutes left")
+            await ctx.send(f"{ctx.author.mention} You have {private_channel_time // 60} minutes left")
         else:
             await ctx.send(f"{ctx.author.mention} You have {private_channel_time} seconds left")
     else:

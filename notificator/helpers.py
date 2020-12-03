@@ -378,7 +378,7 @@ class Helpers:
         for char in chars:
             await ctx.message.add_reaction(f"{self.const.CHARACTERS[char]}")
 
-    async def set_custom_channel_timer(self, ctx: commands.Context, _time: float) -> None:
+    async def set_custom_channel_timer(self, ctx: commands.Context, _time: int) -> None:
         """
         Sets a timer for the specified time in minutes
 
@@ -387,7 +387,7 @@ class Helpers:
 
         # Add the member's channel to memory, so they can be used in commands
         self.private_channels[ctx.author.id] = {
-            "timer": _time * 60,
+            "timer": int(_time) * 60,
             "cooldown": 3,
             "members": []
         }
@@ -395,7 +395,7 @@ class Helpers:
         # Get the refresh role to search for
         refresh_role = discord.utils.get(ctx.guild.roles, id=self.const.REFRESH_ROLE_ID)
 
-        counter = _time * 60
+        counter = int(_time) * 60
         while counter >= 0:
             # If the member has a refresh role then refresh the timer and remove the role from the member
             if self.member_has_role(ctx.author, role=refresh_role):
@@ -406,7 +406,7 @@ class Helpers:
                 await ctx.author.remove_roles(refresh_role)
 
                 # Refresh the timer
-                counter = _time * 60
+                counter = int(_time) * 60
 
             # If the time is up and there are no more leftover refreshes, exit and send error message
             if counter == 0 and self.private_channels[ctx.author.id]["cooldown"] == 0:
