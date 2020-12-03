@@ -50,6 +50,14 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="privatechannels", brief="View how many private channels exist")
+async def view_private_channels(ctx: commands.Context) -> None:
+    """Sends how many private channels exist currently"""
+
+    private_channels = len(client.helpers.private_channels)
+    await ctx.send(f"{ctx.author.mention} there are currently **{private_channels}**")
+
+
 @client.command(name="time", aliases=["timeleft"], brief="Check the leftover time for")
 async def check_time(ctx: commands.Context) -> None:
     """Shows the member's time left"""
