@@ -77,7 +77,7 @@ async def invite(ctx: commands.Context, *, member: discord.Member):
 
     # Check if the author has a private chanel
     category = discord.utils.get(ctx.guild.categories, id=const.CLAIM_CATEGORY_ID)
-    found, channel = client.helpers.get_channel_from_category(ctx, category, ctx.author.name.lower())
+    found, channel = client.helpers.get_channel_from_category(category, ctx.author.name.lower())
     if found:
         # If they do have a private channel, allow the member they passed to view and send messages
         overwrites = {

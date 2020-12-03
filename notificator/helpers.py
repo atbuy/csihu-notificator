@@ -88,6 +88,7 @@ class const:
         self.MUTED_ROLE_ID = 773396782129348610
         self.COOLDOWN_ROLE_ID = 783801000258568223
         self.CLAIM_CATEGORY_ID = 783792706613805077
+        self.REFRESH_ROLE_ID = 783952833564377109
 
         self.TICK_EMOJI = "\U00002705"
         self.X_EMOJI = "\U0000274c"
@@ -835,6 +836,13 @@ class Helpers:
                   "This doesn't add more time to your existing time.\n"
                   f"You can't use **{ctx.prefix}refresh** more than **3** times.",
             inline=False
+        )
+
+        # Show the time command
+        embed.add_field(
+            name=f"{ctx.prefix}time",
+            value=f"You can use **{ctx.prefix}time**, to see how much time this channel will be alive for\n"
+                  f"Use **{ctx.prefix}help time** for more help"
         )
 
         # Show the close command
