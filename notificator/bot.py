@@ -55,7 +55,13 @@ async def view_private_channels(ctx: commands.Context) -> None:
     """Sends how many private channels exist currently"""
 
     private_channels = len(client.helpers.private_channels)
-    await ctx.send(f"{ctx.author.mention} there are currently **{private_channels}**")
+    owners = []
+    for _id in client.helpers.private_channels:
+        member = discord.utils.get(ctx.guild.members, id=_id)
+        owners.append(str(member))
+
+    output = ", ".join(owners)
+    await ctx.send(f"{ctx.author.mention} there are currently **{private_channels}** private channels.\n```{output} ```")
 
 
 @client.command(name="time", aliases=["timeleft"], brief="Check the leftover time for")
