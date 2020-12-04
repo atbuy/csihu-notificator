@@ -215,7 +215,7 @@ async def claim(ctx: commands.Context) -> None:
         category=category,
         overwrites=overwrites
     )
-    await new_claim_channel.edit(position=0)
+    await new_claim_channel.edit(position=1)
     await new_claim_channel.send(embed=embed)
 
     # Set the private channel's deletion countdown to 30 minutes
