@@ -86,9 +86,6 @@ class const:
         self.FILIP_ROLE_ID = 770328364913131621
         self.PANEPISTHMIO_ID = 760047749482807327
         self.MUTED_ROLE_ID = 773396782129348610
-        self.COOLDOWN_ROLE_ID = 783801000258568223
-        self.CLAIM_CATEGORY_ID = 783792706613805077
-        self.REFRESH_ROLE_ID = 783952833564377109
 
         self.TICK_EMOJI = "\U00002705"
         self.X_EMOJI = "\U0000274c"
@@ -96,8 +93,6 @@ class const:
         self.ARROW_BACKWARD = "\U000025c0"
         self.ARROW_FORWARD = "\U000025b6"
         self.END_EMOJI = "\U000023ed"
-
-        self.CLAIM_CHANNEL_NAME = "claim-channel"
 
         self.CHARS_DIGITS = string.ascii_uppercase + string.digits
         self.ROOT = Path(__file__).parent.parent
@@ -121,7 +116,6 @@ class Helpers:
                 self.const.START_EMOJI, self.const.ARROW_BACKWARD,
                 self.const.ARROW_FORWARD, self.const.END_EMOJI
             ]
-            self.private_channels = {}
             self.testing = False
 
             # Decrement the total pages by one to fix empty last page error
@@ -377,57 +371,6 @@ class Helpers:
         chars = ["s", "k", "a", "c", "e"]
         for char in chars:
             await ctx.message.add_reaction(f"{self.const.CHARACTERS[char]}")
-
-    async def set_custom_channel_timer(self, ctx: commands.Context, _time: int) -> None:
-        """
-        Sets a timer for the specified time in minutes
-
-        :param _time: The time to set a timer for in minutes
-        """
-
-        # Add the member's channel to memory, so they can be used in commands
-        self.private_channels[ctx.author.id] = {
-            "timer": int(_time) * 60,
-            "cooldown": 3,
-            "members": []
-        }
-
-        # Get the refresh role to search for
-        refresh_role = discord.utils.get(ctx.guild.roles, id=self.const.REFRESH_ROLE_ID)
-
-        counter = int(_time) * 60
-        while counter >= 0:
-            # If the member has a refresh role then refresh the timer and remove the role from the member
-            if self.member_has_role(ctx.author, role=refresh_role):
-                # Decrement leftover refreshes
-                self.private_channels[ctx.author.id]["cooldown"] -= 1
-
-                # Remove the role from the member
-                await ctx.author.remove_roles(refresh_role)
-
-                # Refresh the timer
-                counter = int(_time) * 60
-
-                self.private_channels[ctx.author.id]["timer"] = counter
-
-            # If the time is up and there are no more leftover refreshes, exit and send error message
-            if counter == 0 and self.private_channels[ctx.author.id]["cooldown"] == 0:
-                await ctx.send(f"{ctx.author.mention} you don't have any more refreshes and your time is up!")
-                break
-
-            await asyncio.sleep(1)
-            counter -= 1
-            self.private_channels[ctx.author.id]["timer"] = counter
-
-        # Remove the cooldown role from the member
-        cooldown_role = discord.utils.get(ctx.guild.roles, id=self.const.COOLDOWN_ROLE_ID)
-        await ctx.author.remove_roles(cooldown_role)
-
-        # Delete the channel they made
-        custom_category = discord.utils.get(ctx.guild.categories, id=self.const.CLAIM_CATEGORY_ID)
-        found, custom_channel = self.get_channel_from_category(custom_category, ctx.author.name.lower())
-        if found:
-            await custom_channel.delete()
 
     def check_for_mention(self, ctx: commands.Context) -> bool:
         """
@@ -773,101 +716,3 @@ class Helpers:
                     return True
 
         return False
-
-    def get_claim_channel_embed(self, ctx: commands.Context) -> discord.Embed:
-        """
-        Returns an embed to show in the claim channel
-
-        :returrn embed: The embed to show in the channel
-        """
-
-        # Initialize the embed
-        embed = discord.Embed(
-            title="Here you can claim your own private channel!",
-            color=0x7242f5
-        )
-
-        # Set the bot as the author
-        embed.set_author(
-            name="Claimable",
-            icon_url="https://cdn.discordapp.com/emojis/714221559279255583.png?v=1"
-        )
-
-        # Add a field to explain how this channel works
-        embed.add_field(
-            name=f"{ctx.prefix}claim",
-            value=f"You can use **{ctx.prefix}claim**, to claim your private channel.\n"
-                  "You can't use this if you have already claimed a channel."
-        )
-
-        embed.timestamp = datetime.now()
-
-        return embed
-
-    def get_custom_channel_embed(self, ctx: commands.Context) -> discord.Embed:
-        """
-        Creates an embed to send to the new private channel
-
-        :return embed: The embed to send
-        """
-
-        # Initialize the embed
-        embed = discord.Embed(
-            title=f"{ctx.author.name}'s Channel",
-            description="This is your channel and you can use it however you like,\n"
-                        "but make sure what you send here isn't illegal.",
-            color=0x7242f5
-        )
-
-        # Send the member as the author
-        embed.set_author(
-            name=ctx.author.name,
-            icon_url=ctx.author.avatar_url
-        )
-
-        # Separator field
-        embed.add_field(
-            name="Commands",
-            value="These are the commands you can use in your channel",
-            inline=False
-        )
-
-        # Show the invite command
-        embed.add_field(
-            name=f"{ctx.prefix}invite",
-            value=f"You can use **{ctx.prefix}invite <member>** to allow access to your channel to another member\n"
-                  f"Use **{ctx.prefix}help invite** for more help.",
-            inline=False
-        )
-
-        # Show the refresh command
-        embed.add_field(
-            name=f"{ctx.prefix}refresh",
-            value=f"You can use **{ctx.prefix}refresh**, to reset your time to 30 minutes.\n"
-                  "It allows you to access your channel for 30 more minutes.\n"
-                  "This doesn't add more time to your existing time.\n"
-                  f"You can't use **{ctx.prefix}refresh** more than **3** times.",
-            inline=False
-        )
-
-        # Show the time command
-        embed.add_field(
-            name=f"{ctx.prefix}time",
-            value=f"You can use **{ctx.prefix}time**, to see how much time this channel will be alive for\n"
-                  f"Use **{ctx.prefix}help time** for more help"
-        )
-
-        # Show the close command
-        embed.add_field(
-            name=f"{ctx.prefix}close",
-            value=f"If you are done with this channel, you can close it usig **{ctx.prefix}close**",
-            inline=False
-        )
-
-        # Set the bot as the author
-        embed.set_footer(
-            text="If you don't refresh, the channel closes after 30 minutes.",
-            icon_url=self.client.user.avatar_url
-        )
-
-        return embed
