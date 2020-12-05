@@ -50,6 +50,15 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="shutdown", brief="Prepare the bot to shutdown")
+async def shutdown_command(ctx: commands.Context) -> None:
+    """This command prepares the bot to shutdown for an update"""
+
+    # TODO Delete all private channels
+
+    # TODO Remove all Cooldown roles from the members
+
+
 @client.command(name="privatechannels", brief="View how many private channels exist")
 async def view_private_channels(ctx: commands.Context) -> None:
     """Sends how many private channels exist currently"""
@@ -78,7 +87,7 @@ async def check_time(ctx: commands.Context) -> None:
         else:
             await ctx.send(f"{ctx.author.mention} You have {private_channel_time} seconds left")
     else:
-        await ctx.send(f"{ctx.author.mention} you don't have a private channel")
+        await ctx.send(f"{ctx.author.mention} you don't have an active channel")
 
 
 @client.command(name="invite", brief="Invite someone to your private channel")
@@ -92,31 +101,36 @@ async def invite(ctx: commands.Context, *, member: discord.Member) -> None:
     # Check if the author has a private chanel
     category = discord.utils.get(ctx.guild.categories, id=const.CLAIM_CATEGORY_ID)
     found, channel = client.helpers.get_channel_from_category(category, ctx.author.name.lower())
-    if found:
-        # If they do have a private channel, allow the member they passed to view and send messages
+    # Send an error message if they don't have an active private channel
+    if not found:
+        await ctx.send(f"{ctx.author.mention} you don't have an active channel")
+        return
 
-        overwrites = {
-            ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False),
-            ctx.author: discord.PermissionOverwrite(read_messages=True, send_messages=True),
-        }
+    # If they do have a private channel, allow the member they passed to view and send messages
+    overwrites = {
+        ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False),
+        ctx.author: discord.PermissionOverwrite(read_messages=True, send_messages=True),
+    }
 
-        # Add the member to the list of members
-        client.helpers.private_channels[ctx.author.id]["members"].append(member)
+    # Add the member to the list of members
+    client.helpers.private_channels[ctx.author.id]["members"].append(member)
 
-        # Add all the members that are already in the channel
-        for member in client.helpers.private_channels[ctx.author.id]["members"]:
-            overwrites[member] = discord.PermissionOverwrite(read_messages=True, send_messages=True)
+    # Add all the members that are already in the channel
+    for member in client.helpers.private_channels[ctx.author.id]["members"]:
+        overwrites[member] = discord.PermissionOverwrite(read_messages=True, send_messages=True)
 
-        await channel.edit(overwrites=overwrites)
-        await ctx.send(f"{ctx.author.mention}, you granted access to {member.mention}")
-    else:
-        # Send an error message if they don't have an active private channel
-        await ctx.send(f"{ctx.author.mention} you don't have an active private channel")
+    await channel.edit(overwrites=overwrites)
+    await ctx.send(f"{ctx.author.mention}, you granted access to {member.mention}")
 
 
 @client.command(name="refresh", brief="Refresh your private channel by resetting it's time")
 async def refresh(ctx: commands.Context) -> None:
     """Adds a role to the member so the timer can refresh his private channel's time"""
+
+    cooldown_role = discord.utils.get(ctx.guild.roles, id=const.COOLDOWN_ROLE_ID)
+    if not client.helpers.members_has_role(ctx.author, role=cooldown_role):
+        await ctx.send(f"{ctx.author.mention} you don't have an active channel.")
+        return
 
     # Check if the author has any refreshes left
     if client.helpers.private_channels[ctx.author.id]["cooldown"] <= 0:
@@ -135,7 +149,7 @@ async def refresh(ctx: commands.Context) -> None:
     )
 
 
-@client.command(name="close", brief="Closes your custom channel prematurely")
+@client.command(name="close", brief="Closes your private channel prematurely")
 async def close(ctx: commands.Context) -> None:
     """Deletes the custom channel the member created"""
 
@@ -155,7 +169,7 @@ async def close(ctx: commands.Context) -> None:
         # Remove the channel from the dictionary
         client.helpers.private_channels.pop(ctx.author.id)
     else:
-        await ctx.send(f"{ctx.author.mention} you don't have an active custom channel")
+        await ctx.send(f"{ctx.author.mention} you don't have a private channel")
 
 
 @client.command(name="claim", brief="Let's you claim your own channel")
