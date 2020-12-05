@@ -124,9 +124,13 @@ class Helpers:
 
     async def remove_previous_color_roles(self, ctx: commands.Context) -> None:
         """Removes all color roles from the member"""
+
+        # Get all the roles of the member and check if any of them contain "clr-" in them
+        # If they do then they need to be removed. Those roles should also be deleted from the server
         for role in ctx.author.roles:
-            if role.name.startswith("clr-"):
+            if "clr-" in role.name:
                 await ctx.author.remove_roles(role)
+                await role.delete()
 
     async def mute_timer(self, ctx: commands.Context, member: discord.Member, minutes: float) -> None:
         """
@@ -669,21 +673,6 @@ class Helpers:
         new_list.append(text[-1])
 
         return "".join(new_list)
-
-    def get_channel_from_category(self, category: discord.CategoryChannel, name: str) -> tuple:
-        """
-        Finds a text channel in a category
-
-        :param category: The category to search in
-        :param name: The name of the channel to search for
-        :return tuple: (True, Channel) if the channel is found, or (False, None) if it isn't
-        """
-
-        # Check if any of the channels in the category contain `name` in their name
-        for channel in category.channels:
-            if name in channel.name:
-                return True, channel
-        return False, None
 
     def member_has_role(self, member: discord.Member, role: discord.Role = None, role_id: int = None, name: str = None) -> bool:  # noqa
         """
