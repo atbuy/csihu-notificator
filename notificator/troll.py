@@ -75,4 +75,4 @@ class trias:
         """Replied to the author"""
 
         text = tria_data["text"]
-        await ctx.send(f"{ctx.author.mention}\n```{text} ```")
+        await ctx.send(f"{ctx.author.mention}\n{text}")
