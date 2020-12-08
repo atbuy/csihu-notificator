@@ -50,6 +50,12 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="tria", aliases=["triantafyllidhs", "trias", "mono"], brief=troll.trias.brief)
+async def triantafyllidhs_mono(ctx: commands.Context) -> None:
+    """Sends a troll command"""
+    await troll.trias.run(ctx)
+
+
 @client.command(name="kys", brief="Tell someone to kill themselves")
 @commands.cooldown(2, 45, commands.BucketType.channel)
 async def kys(ctx: commands.Context, *, user: discord.User = None) -> None:
@@ -365,14 +371,12 @@ async def tag_voice_channel(ctx: commands.Context) -> None:
 @client.command(name="gtpm", brief=troll.gtpm_troll.brief)
 async def gtpm(ctx: commands.Context) -> None:
     """Tags the user with the specific ID in the data file"""
-
     await troll.gtpm_troll.run(ctx)
 
 
 @client.command(name="gamwtoxristo", brief=troll.gtx_troll.brief)
 async def gtx(ctx: commands.Context) -> None:
     """Sends reply to the author"""
-
     await troll.gtx_troll.run(ctx)
 
 
@@ -380,7 +384,6 @@ async def gtx(ctx: commands.Context) -> None:
 @commands.cooldown(1, 30, commands.BucketType.channel)
 async def akou_troll(ctx: commands.Context) -> None:
     """Replies to the author"""
-
     await troll.akou_troll.run(ctx)
 
 
