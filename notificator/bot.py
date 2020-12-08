@@ -10,7 +10,6 @@ import requests
 import textblob
 import urbandict
 import googlesearch
-from PIL import Image
 from bs4 import BeautifulSoup
 from datetime import datetime
 from itertools import product
@@ -50,41 +49,61 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="myga", brief="Make a picture")
+async def myga(ctx: commands.Context, user: discord.User = None) -> None:
+    """
+    Edits a myga picture to add a person's avatar on top of it
+
+    :param member: (Optional) If the a member id passed the paste that member's image instead of the author's
+    """
+
+    # Create a bytes object to save the user's avatar on
+    image_file = io.BytesIO()
+
+    if user:
+        await user.avatar_url.save(image_file)
+    else:
+        await ctx.author.avatar_url.save(image_file)
+
+    image_file.seek(0)
+    img = await client.helpers.edit_myga(image_file)
+
+    # Save the image to a bytes-like object
+    output = io.BytesIO()
+    img.save(output, "png")
+    output.seek(0)
+
+    # Send the edited image
+    file = discord.File(output, filename="myga.png")
+    await ctx.send(file=file)
+
+
 @client.command(name="kys", brief="Tell someone to kill themselves")
 @commands.cooldown(2, 45, commands.BucketType.channel)
 async def kys(ctx: commands.Context, *, user: discord.User = None) -> None:
     """
-    Paste's the user's image on another image and sends in on another image
+    Paste a user's avatar on an image
 
     :param user: (Optional) The user to get the image from
     """
 
-    # Get the base image to paste the user's avatar
-    base_path = os.path.join(client.DATA_PATH, "images", "suicide.jpg")
-    base = Image.open(base_path)
+    # Create a bytes object to save the user's avatar on
+    image_file = io.BytesIO()
 
-    # Create an image file to with the user's avatar
-    img_file = io.BytesIO()
-    # If a user is passed, copy that user's image
-    # Or if just copy the author's image
     if user:
-        await user.avatar_url.save(img_file)
+        await user.avatar_url.save(image_file)
     else:
-        await ctx.author.avatar_url.save(img_file)
-    img_file.seek(0)
-    img = Image.open(img_file)
+        await ctx.author.avatar_url.save(image_file)
 
-    # Resize the image and paste it into the right spot
-    size = (100, 100)
-    coords = (200, 65)
-    img = img.resize(size)
-    base.paste(img, coords)
+    image_file.seek(0)
+    img = await client.helpers.edit_kys(image_file)
 
-    # Open open an image to output
+    # Save the output to a bytes-like object
     output = io.BytesIO()
-    base.save(output, "png")
+    img.save(output, "png")
     output.seek(0)
 
+    # Send the edited image
     file = discord.File(output, filename="why.png")
     await ctx.send(file=file)
 

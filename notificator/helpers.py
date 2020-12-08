@@ -1,4 +1,6 @@
 import os
+import io
+import PIL
 import json
 import time
 import string
@@ -6,6 +8,8 @@ import asyncio
 import discord
 import requests
 import traceback
+import functools
+from PIL import Image
 from pathlib import Path
 from datetime import datetime
 from discord.ext import commands
@@ -121,6 +125,28 @@ class Helpers:
             # Decrement the total pages by one to fix empty last page error
             if self.total_pages % 4 == 0:
                 self.total_pages -= 1
+
+    async def edit_myga(self, image_file: io.BytesIO) -> PIL.Image:
+        """
+        Paste a user's avatar on an image
+
+        :param user: The user to use for their avatar
+        """
+
+        edit_function = functools.partial(self._edit_myga, image_file)
+        img = await self.client.loop.run_in_executor(None, edit_function)
+        return img
+
+    async def edit_kys(self, image_file: io.BytesIO) -> PIL.Image:
+        """
+        Paste a user's avatar on an image
+
+        :param user: The user to use for their avatar
+        """
+
+        edit_function = functools.partial(self._edit_kys, image_file)
+        img = await self.client.loop.run_in_executor(None, edit_function)
+        return img
 
     async def remove_previous_color_roles(self, ctx: commands.Context) -> None:
         """Removes all color roles from the member"""
@@ -705,3 +731,53 @@ class Helpers:
                     return True
 
         return False
+
+    def _edit_myga(self, image_file: io.BytesIO) -> PIL.Image:
+        """
+        Edits a picture to past a member's avatar on it
+
+        :param ctx: The author
+        :param member: A different member
+        """
+
+        # Open the base myga image
+        base_path = os.path.join(self.const.DATA_PATH, "images", "myga_base.png")
+        base = Image.open(base_path)
+
+        # Open the image_file with PIL
+        img = Image.open(image_file)
+
+        # Size to resize the image to
+        # and the coords to paste it on the base img
+        size = (100, 100)
+        coords = (300, 175)
+
+        # Resize and paste the image to the base
+        img = img.resize(size)
+        base.paste(img, coords)
+
+        return base
+
+    def _edit_kys(self, image_file: io.BytesIO) -> PIL.Image:
+        """
+        Paste a user's avatar on an image
+
+        :param user: The user to get the image from
+        """
+
+        # Get the base img to paste the user's avatar on
+        base_path = os.path.join(self.const.DATA_PATH, "images", "suicide.jpg")
+        base = Image.open(base_path)
+
+        # Open the image_file with PIL
+        img = Image.open(image_file)
+
+        # Size and coords for the image
+        size = (100, 100)
+        coords = (200, 65)
+
+        # Resize and paste the image on the base
+        img = img.resize(size)
+        base.paste(img, coords)
+
+        return base
