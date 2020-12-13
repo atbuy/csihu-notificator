@@ -49,6 +49,28 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="hmm", aliases=["hm", "swirl"], brief="Distorts your icon")
+async def hmm(ctx: commands.Context, user: discord.User = None) -> None:
+    """Take's a user's icon and creates a gif swiverling it"""
+
+    # Create a bytes-like object to save the user's avatar on
+    image_file = io.BytesIO()
+
+    if user:
+        await user.avatar_url.save(image_file)
+    else:
+        await ctx.author.avatar_url.save(image_file)
+
+    image_file.seek(0)
+
+    # Get the gif
+    img = await client.helpers.edit_swirl(image_file)
+    img.seek(0)
+
+    file = discord.File(img, filename="icon.gif")
+    await ctx.send(file=file)
+
+
 @client.command(name="myga", brief="Make a picture")
 async def myga(ctx: commands.Context, user: discord.User = None) -> None:
     """

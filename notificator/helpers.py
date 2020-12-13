@@ -4,15 +4,18 @@ import PIL
 import json
 import time
 import string
+import imageio
 import asyncio
 import discord
 import requests
 import traceback
 import functools
+import numpy as np
 from PIL import Image
 from pathlib import Path
 from datetime import datetime
 from discord.ext import commands
+from skimage.transform import swirl
 from jishaku.repl.compilation import AsyncCodeExecutor
 
 
@@ -126,11 +129,22 @@ class Helpers:
             if self.total_pages % 4 == 0:
                 self.total_pages -= 1
 
+    async def edit_swirl(self, image_file: io.BytesIO) -> io.BytesIO:
+        """
+        Swirl a user's avatar icon
+
+        :param image_file: The user's avatar in a BytesIO object
+        """
+
+        edit_function = functools.partial(self._edit_swirl, image_file)
+        img = await self.client.loop.run_in_executor(None, edit_function)
+        return img
+
     async def edit_myga(self, image_file: io.BytesIO) -> PIL.Image:
         """
         Paste a user's avatar on an image
 
-        :param user: The user to use for their avatar
+        :param image_file: The user's avatar in a BytesIO object
         """
 
         edit_function = functools.partial(self._edit_myga, image_file)
@@ -141,7 +155,7 @@ class Helpers:
         """
         Paste a user's avatar on an image
 
-        :param user: The user to use for their avatar
+        :param image_file: The user's avatar in a BytesIO object
         """
 
         edit_function = functools.partial(self._edit_kys, image_file)
@@ -781,3 +795,53 @@ class Helpers:
         base.paste(img, coords)
 
         return base
+
+    def _edit_swirl(self, image_file: io.BytesIO) -> io.BytesIO:
+        """
+        Swirl a user's avatar
+
+        :param image_file: The user's avatar in a BytesIO object
+        """
+
+        # Open the user's image to edit
+        img = Image.open(image_file).convert("RGB").resize((150, 150))
+        data = np.asarray(img, dtype=np.uint8)
+        total_images = []
+
+        frames = 12
+        for i in range(frames):
+            # Swirl the image
+            swirled = swirl(data, rotation=0, strength=i/3, radius=185)
+
+            # Convert the image to a PIL Image
+            temp_img = Image.fromarray((swirled*255).astype(np.uint8))
+
+            # Save the image to a BytesIO object
+            # so it can be read from `imageio`
+            file = io.BytesIO()
+            temp_img.save(file, "PNG")
+            file.seek(0)
+            total_images.append(file)
+
+        for i in range(frames, -1, -1):
+            # Swirl the image
+            swirled = swirl(data, rotation=0, strength=i/3, radius=185)
+
+            # Convert the image to a PIL Image
+            temp_img = Image.fromarray((swirled*255).astype(np.uint8))
+
+            # Save the image to a BytesIO object
+            # so it can be read from `imageio`
+            file = io.BytesIO()
+            temp_img.save(file, "PNG")
+            file.seek(0)
+            total_images.append(file)
+
+        imageio_imgs = []
+        for img in total_images:
+            imageio_imgs.append(imageio.imread(img))
+
+        output = io.BytesIO()
+        imageio.mimwrite(output, imageio_imgs, format="GIF")
+
+        return output
