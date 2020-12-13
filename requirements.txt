@@ -15,3 +15,5 @@ googlesearch-python==2020.0.2
 requests==2.24.0
 urllib3==1.25.9
 Pillow==8.0.1
+imageio==2.8.0
+numpy==1.19.3
