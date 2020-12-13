@@ -50,7 +50,7 @@ async def test(ctx: commands.Context) -> None:
 
 
 @client.command(name="hmm", aliases=["hm", "swirl"], brief="Distorts your icon")
-async def hmm(ctx: commands.Context, user: discord.User = None) -> None:
+async def hmm(ctx: commands.Context, *, user: discord.User = None) -> None:
     """Take's a user's icon and creates a gif swiverling it"""
 
     # Create a bytes-like object to save the user's avatar on
@@ -72,7 +72,7 @@ async def hmm(ctx: commands.Context, user: discord.User = None) -> None:
 
 
 @client.command(name="myga", brief="Make a picture")
-async def myga(ctx: commands.Context, user: discord.User = None) -> None:
+async def myga(ctx: commands.Context, *, user: discord.User = None) -> None:
     """
     Edits a myga picture to add a person's avatar on top of it
 
