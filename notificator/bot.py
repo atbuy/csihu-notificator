@@ -404,11 +404,11 @@ async def tag_voice_channel(ctx: commands.Context) -> None:
 
 
 # --- Troll Commands ---
-@client.command(name="tria", aliases=["triantafyllidhs", "trias", "mono"], brief=troll.trias.brief)
+@client.command(name="tria", aliases=["triantafyllidhs", "trias", "mono"], brief=troll.trias_troll.brief)
 @commands.cooldown(3, 45, commands.BucketType.channel)
 async def triantafyllidhs_troll(ctx: commands.Context) -> None:
     """Sends a troll command"""
-    await troll.trias.run(ctx)
+    await troll.trias_troll.run(ctx)
 
 
 @client.command(name="gtpm", brief=troll.gtpm_troll.brief)
@@ -428,6 +428,13 @@ async def gtx_troll(ctx: commands.Context) -> None:
 async def akou_troll(ctx: commands.Context) -> None:
     """Replies to the author"""
     await troll.akou_troll.run(ctx)
+
+
+@client.command(name="deadobserver", aliases=["deadobs", "dobs"], brief=troll.deadobserver_troll.brief)
+@commands.cooldown(3, 45, commands.BucketType.channel)
+async def deadobserver_troll(ctx: commands.Context) -> None:
+    """Replies to the author"""
+    await troll.deadobserver_troll.run(ctx)
 
 
 @client.command(name="donate", aliases=["donations", "donation"], brief=troll.donate_troll.brief)

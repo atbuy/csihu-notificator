@@ -23,6 +23,7 @@ gtpm_data = data["gtpm_troll"]
 gtx_data = data["gtx_troll"]
 akou_data = data["akou_troll"]
 tria_data = data["triantafyllidhs"]
+deadobserver_data = data["deadobserver"]
 
 
 class donate_troll:
@@ -68,11 +69,21 @@ class akou_troll:
         await ctx.send(f"{ctx.author.mention}\n{text}")
 
 
-class trias:
+class trias_troll:
     brief = tria_data["brief"]
 
     async def run(ctx: commands.Context) -> None:
-        """Replied to the author"""
+        """Replie to the author"""
 
         text = tria_data["text"]
+        await ctx.send(f"{ctx.author.mention}\n{text}")
+
+
+class deadobserver_troll:
+    brief = deadobserver_data["brief"]
+
+    async def run(ctx: commands.Context) -> None:
+        """Replies to the author"""
+
+        text = deadobserver_data["text"]
         await ctx.send(f"{ctx.author.mention}\n{text}")
