@@ -1016,7 +1016,7 @@ async def react(ctx: commands.Context, msg: discord.Message, *, text: str) -> No
     for char in text:
         if char.isalpha():
             # The unicode value for each emoji characters
-            await msg.add_reaction(f"{helpers.CHARACTERS[char.lower()]}")
+            await msg.add_reaction(f"{client.helpers.const.CHARACTERS[char.lower()]}")
         elif char.isdigit():
             # The emoji for digits is different from the characters
             await msg.add_reaction(f"{char}" + "\N{variation selector-16}\N{combining enclosing keycap}")
