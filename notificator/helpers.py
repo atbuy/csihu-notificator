@@ -235,16 +235,20 @@ class Helpers:
                     # This clause is executed only if there wasn't a timeout error
                     await msg.add_reaction(self.const.TICK_EMOJI)
 
-                    if safe:
-                        await msg.channel.send(f"{msg.author.mention}\n{output}")
-                    else:
-                        await msg.channel.send(f"{msg.author.mention}```python\n{output} ```")
+                    try:
+                        if safe:
+                            await msg.channel.send(f"{msg.author.mention}\n{output}")
+                        else:
+                            await msg.channel.send(f"{msg.author.mention}```python\n{output} ```")
+                    except discord.errors.HTTPException:
+                        await msg.channel.send(f"{msg.author.mention}. Can't send message over 2000 characters")
+
             except Exception:
                 # If there was an error with the code,
                 # send the full traceback
                 await msg.add_reaction(self.const.X_EMOJI)
                 trace = traceback.format_exc()
-                await msg.channel.send(f"{msg.author.mention} Error:\n```python\n{trace} ```")
+                await msg.channel.send(f"{msg.author.mention}. Error:\n```python\n{trace} ```")
 
     async def remove_unallowed_files(self, msg: discord.Message) -> None:
         """
