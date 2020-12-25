@@ -299,88 +299,6 @@ async def morse_encoder(ctx: commands.Context, *, text: str) -> None:
     await ctx.send(f"{ctx.author.mention}\n```{encrypted} ```")
 
 
-@client.command(name="rm-blacklist", brief="Remove a word from the blacklist")
-async def rm_blacklist(ctx: commands.Context, *, text: str) -> None:
-    """
-    Removes a word that is in the blacklist
-
-    :param text: The text in the blacklist
-    """
-
-    # Check if the member can execute this command
-    execute = client.helpers.can_execute(ctx)
-
-    # If the member can't execute this command, send an error message
-    if not execute:
-        await ctx.send(f"{ctx.author.mention} you don't have enough permission to perform this action.")
-        return
-
-    # If it's not blacklisted word then send an error message
-    blacklisted = client.helpers.is_blacklisted(ctx)
-    if not blacklisted:
-        await ctx.send(f"{ctx.author.mention}, `{text}` is not a blacklisted word")
-        return
-
-    # Get the index of the text to remove it from the blacklist
-    index = client.BLACKLIST.index(text)
-    client.BLACKLIST.pop(index)
-
-    # Update the info dict with the new `blacklist` key
-    client.info_data["blacklist"] = client.BLACKLIST
-
-    # Update info.json from the API
-    data_dict_as_str = json.dumps(client.info_data)
-    client.helpers.post_info_file_data(data_dict_as_str)
-
-    await ctx.send(f"{ctx.author.mention} removed `{text}` from the blacklist")
-
-
-@client.command(name="blacklist", brief="Blacklist text")
-async def blacklist(ctx: commands.Context, *, text: str = None) -> None:
-    """
-    Add text to the word blacklist.
-    Any message that contains text from inside `client.BLACKLIST` will be removed.
-
-    :param text: The text to blacklist
-    """
-
-    # Check if the member can execute this command
-    execute = client.helpers.can_execute(ctx)
-
-    # If the member can't execute this command then send an error message
-    if not execute:
-        await ctx.send(f"{ctx.author.mention} you don't have enough permission to perform this action.")
-        return
-
-    # If there was no text passed, then just show the blacklist
-    if not text:
-        blacklisted_words = ", ".join(client.BLACKLIST)
-        if blacklisted_words:
-            await ctx.send(f"{ctx.author.mention}\n```{blacklisted_words} ```")
-        else:
-            await ctx.send(f"{ctx.author.mention} there are no blacklisted words.")
-        return
-
-    # If the word is alrady blacklisted don't add it to the the blacklist.
-    # This is done to prevent breaking the list and spamming
-    blacklisted = client.helpers.is_blacklisted(ctx)
-    if blacklisted:
-        await ctx.send(f"{ctx.author.mention} this word is already blacklisted")
-        return
-
-    # Add the text to the blacklist
-    client.BLACKLIST.append(text)
-
-    # Update the info dict with the new `blacklist` key
-    client.info_data["blacklist"] = client.BLACKLIST
-
-    # Update the info.json file from the API
-    data_dict_as_str = json.dumps(client.info_data)
-    client.helpers.post_info_file_data(data_dict_as_str)
-
-    await ctx.send(f"{ctx.author.mention} blacklisted `{text}`")
-
-
 @client.command(name="tag", aliases=["tagvc"], brief="Tags all the members connected to your voice channel")
 async def tag_voice_channel(ctx: commands.Context) -> None:
     """Tags all the members connected to the author's voice channel"""
@@ -1511,12 +1429,6 @@ async def on_message(msg: discord.Message) -> None:
             # Check if the message was supposed to be a command
             await client.process_commands(msg)
             return
-
-    # Delte the message if it contains any blacklisted words
-    blacklisted = client.helpers.is_blacklisted(ctx)
-    if blacklisted:
-        await asyncio.sleep(0.5)
-        await msg.delete()
 
 
 @client.event

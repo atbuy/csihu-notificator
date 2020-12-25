@@ -79,7 +79,6 @@ class const:
         self.CHARACTERS = self.info["emoji_characters"]
         self.SPECIAL_CHARACTERS = self.info["special_characters"]
         self.DISABLED_COMMANDS = self.info["disabled_commands"]
-        self.BLACKLIST = self.info["blacklist"]
         self.RULES = self.info["rules"]
 
         self.MY_ID = 222950176770228225
@@ -633,18 +632,6 @@ class Helpers:
             out.append(command_names)
 
         return out
-
-    def is_blacklisted(self, ctx: commands.Context) -> bool:
-        """
-        Check if a message contains any blacklisted word
-
-        :return bool: Returns True if it does contain blacklisted words and False if not
-        """
-        for word in self.blacklist:
-            if word in ctx.message.content.lower():
-                return True
-
-        return False
 
     def get_inputs(self, text: str) -> set:
         """
