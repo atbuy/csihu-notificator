@@ -36,7 +36,6 @@ client = commands.Bot(
 client.info_data: dict = const.info
 client.DATA_PATH: str = const.DATA_PATH
 client.DISABLED_COMMANDS: dict = const.DISABLED_COMMANDS
-client.BLACKLIST: list = const.BLACKLIST
 client.RULES: list = const.RULES
 client.latest_announcement = {"text": LAST_MESSAGE, "link": LAST_LINK, "id": LAST_ID}
 client.is_running = False
