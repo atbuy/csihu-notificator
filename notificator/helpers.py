@@ -115,7 +115,6 @@ class Helpers:
             self.client = client
             self.const = const()
             self.available_commands = {c.name: c.brief for c in self.client.walk_commands()}
-            self.blacklist = self.const.BLACKLIST
             self.max_commands_on_page = commands_on_page
             self.total_pages = (len(self.available_commands) // self.max_commands_on_page)
             self.help_command_reactions = [
