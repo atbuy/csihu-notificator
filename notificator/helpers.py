@@ -860,6 +860,7 @@ class Helpers:
             final_text += item.get_text()
 
         # Format it to remove unwanted characters
+        link = None
         found = False
         to_delete = """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
         if final_text.replace("\n", "") != "":
