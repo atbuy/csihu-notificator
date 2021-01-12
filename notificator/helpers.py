@@ -13,6 +13,7 @@ import functools
 import numpy as np
 from PIL import Image
 from pathlib import Path
+from typing import Union
 from datetime import datetime
 from discord.ext import commands
 from skimage.transform import swirl
@@ -835,3 +836,6 @@ class Helpers:
         imageio.mimwrite(output, imageio_imgs, format="GIF")
 
         return output
+
+    def search_id(ctx: commands.Context, ann_id: int) -> Union[str, None]:
+        pass
