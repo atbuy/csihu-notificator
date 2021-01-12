@@ -719,17 +719,21 @@ async def change_last_id(ctx: commands.Context, id_num: int = None) -> None:
     """
     global LAST_ID
 
-    if ctx.author.id == const.MY_ID:
-        if id_num:
-            try:
-                LAST_ID = int(id_num)
-                await ctx.send(f"ID Changed to {LAST_ID}")
-            except ValueError:
-                await ctx.send("Please input a number")
-        else:
-            await ctx.send(f"Last ID is {LAST_ID}")
+    # Only I am allowed to execute this command
+    if not ctx.author.id == const.MY_ID:
+        await ctx.send(f"{ctx.author} you dont have enough permissions to execute this command.")
+        return
+
+    # If an ID is passed then change the current LAST_ID to the new value
+    # If there isn't an ID then just show the current ID
+    if id_num:
+        try:
+            LAST_ID = int(id_num)
+            await ctx.send(f"ID Changed to {LAST_ID}")
+        except ValueError:
+            await ctx.send("Please input a number")
     else:
-        await ctx.send(f"`{ctx.author}` you dont have enough permissions")
+        await ctx.send(f"Last ID is {LAST_ID}")
 
 
 @client.command(aliases=["run"], brief="Starts the bot")
