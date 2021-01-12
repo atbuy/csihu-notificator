@@ -14,6 +14,7 @@ import numpy as np
 from PIL import Image
 from pathlib import Path
 from typing import Union
+from bs4 import BeautifulSoup
 from datetime import datetime
 from discord.ext import commands
 from skimage.transform import swirl
@@ -837,5 +838,44 @@ class Helpers:
 
         return output
 
-    def search_id(ctx: commands.Context, ann_id: int) -> Union[str, None]:
-        pass
+    def search_id(self, ann_id: int) -> Union[str, None]:
+        # GET the announcements webpage of csihu
+        req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}")
+        soup = BeautifulSoup(req.text, "html.parser")
+        # Get all the paragraph tags
+        paragraphs = soup.find_all("p")
+
+        # The first element contains all the text, so remove it
+        # to iterate over the other elements which also contain
+        # the text.
+        # ! Spaghetti here
+        try:
+            paragraphs.pop(0)
+        except IndexError:
+            pass
+
+        # Add the text to a string
+        final_text = ""
+        for item in paragraphs:
+            final_text += item.get_text()
+
+        # Format it to remove unwanted characters
+        found = False
+        to_delete = """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
+        if final_text.replace("\n", "") != "":
+            if final_text.strip().replace(to_delete, "") != "":
+                found = True
+        # If the announcement is found, update `last_link`, `last_announcement` and `last_id`
+        if found:
+            link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}"
+
+            to_delete = [
+                """$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31","""
+                """toolbarVisible:false,readOnly:true});});""",
+                """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
+            ]
+            # Remove PHP function and copyright notice in text
+            for item in to_delete:
+                final_text = final_text.replace(item, "").strip()
+
+        return (found, final_text, link)

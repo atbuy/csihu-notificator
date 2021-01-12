@@ -6,11 +6,9 @@ import json
 import random
 import asyncio
 import discord
-import requests
 import textblob
 import urbandict
 import googlesearch
-from bs4 import BeautifulSoup
 from datetime import datetime
 from itertools import product
 from discord.ext import commands
@@ -698,46 +696,8 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
     :return: None
     """
 
-    # GET the announcements webpage of csihu
-    req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}")
-    soup = BeautifulSoup(req.text, "html.parser")
-    # Get all the paragraph tags
-    paragraphs = soup.find_all("p")
-
-    # The first element contains all the text, so remove it
-    # to iterate over the other elements which also contain
-    # the text.
-    # ! Spaghetti here
-    try:
-        paragraphs.pop(0)
-    except IndexError:
-        pass
-
-    # Add the text to a string
-    final_text = ""
-    for item in paragraphs:
-        final_text += item.get_text()
-
-    # Format it to remove unwanted characters
-    found = False
-    to_delete = """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
-    if final_text.replace("\n", "") != "":
-        if final_text.strip().replace(to_delete, "") != "":
-            found = True
-
-    # If the announcement is found, update `last_link`, `last_announcement` and `last_id`
+    found, final_text, link = client.helpers.search_id(ann_id)
     if found:
-        link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}"
-
-        to_delete = [
-            """$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31","""
-            """toolbarVisible:false,readOnly:true});});""",
-            """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
-        ]
-        # Remove PHP function and copyright notice in text
-        for item in to_delete:
-            final_text = final_text.replace(item, "").strip()
-
         try:
             await ctx.send(f"Announcement found.\nLink: <{link}>\n```{final_text} ```")
         except discord.errors.HTTPException:
@@ -791,65 +751,25 @@ async def run_bot(ctx: commands.Context) -> None:
     await ctx.message.add_reaction(const.TICK_EMOJI)
 
     while True:
-        # GET the page and find all the paragraphs
-        req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={LAST_ID+1}")
-        soup = BeautifulSoup(req.text, "html.parser")
-        paragraphs = soup.find_all("p")
+        found, final_text, link = client.helpers.search_id(LAST_ID)
+        if found:
+            LAST_ID += 1
+            # Update the latest announcement dictionary
+            client.latest_announcement = {"text": final_text, "link": link, "id": LAST_ID}
 
-        # The first element contains all the text, so remove it
-        # to iterate over the other elements which also contain
-        # the text.
-        # ! Spaghetti here
-        try:
-            paragraphs.pop(0)
-        except IndexError:
-            pass
+            # Update info file on the server. This is the file the API uses to return the info data
+            client.info_data["last_id"] = LAST_ID
+            client.info_data["last_link"] = link
+            client.info_data["last_message"] = final_text
 
-        # Get all the text of the page
-        final_text = ""
-        for item in paragraphs:
-            final_text += item.get_text()
+            # Upload data to server
+            data_dict_as_str = json.dumps(client.info_data)
+            client.helpers.post_info_file_data(data_dict_as_str)
 
-        # Check if there is a new announcement, or if the page is empty
-        new_announce = False
-        to_delete = """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
-        if final_text.replace("\n", "") != "":
-            if final_text.strip().replace(to_delete, "") != "":
-                new_announce = True
-
-        # If there is a new announcement, send it to the channel the command was executed
-        if not new_announce:
-            # Sleep for 5 minutes before pinging the website again
-            await asyncio.sleep(300)
-            continue
-
-        LAST_ID += 1
-        link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={LAST_ID}"
-        to_delete = [
-            """$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31","""
-            """toolbarVisible:false,readOnly:true});});""",
-            """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
-        ]
-
-        for item in to_delete:
-            final_text = final_text.replace(item, "").strip()
-
-        # Update the latest announcement dictionary
-        client.latest_announcement = {"text": final_text, "link": link, "id": LAST_ID}
-
-        # Update info file on the server. This is the file the API uses to return the info data
-        client.info_data["last_id"] = LAST_ID
-        client.info_data["last_link"] = link
-        client.info_data["last_message"] = final_text
-
-        # Upload data to server
-        data_dict_as_str = json.dumps(client.info_data)
-        client.helpers.post_info_file_data(data_dict_as_str)
-
-        try:
-            await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text} ```")
-        except discord.errors.HTTPException:
-            await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
+            try:
+                await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text} ```")
+            except discord.errors.HTTPException:
+                await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
 
         # Sleep for 5 minutes before pinging the website again
         await asyncio.sleep(300)
