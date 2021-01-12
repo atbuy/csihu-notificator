@@ -30,7 +30,7 @@ def _get_info_file_data() -> dict:
     url = os.environ.get("INFO_FILE_URL", "https://www.vitaman02.com/api/csihu-info")
     user_agent = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.36"
+        "(KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
     )
     headers = {
         "referer": url,
@@ -56,8 +56,8 @@ def _post_info_file_data(data: str) -> requests.Response:
     """
     url = os.environ.get("INFO_FILE_URL")
     user_agent = (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-        "(KHTML, like Gecko) Chrome/86.0.4240.193 Safari/537.36"
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
     )
     headers = {
         "referer": url,
