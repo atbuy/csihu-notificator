@@ -502,6 +502,11 @@ class Helpers:
         if not msg:
             return True
 
+        # If the message is at least 20 characters long,
+        # without spaces, it's not allowed
+        if len(msg.split()[0]) >= 30:
+            return False
+
         # Check all the characters are the same character
         # If they are the same character return False
         prev = msg[0]

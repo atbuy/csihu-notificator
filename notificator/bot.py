@@ -1357,6 +1357,7 @@ async def on_message(msg: discord.Message) -> None:
         if not client.helpers.valid_message(check_msg):
             await asyncio.sleep(0.5)
             await msg.delete()
+            return
 
     if ctx.command:
         # Concatanate the name of the command with the rest of it's aliases
