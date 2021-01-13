@@ -489,6 +489,12 @@ class Helpers:
         :return: bool if the message should be allowed or not
         """
 
+        # Check if the message contains only emojis
+        # This can be easily exploited but it's ok
+        check_msg = msg.replace(" ", "")
+        if check_msg.startswith("<:") and check_msg.endswith(">"):
+            return True
+
         # Check if there are any special characters in the message and remove them
         characters = list(filter(lambda x: x in msg, self.const.SPECIAL_CHARACTERS))
         if characters:
