@@ -22,6 +22,7 @@ const = helpers.const()
 LAST_ID = const.LAST_ID
 LAST_LINK = const.LAST_LINK
 LAST_MESSAGE = const.LAST_MESSAGE
+SEND_CABBAGE = False
 
 TOKEN = os.environ.get("CSIHU_NOTIFICATOR_BOT_TOKEN")
 intents = discord.Intents.all()
@@ -1303,6 +1304,21 @@ async def help(ctx, group: str = None) -> None:
     await client.helpers.send_help_embed(ctx)
 
 
+@client.command(name="cabbage", brief="Toggle cabbage sending")
+async def toggle_cabbage(ctx: commands.Context) -> None:
+    """Toggle cabbage seding"""
+
+    global SEND_CABBAGE
+
+    # Check if the user can execute this command
+    execute = client.helpers.can_execute(ctx)
+    if not execute:
+        await ctx.send(f"{ctx.author.mention} You don't have enough permissions to use this command")
+        return
+
+    SEND_CABBAGE = not SEND_CABBAGE
+
+
 @client.event
 async def on_ready():
     """This is an event listener. It changes the bot's presence when the bot is ready"""
@@ -1314,7 +1330,6 @@ async def on_message(msg: discord.Message) -> None:
     """
     This is an event listener. This is run whenever a member sends a message to a channel.
     """
-    global LAST_MESSAGE
 
     # If the author is the bot return
     if msg.author == client.user:
@@ -1332,6 +1347,10 @@ async def on_message(msg: discord.Message) -> None:
     # If there are attachments to the message
     # check if the extension is allowed on the server
     await client.helpers.remove_unallowed_files(msg)
+
+    # If this variable is True, send a gif
+    if SEND_CABBAGE:
+        await ctx.send("https://tenor.com/view/lettuce-hannibal-buress-eat-hungry-food-gif-5358227")
 
     # If the message is not in the spam-chat, check if it should be allowed
     if not msg.channel.id == const.SPAM_CHAT_ID:
