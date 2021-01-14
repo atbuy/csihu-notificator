@@ -107,6 +107,30 @@ class const:
         self.DATA_PATH = os.path.join(self.ROOT, "data")
 
 
+class HasteBinAPI:
+    def __init__(self):
+        self.base_url = "https://hastebin.com"
+        self.key = None
+        self.headers = {
+            "accept-language": "el-GR,el;q=0.9,en;q=0,8",
+            "accept": ("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,"
+                       "image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"),
+            "user-agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                           "(KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"),
+        }
+
+    @property
+    def url(self):
+        return f"{self.base_url}/{self.key}"
+
+    def upload(self, text: str) -> Union[str, None]:
+        url = f"{self.base_url}/documents"
+        req = requests.post(url, headers=self.headers, data=text)
+        if req.status_code == 200:
+            self.key = req.json()["key"]
+            return self.url
+
+
 class Helpers:
     """This class contains all the functions used inside commands and event listeners"""
 
@@ -891,3 +915,7 @@ class Helpers:
                 final_text = final_text.replace(item, "").strip()
 
         return (found, final_text, link)
+
+    def is_txt(self, msg: discord.Message) -> bool:
+        """Checks if the attachement is a text file"""
+        return msg.attachments[0].filename.split(".")[1] == "txt"

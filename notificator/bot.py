@@ -1344,9 +1344,20 @@ async def on_message(msg: discord.Message) -> None:
         await client.helpers.mention_reaction(ctx)
         return
 
-    # If there are attachments to the message
-    # check if the extension is allowed on the server
-    await client.helpers.remove_unallowed_files(msg)
+    # Handle attachments in messages
+    if msg.attachments:
+        # Check if the attachment is a txt file.
+        # If it is remove it and send a link with it's contents
+        if client.helpers.is_txt(msg):
+            text = await msg.attachments[0].read()
+            url = client.hastebin.upload(text.decode("utf8"))
+            await msg.delete()
+            await ctx.send(f"{ctx.author.mention} Your file has been removed and uploaded to hastebin.\n{url}")
+            return
+
+        # If there are attachments to the message
+        # check if the extension is allowed on the server
+        await client.helpers.remove_unallowed_files(msg)
 
     # If this variable is True, send a gif
     if SEND_CABBAGE:
@@ -1389,6 +1400,10 @@ async def on_member_join(member: discord.Member) -> None:
 # Initialize helpers object to be used inside commands
 client.helpers = helpers.Helpers(client)
 client.FOLDED_COMMANDS = client.helpers.fold_commands()
+
+# Create an instance of the hastebin API wrapper
+# To upload files and get their key
+client.hastebin = helpers.HasteBinAPI()
 
 
 def start():
