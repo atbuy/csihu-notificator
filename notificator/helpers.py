@@ -519,6 +519,10 @@ class Helpers:
         if check_msg.startswith("<:") and check_msg.endswith(">"):
             return True
 
+        # Check if the message is a single link
+        if check_msg.startswith("https://") or check_msg.startswith("http://"):
+            return True
+
         # Check if there are any special characters in the message and remove them
         characters = list(filter(lambda x: x in msg, self.const.SPECIAL_CHARACTERS))
         if characters:
