@@ -879,7 +879,12 @@ class Helpers:
 
     def search_id(self, ann_id: int) -> Union[str, None]:
         # GET the announcements webpage of csihu
-        req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}")
+        headers = {
+            "Referer": "https://cs.ihu.gr/",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+                          " AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+        }
+        req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}", headers=headers)
         soup = BeautifulSoup(req.text, "html.parser")
         # Get all the paragraph tags
         paragraphs = soup.find_all("p")
