@@ -916,8 +916,13 @@ class Helpers:
         paragraphs = soup.find_all("p")
         title = soup.find("h3")
 
-        # The first element contains all the text
-        final_text = paragraphs[0].get_text().strip()
+        # Get the first element of the list that contains the text and clean it
+        final_text = ""
+        for text in paragraphs[0].stripped_strings:
+            if text[-1] == "." or text[-2] == ".":
+                final_text += text + "\n"
+            else:
+                final_text += text + " "
 
         # Get the title's text and clean it
         title = title.get_text().strip()
@@ -928,7 +933,7 @@ class Helpers:
         if title:
             ann.id = ann_id
             ann.title = title
-            ann.text = final_text
+            ann.text = final_text.strip("\n")
 
         return ann
 
