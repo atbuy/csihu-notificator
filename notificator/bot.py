@@ -696,13 +696,13 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
 
     :return: None
     """
-
-    found, final_text, link = client.helpers.search_id(ann_id)
-    if found:
+    # Get an Announcement object
+    ann = client.helpers.search_id(ann_id)
+    if ann.found:
         try:
-            await ctx.send(f"Announcement found.\nLink: <{link}>\n```{final_text} ```")
+            await ctx.send(f"Announcement found.\nLink: <{ann.link}>\n```{ann.title}\n\n{ann.text} ```")
         except discord.errors.HTTPException:
-            await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
+            await ctx.send(f"Announcement to long to send over discord.\nLink: <{ann.link}>\n```{ann.title} ```")
 
         await ctx.message.add_reaction(const.TICK_EMOJI)
     else:
@@ -756,25 +756,25 @@ async def run_bot(ctx: commands.Context) -> None:
     await ctx.message.add_reaction(const.TICK_EMOJI)
 
     while True:
-        found, final_text, link = client.helpers.search_id(LAST_ID)
-        if found:
+        ann = client.helpers.search_id(LAST_ID)
+        if ann.found:
             LAST_ID += 1
             # Update the latest announcement dictionary
-            client.latest_announcement = {"text": final_text, "link": link, "id": LAST_ID}
+            client.latest_announcement = {"text": ann.text, "link": ann.link, "id": LAST_ID}
 
             # Update info file on the server. This is the file the API uses to return the info data
             client.info_data["last_id"] = LAST_ID
-            client.info_data["last_link"] = link
-            client.info_data["last_message"] = final_text
+            client.info_data["last_link"] = ann.link
+            client.info_data["last_message"] = ann.text
 
             # Upload data to server
             data_dict_as_str = json.dumps(client.info_data)
             client.helpers.post_info_file_data(data_dict_as_str)
 
             try:
-                await ctx.send(f"New announcement.\nLink: <{link}>\n```{final_text} ```")
+                await ctx.send(f"New announcement.\nLink: <{ann.link}>\n```{ann.title}\n\n{ann.text} ```")
             except discord.errors.HTTPException:
-                await ctx.send(f"Announcement to long to send over discord.\nLink: <{link}>")
+                await ctx.send(f"Announcement to long to send over discord.\nLink: <{ann.link}>\n```{ann.title} ```")
 
         # Sleep for 5 minutes before pinging the website again
         await asyncio.sleep(300)

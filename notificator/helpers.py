@@ -131,6 +131,29 @@ class HasteBinAPI:
             return self.url
 
 
+class Announcement:
+    def __init__(self):
+        self.id = None
+        self.title = None
+        self.text = None
+
+    @property
+    def link(self) -> Union[str, None]:
+        if self.found:
+            return f"https://www.cs.ihu.gr/view_announcement.xhtml?id={self.id}"
+
+    @property
+    def found(self) -> bool:
+        if self.title and self.id and self.text:
+            return True
+        return False
+
+    def __str__(self):
+        if self.found:
+            return self.title
+        return "Couldn't find announcement."
+
+
 class Helpers:
     """This class contains all the functions used inside commands and event listeners"""
 
@@ -877,8 +900,10 @@ class Helpers:
 
         return output
 
-    def search_id(self, ann_id: int) -> Union[str, None]:
-        # GET the announcements webpage of csihu
+    def search_id(self, ann_id: int) -> tuple:
+        """GET the announcements webpage of csihu"""
+
+        # Create headers so the reguest doesn't get denied
         headers = {
             "Referer": "https://cs.ihu.gr/",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
@@ -886,44 +911,26 @@ class Helpers:
         }
         req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}", headers=headers)
         soup = BeautifulSoup(req.text, "html.parser")
-        # Get all the paragraph tags
+
+        # Get all the paragraph tags and the title
         paragraphs = soup.find_all("p")
+        title = soup.find("h3")
 
-        # The first element contains all the text, so remove it
-        # to iterate over the other elements which also contain
-        # the text.
-        # ! Spaghetti here
-        try:
-            paragraphs.pop(0)
-        except IndexError:
-            pass
+        # The first element contains all the text
+        final_text = paragraphs[0].get_text().strip()
 
-        # Add the text to a string
-        final_text = ""
-        for item in paragraphs:
-            final_text += item.get_text()
+        # Get the title's text and clean it
+        title = title.get_text().strip()
 
-        # Format it to remove unwanted characters
-        link = None
-        found = False
-        to_delete = """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
-        if final_text.replace("\n", "") != "":
-            if final_text.strip().replace(to_delete, "") != "":
-                found = True
-        # If the announcement is found, update `last_link`, `last_announcement` and `last_id`
-        if found:
-            link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}"
+        # Create an Announcement object to return
+        # even if the announcement isn't found
+        ann = Announcement()
+        if title:
+            ann.id = ann_id
+            ann.title = title
+            ann.text = final_text
 
-            to_delete = [
-                """$(function(){PrimeFaces.cw("TextEditor","widget_j_idt31",{id:"j_idt31","""
-                """toolbarVisible:false,readOnly:true});});""",
-                """Τμήμα Πληροφορικής ΔΙ.ΠΑ.Ε  2019 - 2020 Copyright Developed By V.Tsoukalas"""
-            ]
-            # Remove PHP function and copyright notice in text
-            for item in to_delete:
-                final_text = final_text.replace(item, "").strip()
-
-        return (found, final_text, link)
+        return ann
 
     def is_txt(self, msg: discord.Message) -> bool:
         """Checks if the attachement is a text file"""
