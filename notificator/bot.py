@@ -700,9 +700,9 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
     ann = client.helpers.search_id(ann_id)
     if ann.found:
         try:
-            await ctx.send(f"Announcement found.\nLink: <{ann.link}>\n```{ann.title}\n\n{ann.text} ```")
+            await ctx.send(f"Announcement found.\nLink: <{ann.link}>\n\n**{ann.title}**\n``{ann.text} ```")
         except discord.errors.HTTPException:
-            await ctx.send(f"Announcement to long to send over discord.\nLink: <{ann.link}>\n```{ann.title} ```")
+            await ctx.send(f"Announcement to long to send over discord.\nLink: <{ann.link}>\n\n**{ann.title}**")
 
         await ctx.message.add_reaction(const.TICK_EMOJI)
     else:
@@ -772,9 +772,9 @@ async def run_bot(ctx: commands.Context) -> None:
             client.helpers.post_info_file_data(data_dict_as_str)
 
             try:
-                await ctx.send(f"New announcement.\nLink: <{ann.link}>\n```{ann.title}\n\n{ann.text} ```")
+                await ctx.send(f"New announcement.\nLink: <{ann.link}>\n\n**{ann.title}**\n```{ann.text} ```")
             except discord.errors.HTTPException:
-                await ctx.send(f"Announcement to long to send over discord.\nLink: <{ann.link}>\n```{ann.title} ```")
+                await ctx.send(f"Announcement to long to send over discord.\nLink: <{ann.link}>\n\n**{ann.title}**")
 
         # Sleep for 5 minutes before pinging the website again
         await asyncio.sleep(300)
