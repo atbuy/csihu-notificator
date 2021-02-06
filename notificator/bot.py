@@ -700,7 +700,7 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
     ann = client.helpers.search_id(ann_id)
     if ann.found:
         try:
-            await ctx.send(f"Announcement found.\nLink: <{ann.link}>\n\n**{ann.title}**\n``{ann.text} ```")
+            await ctx.send(f"Announcement found.\nLink: <{ann.link}>\n\n**{ann.title}**\n```{ann.text} ```")
         except discord.errors.HTTPException:
             await ctx.send(f"Announcement to long to send over discord.\nLink: <{ann.link}>\n\n**{ann.title}**")
 
