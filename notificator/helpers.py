@@ -28,13 +28,8 @@ def _get_info_file_data() -> dict:
     :return data: The dictionary with the data
     """
     url = os.environ.get("INFO_FILE_URL", "https://www.vitaman02.com/api/csihu-info")
-    user_agent = (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
-    )
     headers = {
-        "referer": url,
-        "user-agent": user_agent
+        "referer": url
     }
     with requests.Session() as s:
         req = s.get(url, headers=headers)
@@ -55,13 +50,8 @@ def _post_info_file_data(data: str) -> requests.Response:
     :return req: The response from the API
     """
     url = os.environ.get("INFO_FILE_URL")
-    user_agent = (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
-    )
     headers = {
-        "referer": url,
-        "user-agent": user_agent
+        "referer": url
     }
     req = requests.post(url, headers=headers, data=data)
 
@@ -114,9 +104,7 @@ class HasteBinAPI:
         self.headers = {
             "accept-language": "el-GR,el;q=0.9,en;q=0,8",
             "accept": ("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,"
-                       "image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"),
-            "user-agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                           "(KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"),
+                       "image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
         }
 
     @property
@@ -906,8 +894,6 @@ class Helpers:
         # Create headers so the reguest doesn't get denied
         headers = {
             "Referer": "https://cs.ihu.gr/",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-                          " AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
         }
         req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}", headers=headers)
         soup = BeautifulSoup(req.text, "html.parser")
