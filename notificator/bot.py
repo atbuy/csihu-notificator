@@ -47,6 +47,20 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
+@client.command(name="get-clr", aliases=["get-color", "getc"])
+async def get_member_color(ctx: commands.Context, *, member: discord.Member):
+    color_role = None
+    for role in member.roles:
+        if str(role).startswith("clr"):
+            color_role: discord.Role = role
+
+    if not color_role:
+        await ctx.send("Member doesn't have a color role")
+        return
+
+    await ctx.send(f"Member's color: {color_role.color}")
+
+
 @client.command(name="hmm", aliases=["hm", "swirl"], brief="Distorts your icon")
 async def hmm(ctx: commands.Context, *, user: discord.User = None) -> None:
     """Take's a user's icon and creates a gif swiverling it"""
