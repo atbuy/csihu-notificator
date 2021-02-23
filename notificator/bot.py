@@ -139,10 +139,10 @@ async def get_icon(ctx: commands.Context, *, member: discord.Member = None) -> N
 
     if not member:
         url = ctx.author.avatar_url
-        await ctx.send(f"{ctx.author.mention} your icon is located at: {url}")
+        await ctx.send(f"{ctx.author.mention} your icon is located at: <{url}>")
     else:
         url = member.avatar_url
-        await ctx.send(f"{ctx.author.mention}. This member's icon is located at: {url}")
+        await ctx.send(f"{ctx.author.mention}. This member's icon is located at: <{url}>")
 
 
 @client.command(name="word", aliases=["randword"], brief="Get a random word")
