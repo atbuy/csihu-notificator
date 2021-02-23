@@ -58,7 +58,7 @@ async def get_member_color(ctx: commands.Context, *, member: discord.Member):
         await ctx.send("Member doesn't have a color role")
         return
 
-    await ctx.send(f"Member's color: {color_role.color}")
+    await ctx.send(f"Member's color: **{color_role.color}**")
 
 
 @client.command(name="hmm", aliases=["hm", "swirl"], brief="Distorts your icon")
