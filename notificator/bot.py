@@ -1377,7 +1377,6 @@ async def on_message(msg: discord.Message) -> None:
     if SEND_CABBAGE:
         await ctx.send("https://tenor.com/view/lettuce-hannibal-buress-eat-hungry-food-gif-5358227")
 
-
     # If the message is not in the spam-chat, check if it should be allowed
     if not msg.channel.id == const.SPAM_CHAT_ID:
         if not client.helpers.valid_message(check_msg):
