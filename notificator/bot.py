@@ -47,7 +47,14 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
-@client.command(name="get-clr", aliases=["get-color", "getc"])
+@client.command(name="drip", brief="Drip")
+async def drip(ctx: commands.Context):
+    drip_role = ctx.guild.get_role(const.DRIP_ROLE_ID)
+
+    await ctx.send(f"{drip_role.mention} den mplekeis")
+
+
+@client.command(name="get-clr", aliases=["get-color", "getc"], brief="Get someone's color tag")
 async def get_member_color(ctx: commands.Context, *, member: discord.Member):
     color_role = None
     for role in member.roles:
