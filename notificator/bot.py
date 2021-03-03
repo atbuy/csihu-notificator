@@ -7,7 +7,6 @@ import random
 import asyncio
 import discord
 import textblob
-import urbandict
 import googlesearch
 from datetime import datetime
 from itertools import product
@@ -19,6 +18,7 @@ import helpers
 
 
 const = helpers.const()
+urbandict = helpers.UrbanDictionary()
 LAST_ID = const.LAST_ID
 LAST_LINK = const.LAST_LINK
 LAST_MESSAGE = const.LAST_MESSAGE
@@ -610,21 +610,13 @@ async def urban_dict(ctx: commands.Context, *, text: str) -> None:
 
     # Search for the word
     try:
-        query = urbandict.define(text)
+        query = urbandict.get_definition(text)
     except Exception:
         # In case the word is not found
         await ctx.send(f"{ctx.author.mention}. Couldn't find definition for `{text}`")
         return
 
-    ub_def = ""
-    for i, word in enumerate(query):
-        if len(ub_def) < len(word["def"]):
-            ub_def = word["def"]
-            index = i
-
-    word = query[index]["word"]
-    example = query[index]["example"]
-    output = f"**Word:** `{word}`\n**Definition:** `{ub_def}`\n**Example:** `{example}`"
+    output = f"**Word:** `{text}`\n**Definition:** `{query.meaning}`\n**Example:** `{query.example}`"
     await ctx.send(f"{ctx.author.mention}\n{output}")
 
 

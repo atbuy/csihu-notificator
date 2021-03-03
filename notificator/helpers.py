@@ -120,6 +120,42 @@ class HasteBinAPI:
             return self.url
 
 
+class UrbanDictionary:
+    def __init__(self, term=None):
+        self.base_url = "https://www.urbandictionary.com/define.php?term={}"
+        self.meaning = None
+        self.example = None
+        self.dict = None
+        self.headers = {
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,"
+                      "image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+            "Host": "www.urbandictionary.com"
+        }
+
+        if term:
+            self.get_definition(term)
+
+    def get_definition(self, term: str):
+        # Get the url
+        req = requests.get(self.base_url.format(term))
+
+        # Parse the HTML
+        soup = BeautifulSoup(req.text, "html.parser")
+
+        # Get the element of the first panel
+        first_panel = soup.find("div", {"class": "def-panel"})
+
+        # Get the definition
+        self.meaning = first_panel.find("div", {"class": "meaning"}).get_text()
+
+        # Get the example
+        self.example = first_panel.find("div", {"class": "example"}).get_text()
+
+        self.dict = {"term": term, "definition": self.meaning, "example": self.example}
+
+        return self
+
+
 class Announcement:
     def __init__(self):
         self.id = None
