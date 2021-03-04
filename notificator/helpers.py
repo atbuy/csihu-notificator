@@ -185,6 +185,7 @@ class LOGS:
     SLOWMODE = "Slowmode"
     MUTE = "Mute"
     UNMUTE = "Unmute"
+    DELETE = "Delete"
 
 
 class Helpers:
@@ -502,60 +503,48 @@ class Helpers:
         for char in chars:
             await ctx.message.add_reaction(f"{self.const.CHARACTERS[char]}")
 
-    async def update_logs(self, ctx: commands.Context, command: str, length: int = None, member: discord.Member = None):
+    async def update_logs(self, ctx: commands.Context, command: str, number: int = None, member: discord.Member = None):
         """Sends an embed in the logs channel"""
 
         # Initialize embed
-        embed = discord.Embed(
-            color=0xff0000
-        )
+        embed = discord.Embed(color=0xff0000)
 
         # Set author attrs
-        embed.set_author(
-            name=f"{ctx.author}",
-            icon_url=ctx.author.avatar_url
-        )
+        embed.set_author(name=f"{ctx.author}", icon_url=ctx.author.avatar_url)
 
         # Add field with the author
-        embed.add_field(
-            name="User",
-            value=f"<@{ctx.author.id}>"
-        )
+        embed.add_field(name="User", value=f"<@{ctx.author.id}>")
 
         # Add field with the command executed
-        embed.add_field(
-            name="Action",
-            value=f"{command}"
-        )
+        embed.add_field(name="Action", value=f"{command}")
 
         # Add fields regarding the command given
         if command == LOGS.SLOWMODE:
             # Add a field with the length of the slowmode
-            embed.add_field(
-                name="Slowness",
-                value=f"{length} s",
-            )
+            embed.add_field(name="Slowness", value=f"{number} s",)
+
+            # Add a field for the channel that was slowed
+            embed.add_field(name="Channel", value=f"{ctx.channel.mention}")
         elif command == LOGS.MUTE:
             # Add a field with the person muted
-            embed.add_field(
-                name="Muted",
-                value=f"{member.mention}"
-            )
+            embed.add_field(name="Muted", value=f"{member.mention}")
 
             # Add a field with the length of the mute
-            embed.add_field(
-                name="Length",
-                value=f"{length} m"
-            )
+            embed.add_field(name="Length", value=f"{number} m")
         elif command == LOGS.UNMUTE:
             # Add a field with the member unmuted
-            embed.add_field(
-                name="Unmuted",
-                value=f"{member.mention}"
-            )
+            embed.add_field(name="Unmuted", value=f"{member.mention}")
+        elif command == LOGS.DELETE:
+            # Add field with the number of messages
+            embed.add_field(name="Messages", value=f"{number}")
 
+            # Add field with the channel
+            embed.add_field(name="Channel", value=f"{ctx.channel.mention}")
+
+        # Add timestamp to embed
         embed.timestamp = datetime.now()
 
+        # Get the logs-channel and send the embed
         logs_channel = discord.utils.get(ctx.guild.text_channels, name="log-channel")
         await logs_channel.send(embed=embed)
 

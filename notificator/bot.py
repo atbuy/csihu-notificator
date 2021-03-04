@@ -957,23 +957,27 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message = 
     # If the starting message is not specified, purge the last `amount` messages
     if not message:
         number += 1
-        await ctx.channel.purge(limit=number)
+        messages_deleted = await ctx.channel.purge(limit=number)
     # If the starting message is specified, delete the specified message
     # delete `amount` message before it, delete the `delete` command message
     elif not member:
-        await ctx.channel.purge(limit=number, before=message.created_at)
+        messages_deleted = await ctx.channel.purge(limit=number, before=message.created_at)
         await message.delete()
         await ctx.message.delete()
+
         print(f"{ctx.author} did {ctx.prefix}delete {number} {message.id}")
     # If message and member are given, then retrieve `amount` messages
     # and delete the messages sent from `member`
     elif message and member:
-        await ctx.channel.purge(limit=number, before=message.created_at, check=check)
+        messages_deleted = await ctx.channel.purge(limit=number, before=message.created_at, check=check)
         await message.delete()
         await ctx.message.delete()
 
         # Just for logs
         print(f"{ctx.author} did {ctx.prefix}delete {number} {message.id} {member}")
+
+    # Update logs
+    await client.helpers.update_logs(ctx, logs.DELETE, len(messages_deleted))
 
 
 @client.command(name="rr", brief="Remove reactions from messages")
