@@ -1191,7 +1191,7 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float = 5
 
     # One hour mute limit
     if minutes > 300:
-        await ctx.send(f"{ctx.author.mention} you can't mute someone for more than 1 hour.")
+        await ctx.send(f"{ctx.author.mention} you can't mute someone for more than 5 hours.")
         return
 
     # Check if the author can mute someone else
