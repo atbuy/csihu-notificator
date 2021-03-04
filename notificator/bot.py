@@ -19,6 +19,7 @@ import helpers
 
 const = helpers.const()
 urbandict = helpers.UrbanDictionary()
+logs = helpers.LOGS
 LAST_ID = const.LAST_ID
 LAST_LINK = const.LAST_LINK
 LAST_MESSAGE = const.LAST_MESSAGE
@@ -1059,6 +1060,9 @@ async def slow(ctx: commands.Context, time: str) -> None:
             return
     await ctx.channel.edit(slowmode_delay=delay)
 
+    # Update logs
+    await client.helpers.update_logs(ctx, logs.SLOWMODE, delay)
+
 
 @client.command(name="allowedfiles", brief="View allowed file types")
 async def view_allowed_file_extensions(ctx: commands.Context) -> None:
@@ -1144,6 +1148,9 @@ async def slowmode_f(ctx: commands.Context) -> None:
     delay = 6000
     await ctx.channel.edit(slowmode_delay=delay)
 
+    # Update logs
+    await client.helpers.update_logs(ctx, logs.SLOWMODE, delay)
+
 
 @client.command(name="unmute", brief="Unmute a muted member")
 async def unmute(ctx: commands.Context, member: discord.Member) -> None:
@@ -1178,6 +1185,9 @@ async def unmute(ctx: commands.Context, member: discord.Member) -> None:
         return
 
     await ctx.send(f"{ctx.author.mention} unmuted {member.mention}")
+
+    # Update logs
+    await client.helpers.update_logs(ctx, logs.UNMUTE, member=member)
 
 
 @client.command(name="mute", brief="Mute a member", description="Mute a member for the specified amount of minutes")
@@ -1216,6 +1226,9 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float = 5
     # 2) Remove role named "Synadelfos"
     synadelfos_role = ctx.guild.get_role(const.SYNADELFOS_ROLE_ID)
     await member.remove_roles(synadelfos_role)
+
+    # Update logs before setting the timer
+    await client.helpers.update_logs(ctx, logs.MUTE, minutes, member)
 
     # 3) Add timer that will check every second if it should remove the role prematurely
     # 3.a) If the command ".unmute <member>" is executed, then the loop should stop
@@ -1259,41 +1272,38 @@ async def execute_python(ctx: commands.Context, *, script: str) -> None:
 
 @client.command(name="github", brief="Github Link", aliases=["gh", "git"])
 async def github(ctx: commands.Context) -> None:
-    """
-    Send the github repo link to the author's channel
-    """
+    """Send the github repo link to the author's channel"""
     await ctx.send("GitHub Link: <https://github.com/Vitaman02/CS-IHU-NotifierBot>")
 
 
 @client.command(name="cpp", aliases=["cpps"], brief="Repository with CPP solutions")
 async def cpp_solutions(ctx: commands.Context) -> None:
     """Send CPP solutions to the channel"""
-
     await ctx.send("CPP Solutions Repo: <https://github.com/Vitaman02/CPPSolutions>")
 
 
 @client.command(name="moodle", brief="Moodle Link")
 async def moodle(ctx: commands.Context) -> None:
-    """
-    Send the moodle link to the author's channel
-    """
+    """Send the moodle link to the author's channel"""
     await ctx.send("Moodle Link: <https://moodle.cs.ihu.gr/moodle/>")
 
 
 @client.command(name="courses", brief="Courses Link")
 async def courses(ctx: commands.Context) -> None:
-    """
-    Send the Courses link to the author's channel
-    """
+    """Send the Courses link to the author's channel"""
     await ctx.send("Courses Link: <https://courses.cs.ihu.gr/>")
 
 
 @client.command(name="zoom", brief="Zoom Link")
 async def zoom(ctx: commands.Context) -> None:
-    """
-    Send the Zoom link to the author's channel
-    """
+    """Send the Zoom link to the author's channel"""
     await ctx.send("Zoom Link: <https://zoom.us/j/95316736704>")
+
+
+@client.command(name="programma", aliases=["sch", "schedule", "sched"], brief="Sends the semester's schedule")
+async def programma(ctx: commands.Context) -> None:
+    """Send the schedule to the author's channel"""
+    await ctx.send("<https://cs.ihu.gr/cs_hosting/attachments/webpages/el_timetable.pdf>")
 
 
 @client.command(aliases=["commands"], brief="Webpage embed to help commands")

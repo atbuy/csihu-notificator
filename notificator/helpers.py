@@ -27,7 +27,8 @@ def _get_info_file_data() -> dict:
 
     :return data: The dictionary with the data
     """
-    url = os.environ.get("INFO_FILE_URL", "https://www.vitaman02.com/api/csihu-info")
+    url = os.environ.get(
+        "INFO_FILE_URL", "https://www.vitaman02.com/api/csihu-info")
     headers = {
         "referer": url
     }
@@ -151,7 +152,8 @@ class UrbanDictionary:
         # Get the example
         self.example = first_panel.find("div", {"class": "example"}).get_text()
 
-        self.dict = {"term": term, "definition": self.meaning, "example": self.example}
+        self.dict = {"term": term, "definition": self.meaning,
+                     "example": self.example}
 
         return self
 
@@ -179,6 +181,12 @@ class Announcement:
         return "Couldn't find announcement."
 
 
+class LOGS:
+    SLOWMODE = "Slowmode"
+    MUTE = "Mute"
+    UNMUTE = "Unmute"
+
+
 class Helpers:
     """This class contains all the functions used inside commands and event listeners"""
 
@@ -188,9 +196,11 @@ class Helpers:
         if client:
             self.client = client
             self.const = const()
-            self.available_commands = {c.name: c.brief for c in self.client.walk_commands()}
+            self.available_commands = {
+                c.name: c.brief for c in self.client.walk_commands()}
             self.max_commands_on_page = commands_on_page
-            self.total_pages = (len(self.available_commands) // self.max_commands_on_page)
+            self.total_pages = (len(self.available_commands) //
+                                self.max_commands_on_page)
             self.help_command_reactions = [
                 self.const.START_EMOJI, self.const.ARROW_BACKWARD,
                 self.const.ARROW_FORWARD, self.const.END_EMOJI
@@ -492,6 +502,63 @@ class Helpers:
         for char in chars:
             await ctx.message.add_reaction(f"{self.const.CHARACTERS[char]}")
 
+    async def update_logs(self, ctx: commands.Context, command: str, length: int = None, member: discord.Member = None):
+        """Sends an embed in the logs channel"""
+
+        # Initialize embed
+        embed = discord.Embed(
+            color=0xff0000
+        )
+
+        # Set author attrs
+        embed.set_author(
+            name=f"{ctx.author}",
+            icon_url=ctx.author.avatar_url
+        )
+
+        # Add field with the author
+        embed.add_field(
+            name="User",
+            value=f"<@{ctx.author.id}>"
+        )
+
+        # Add field with the command executed
+        embed.add_field(
+            name="Action",
+            value=f"{command}"
+        )
+
+        # Add fields regarding the command given
+        if command == LOGS.SLOWMODE:
+            # Add a field with the length of the slowmode
+            embed.add_field(
+                name="Slowness",
+                value=f"{length} s",
+            )
+        elif command == LOGS.MUTE:
+            # Add a field with the person muted
+            embed.add_field(
+                name="Muted",
+                value=f"{member.mention}"
+            )
+
+            # Add a field with the length of the mute
+            embed.add_field(
+                name="Length",
+                value=f"{length} m"
+            )
+        elif command == LOGS.UNMUTE:
+            # Add a field with the member unmuted
+            embed.add_field(
+                name="Unmuted",
+                value=f"{member.mention}"
+            )
+
+        embed.timestamp = datetime.now()
+
+        logs_channel = discord.utils.get(ctx.guild.text_channels, name="log-channel")
+        await logs_channel.send(embed=embed)
+
     def check_for_mention(self, ctx: commands.Context) -> bool:
         """
         Check if the bot is mentioned
@@ -572,7 +639,8 @@ class Helpers:
             return True
 
         # Check if there are any special characters in the message and remove them
-        characters = list(filter(lambda x: x in msg, self.const.SPECIAL_CHARACTERS))
+        characters = list(
+            filter(lambda x: x in msg, self.const.SPECIAL_CHARACTERS))
         if characters:
             for char in characters:
                 msg = msg.replace(char, "")
@@ -834,7 +902,8 @@ class Helpers:
         """
 
         # Open the base myga image
-        base_path = os.path.join(self.const.DATA_PATH, "images", "myga_base.png")
+        base_path = os.path.join(self.const.DATA_PATH,
+                                 "images", "myga_base.png")
         base = Image.open(base_path)
 
         # Open the image_file with PIL
@@ -932,7 +1001,8 @@ class Helpers:
         headers = {
             "Referer": "https://cs.ihu.gr/",
         }
-        req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}", headers=headers)
+        req = requests.get(
+            f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}", headers=headers)
         soup = BeautifulSoup(req.text, "html.parser")
 
         # Get all the paragraph tags and the title
