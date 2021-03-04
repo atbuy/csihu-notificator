@@ -47,11 +47,6 @@ async def test(ctx: commands.Context) -> None:
     await ctx.send(f"Hey {ctx.author.mention}!")
 
 
-@client.command(name="drip", brief="Drip")
-async def drip(ctx: commands.Context):
-    await ctx.send(f"den mplekeis")
-
-
 @client.command(name="get-clr", aliases=["get-color", "getc"], brief="Get someone's color tag")
 async def get_member_color(ctx: commands.Context, *, member: discord.Member):
     color_role = None
@@ -370,6 +365,18 @@ async def akou_troll(ctx: commands.Context) -> None:
 async def deadobserver_troll(ctx: commands.Context) -> None:
     """Replies to the author"""
     await troll.deadobserver_troll.run(ctx)
+
+
+@client.command(name="drip", brief=troll.drip_troll.brief)
+async def drip(ctx: commands.Context) -> None:
+    """Replies to the author"""
+    await troll.drip_troll.run(ctx)
+
+
+@client.command(name="heymitsotaki", aliases=["heymhtsotakh", "heymitsotakh"], brief=troll.mits_troll.brief)
+async def heymitsotaki(ctx: commands.Context) -> None:
+    """Replies to the author"""
+    await troll.mits_troll.run(ctx)
 
 
 @client.command(name="donate", aliases=["donations", "donation"], brief=troll.donate_troll.brief)

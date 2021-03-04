@@ -19,6 +19,8 @@ gtx_data = data["gtx_troll"]
 akou_data = data["akou_troll"]
 tria_data = data["triantafyllidhs"]
 deadobserver_data = data["deadobserver"]
+drip_data = data["drip"]
+mits_data = data["mits"]
 
 
 class donate_troll:
@@ -82,3 +84,23 @@ class deadobserver_troll:
 
         text = deadobserver_data["text"]
         await ctx.send(f"{ctx.author.mention}\n{text}")
+
+
+class drip_troll:
+    brief = drip_data["brief"]
+
+    async def run(ctx: commands.Context) -> None:
+        """Replies to the author"""
+
+        text = drip_troll["text"]
+        await ctx.send(text)
+
+
+class mits_troll:
+    brief = mits_data["brief"]
+
+    async def run(ctx: commands.Context) -> None:
+        """Replies to the author"""
+
+        text = mits_data["text"]
+        await ctx.send(text)
