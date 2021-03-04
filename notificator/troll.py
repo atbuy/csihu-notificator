@@ -92,7 +92,7 @@ class drip_troll:
     async def run(ctx: commands.Context) -> None:
         """Replies to the author"""
 
-        text = drip_troll["text"]
+        text = drip_data["text"]
         await ctx.send(text)
 
 
