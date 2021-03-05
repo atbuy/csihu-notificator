@@ -521,7 +521,7 @@ class Helpers:
         # Add fields regarding the command given
         if command == LOGS.SLOWMODE:
             # Add a field with the length of the slowmode
-            embed.add_field(name="Slowness", value=f"{number} s",)
+            embed.add_field(name="Slowness", value=f"{number} s")
 
             # Add a field for the channel that was slowed
             embed.add_field(name="Channel", value=f"{ctx.channel.mention}")
