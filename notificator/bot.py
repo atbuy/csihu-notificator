@@ -376,9 +376,7 @@ async def drip(ctx: commands.Context) -> None:
 
 @client.command(name="donate", aliases=["donations", "donation"], brief=troll.donate_troll.brief)
 async def donate(ctx: commands.Context):
-    """
-    Sends fake "donation" links
-    """
+    """Sends fake "donation" links"""
     await troll.donate_troll.run(ctx)
 
 
