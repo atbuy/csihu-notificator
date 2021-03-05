@@ -20,7 +20,6 @@ akou_data = data["akou_troll"]
 tria_data = data["triantafyllidhs"]
 deadobserver_data = data["deadobserver"]
 drip_data = data["drip"]
-mits_data = data["mits"]
 
 
 class donate_troll:
@@ -93,14 +92,4 @@ class drip_troll:
         """Replies to the author"""
 
         text = drip_data["text"]
-        await ctx.send(text)
-
-
-class mits_troll:
-    brief = mits_data["brief"]
-
-    async def run(ctx: commands.Context) -> None:
-        """Replies to the author"""
-
-        text = mits_data["text"]
         await ctx.send(text)

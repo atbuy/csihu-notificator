@@ -374,12 +374,6 @@ async def drip(ctx: commands.Context) -> None:
     await troll.drip_troll.run(ctx)
 
 
-@client.command(name="heymitsotaki", aliases=["heymhtsotakh", "heymitsotakh"], brief=troll.mits_troll.brief)
-async def heymitsotaki(ctx: commands.Context) -> None:
-    """Replies to the author"""
-    await troll.mits_troll.run(ctx)
-
-
 @client.command(name="donate", aliases=["donations", "donation"], brief=troll.donate_troll.brief)
 async def donate(ctx: commands.Context):
     """
