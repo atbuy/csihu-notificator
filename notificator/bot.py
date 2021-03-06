@@ -749,7 +749,7 @@ async def change_last_id(ctx: commands.Context, id_num: int = None) -> None:
 
 
 @client.command(aliases=["run"], brief="Starts the bot")
-async def run_bot(ctx: commands.Context) -> None:
+async def run_bot(ctx: commands.Context, give_pass: bool = None) -> None:
     """
     Starts pinging the announcements webpage
     to see if there are any new announcements posted.
@@ -757,14 +757,22 @@ async def run_bot(ctx: commands.Context) -> None:
     """
     global LAST_ID
 
-    # Only I am allowed to run this command, so other member don't mess with it
-    # since we don't want multiple instances of this command running, unless it's for different channels
-    if not ctx.author.id == const.MY_ID:
-        await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
+    if not give_pass:
+        if not ctx.author.id == const.MY_ID:
+            await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
+            return
+
+    # Don't execute again if the bot is already looking for announcements
+    if client.is_running:
+        await ctx.send("Bot is already running")
+        await ctx.message.add_reaction(const.X_EMOJI)
         return
 
     client.is_running = True
     await ctx.message.add_reaction(const.TICK_EMOJI)
+
+    # Get the channel to post the announcements
+    announcement_channel = discord.utils.get(ctx.guild.text_channels, name="announcements")
 
     while True:
         ann = client.helpers.search_id(LAST_ID)
@@ -783,9 +791,10 @@ async def run_bot(ctx: commands.Context) -> None:
             client.helpers.post_info_file_data(data_dict_as_str)
 
             try:
-                await ctx.send(f"New announcement.\nLink: <{ann.link}>\n\n**{ann.title}**\n```{ann.text} ```")
+                await announcement_channel.send(f"New announcement.\nLink: <{ann.link}>\n\n**{ann.title}**\n```{ann.text} ```")
             except discord.errors.HTTPException:
-                await ctx.send(f"Announcement to long to send over discord.\nLink: <{ann.link}>\n\n**{ann.title}**")
+                await announcement_channel.send(
+                    f"Announcement to long to send over discord.\nLink: <{ann.link}>\n\n**{ann.title}**")
 
         # Sleep for 5 minutes before pinging the website again
         await asyncio.sleep(300)
@@ -1351,9 +1360,7 @@ async def on_ready():
 
 @client.event
 async def on_message(msg: discord.Message) -> None:
-    """
-    This is an event listener. This is run whenever a member sends a message to a channel.
-    """
+    """This is an event listener. This is run whenever a member sends a message to a channel."""
 
     # If the author is the bot return
     if msg.author == client.user:
@@ -1361,6 +1368,11 @@ async def on_message(msg: discord.Message) -> None:
 
     ctx = await client.get_context(msg)
     check_msg = msg.content.lower()
+
+    # Start looking for new announcements if it's not already.
+    if not client.is_running:
+        # Run the bot without checking if the message was from a moderator
+        await run_bot(ctx, give_pass=True)
 
     # Check if the bot is mentioned, and add reactions to it, if it is.
     mentioned = client.helpers.check_for_mention(ctx)
