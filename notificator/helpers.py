@@ -78,7 +78,7 @@ class const:
         self.MODERATOR_ID = 760078403264184341
         self.OWNER_ID = 760085688133222420
         self.WAITING_ROOM_ID = 763090286372585522
-        self.BOT_ID = 760473932439879700
+        self.BOT_ROLE_ID = 760084024663605279
         self.GENERAL_ID = 760047749482807330
         self.SPAM_CHAT_ID = 766177228198903808
         self.BOTS_COMMANDS_CHANNEL_ID = 760158906516766741
@@ -590,13 +590,13 @@ class Helpers:
             the member has enabled or not
 
             **kwargs look like `manage_messages=True`
-                - `allowed_channel` is the name of the channel that the command can be executed in
+                - `allowed_channel` is the name or id of the channel that the command can be executed in
         """
 
         # First check if the member has any of the modderator roles
         execute = False
         for role in ctx.author.roles:
-            if role.id in (self.const.MODERATOR_ID, self.const.OWNER_ID, self.const.BOT_ID):
+            if role.id in (self.const.MODERATOR_ID, self.const.OWNER_ID, self.const.BOT_ROLE_ID):
                 return True
 
         if not execute and kwargs:
@@ -613,11 +613,11 @@ class Helpers:
 
         # Check if the channel name is the same as the allowed channel
         if "allowed_channel" in kwargs:
-            if ctx.channel.name == kwargs["allowed_channel"]:
-                execute = True
-            else:
-                execute = False
-
+            if isinstance(kwargs["allowed_channel"], str) and kwargs["allowed_channel"] == ctx.channel.name:
+                return True
+            elif isinstance(kwargs["allowed_channel"], int) and kwargs["allowed_channel"] == ctx.channel.id:
+                return True
+            return False
         return execute
 
     def valid_message(self, msg: discord.Message) -> bool:

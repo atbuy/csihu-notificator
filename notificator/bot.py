@@ -570,7 +570,7 @@ async def roll(ctx: commands.Context, start: int = 0, end: int = 10_000) -> None
     """Sends a random number to the channel"""
 
     # The command is only allowed in the bots-commands channel
-    if not client.helpers.can_execute(ctx, allowed_channel="bots-commands"):
+    if not client.helpers.can_execute(ctx, allowed_channel=const.BOTS_COMMANDS_CHANNEL_ID):
         await ctx.send(f"This command is only allowed in <#{const.BOTS_COMMANDS_CHANNEL_ID}>")
         return
 
@@ -1133,7 +1133,7 @@ async def translate(ctx: commands.Context, *, text: str) -> None:
     """
 
     # This command is only allowed in the bots-commands channel
-    if not client.helpers.can_execute(ctx, allowed_channel="bots-commands"):
+    if not client.helpers.can_execute(ctx, allowed_channel=const.BOTS_COMMANDS_CHANNEL_ID):
         await ctx.send(f"This command can only be executed in <#{const.BOTS_COMMANDS_CHANNEL_ID}>")
         return
 
