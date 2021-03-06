@@ -978,7 +978,10 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message = 
         print(f"{ctx.author} did {ctx.prefix}delete {number} {message.id} {member}")
 
     # Update logs
-    await client.helpers.update_logs(ctx, logs.DELETE, len(messages_deleted))
+    members = [m.author for m in messages_deleted]
+    await client.helpers.update_logs(
+        ctx, logs.DELETE,
+        number=len(messages_deleted), members_deleted=members)
 
 
 @client.command(name="rr", brief="Remove reactions from messages")

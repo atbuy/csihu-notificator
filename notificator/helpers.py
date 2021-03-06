@@ -13,7 +13,7 @@ import functools
 import numpy as np
 from PIL import Image
 from pathlib import Path
-from typing import Union
+from typing import Union, List
 from bs4 import BeautifulSoup
 from datetime import datetime
 from discord.ext import commands
@@ -503,7 +503,7 @@ class Helpers:
         for char in chars:
             await ctx.message.add_reaction(f"{self.const.CHARACTERS[char]}")
 
-    async def update_logs(self, ctx: commands.Context, command: str, number: int = None, member: discord.Member = None):
+    async def update_logs(self, ctx: commands.Context, command: str, number: int = None, member: discord.Member = None, members_deleted: List[discord.Member] = None):  # noqa
         """Sends an embed in the logs channel"""
 
         # Initialize embed
@@ -540,6 +540,9 @@ class Helpers:
 
             # Add field with the channel
             embed.add_field(name="Channel", value=f"{ctx.channel.mention}")
+
+            # Add field with the members the messages where deleted
+            embed.add_field(name="Messages deleted from", value="\n".join({m.mention for m in members_deleted}), inline=False)
 
         # Add timestamp to embed
         embed.timestamp = datetime.now()
