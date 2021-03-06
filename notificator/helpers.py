@@ -81,6 +81,7 @@ class const:
         self.BOT_ID = 760473932439879700
         self.GENERAL_ID = 760047749482807330
         self.SPAM_CHAT_ID = 766177228198903808
+        self.BOTS_COMMANDS_CHANNEL_ID = 760158906516766741
         self.SYNADELFOS_ROLE_ID = 773654278631850065
         self.FILIP_ROLE_ID = 770328364913131621
         self.PANEPISTHMIO_ID = 760047749482807327
@@ -589,14 +590,15 @@ class Helpers:
             the member has enabled or not
 
             **kwargs look like `manage_messages=True`
+                - `allowed_channel` is the name of the channel that the command can be executed in
         """
 
         # First check if the member has any of the modderator roles
         execute = False
         for role in ctx.author.roles:
             if role.id in (self.const.MODERATOR_ID, self.const.OWNER_ID, self.const.BOT_ID):
-                execute = True
-                break
+                return True
+
         if not execute and kwargs:
             # If he doesn't, check if he has enough permissions
             # to execute this command (this is for other servers)
@@ -608,6 +610,13 @@ class Helpers:
 
             if len(empty_perms) == len(kwargs):
                 execute = True
+
+        # Check if the channel name is the same as the allowed channel
+        if "allowed_channel" in kwargs:
+            if ctx.channel.name == kwargs["allowed_channel"]:
+                execute = True
+            else:
+                execute = False
 
         return execute
 

@@ -336,7 +336,7 @@ async def tag_voice_channel(ctx: commands.Context) -> None:
 
 # --- Troll Commands ---
 @client.command(name="tria", aliases=["triantafyllidhs", "trias", "mono"], brief=troll.trias_troll.brief)
-@commands.cooldown(3, 45, commands.BucketType.channel)
+@commands.cooldown(1, 60, commands.BucketType.channel)
 async def triantafyllidhs_troll(ctx: commands.Context) -> None:
     """Sends a troll command"""
     await troll.trias_troll.run(ctx)
@@ -355,14 +355,14 @@ async def gtx_troll(ctx: commands.Context) -> None:
 
 
 @client.command(name="akou", brief=troll.akou_troll.brief)
-@commands.cooldown(3, 45, commands.BucketType.channel)
+@commands.cooldown(1, 60, commands.BucketType.channel)
 async def akou_troll(ctx: commands.Context) -> None:
     """Replies to the author"""
     await troll.akou_troll.run(ctx)
 
 
 @client.command(name="deadobserver", aliases=["deadobs", "dobs"], brief=troll.deadobserver_troll.brief)
-@commands.cooldown(3, 45, commands.BucketType.channel)
+@commands.cooldown(1, 60, commands.BucketType.channel)
 async def deadobserver_troll(ctx: commands.Context) -> None:
     """Replies to the author"""
     await troll.deadobserver_troll.run(ctx)
@@ -567,6 +567,13 @@ async def change_role_color(ctx: commands.Context, red=None, green=None, blue=No
 
 @client.command(name="roll", brief="Get a random number!")
 async def roll(ctx: commands.Context, start: int = 0, end: int = 10_000) -> None:
+    """Sends a random number to the channel"""
+
+    # The command is only allowed in the bots-commands channel
+    if not client.helpers.can_execute(ctx, allowed_channel="bots-commands"):
+        await ctx.send(f"This command is only allowed in <#{const.BOTS_COMMANDS_CHANNEL_ID}>")
+        return
+
     random_number = random.randint(start, end)
     await ctx.send(f"{ctx.author.mention} your number is: `{random_number}`")
 
@@ -1124,6 +1131,12 @@ async def translate(ctx: commands.Context, *, text: str) -> None:
 
     :param text: The text to translate to greek
     """
+
+    # This command is only allowed in the bots-commands channel
+    if not client.helpers.can_execute(ctx, allowed_channel="bots-commands"):
+        await ctx.send(f"This command can only be executed in <#{const.BOTS_COMMANDS_CHANNEL_ID}>")
+        return
+
     blob = textblob.TextBlob(text)
     translate_from = blob.detect_language()
     translate_to = "el"
