@@ -113,7 +113,7 @@ async def myga(ctx: commands.Context, *, user: discord.User = None) -> None:
     await ctx.send(file=file)
 
 
-@client.command(name="kys", brief="Tell someone to kill themselves")
+@client.command(name="kys", brief="Tell someone to kill themself")
 @commands.cooldown(2, 45, commands.BucketType.channel)
 async def kys(ctx: commands.Context, *, user: discord.User = None) -> None:
     """
@@ -339,6 +339,11 @@ async def tag_voice_channel(ctx: commands.Context) -> None:
 @commands.cooldown(1, 60, commands.BucketType.channel)
 async def triantafyllidhs_troll(ctx: commands.Context) -> None:
     """Sends a troll command"""
+
+    # Check if the command is executed in a blacklisted channel
+    if not client.helpers.can_execute(ctx, unallowed_channels=[const.GENERAL_ID]):
+        await ctx.send(f"{ctx.author.mention} You can't execute this command in <#{const.GENERAL_ID}>")
+        return
     await troll.trias_troll.run(ctx)
 
 
@@ -358,6 +363,11 @@ async def gtx_troll(ctx: commands.Context) -> None:
 @commands.cooldown(1, 60, commands.BucketType.channel)
 async def akou_troll(ctx: commands.Context) -> None:
     """Replies to the author"""
+
+    # Check if the command is executed in a blacklisted channel
+    if not client.helpers.can_execute(ctx, unallowed_channels=[const.GENERAL_ID]):
+        await ctx.send(f"{ctx.author.mention} You can't execute this command in <#{const.GENERAL_ID}>")
+        return
     await troll.akou_troll.run(ctx)
 
 
@@ -570,7 +580,7 @@ async def roll(ctx: commands.Context, start: int = 0, end: int = 10_000) -> None
     """Sends a random number to the channel"""
 
     # The command is only allowed in the bots-commands channel
-    if not client.helpers.can_execute(ctx, allowed_channel=const.BOTS_COMMANDS_CHANNEL_ID):
+    if not client.helpers.can_execute(ctx, allowed_channels=[const.BOTS_COMMANDS_CHANNEL_ID]):
         await ctx.send(f"This command is only allowed in <#{const.BOTS_COMMANDS_CHANNEL_ID}>")
         return
 
@@ -1133,7 +1143,7 @@ async def translate(ctx: commands.Context, *, text: str) -> None:
     """
 
     # This command is only allowed in the bots-commands channel
-    if not client.helpers.can_execute(ctx, allowed_channel=const.BOTS_COMMANDS_CHANNEL_ID):
+    if not client.helpers.can_execute(ctx, allowed_channels=[const.BOTS_COMMANDS_CHANNEL_ID]):
         await ctx.send(f"This command can only be executed in <#{const.BOTS_COMMANDS_CHANNEL_ID}>")
         return
 
@@ -1266,11 +1276,9 @@ async def execute_python(ctx: commands.Context, *, script: str) -> None:
     """
 
     # Eval is not allowed in general, except moderators that can execute it
-    if ctx.channel.id == const.GENERAL_ID:
-        allowed_in_general = client.helpers.can_execute(ctx)
-        if not allowed_in_general:
-            await ctx.send(f"Not allowed to use **{ctx.prefix}e** in {ctx.channel.mention}")
-            return
+    if not client.helpers.can_execute(ctx, unallowed_channels=[const.GENERAL_ID]):
+        await ctx.send(f"{ctx.author.mention} You can't execute this command in <#{const.GENERAL_ID}>")
+        return
 
     # Check if the user doesn't want the output to be formatted
     # inside triple quotes (```)

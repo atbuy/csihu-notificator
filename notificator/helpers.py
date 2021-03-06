@@ -590,7 +590,8 @@ class Helpers:
             the member has enabled or not
 
             **kwargs look like `manage_messages=True`
-                - `allowed_channel` is the name or id of the channel that the command can be executed in
+                - `allowed_channels` is a list of names or ids of the channels that the command can be executed in
+                - `unallowed_channels` is a list of names or ids of the channels that the command can not be executed in
         """
 
         # First check if the member has any of the modderator roles
@@ -612,12 +613,20 @@ class Helpers:
                 execute = True
 
         # Check if the channel name is the same as the allowed channel
-        if "allowed_channel" in kwargs:
-            if isinstance(kwargs["allowed_channel"], str) and kwargs["allowed_channel"] == ctx.channel.name:
+        if "allowed_channels" in kwargs:
+            contains_id = all(isinstance(channel, int) for channel in kwargs["allowed_channels"])
+            if not contains_id and ctx.channel.name in kwargs["allowed_channels"]:
                 return True
-            elif isinstance(kwargs["allowed_channel"], int) and kwargs["allowed_channel"] == ctx.channel.id:
+            elif contains_id and ctx.channel.id in kwargs["allowed_channels"]:
                 return True
             return False
+        elif "unallowed_channels" in kwargs:
+            contains_id = all(isinstance(channel, int) for channel in kwargs["unallowed_channels"])
+            if not contains_id and ctx.channel.name in kwargs["unallowed_channels"]:
+                return False
+            elif contains_id and ctx.channel.id in kwargs["unallowed_channels"]:
+                return False
+            return True
         return execute
 
     def valid_message(self, msg: discord.Message) -> bool:
