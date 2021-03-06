@@ -998,7 +998,39 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message = 
     members = [m.author for m in messages_deleted]
     await client.helpers.update_logs(
         ctx, logs.DELETE,
-        number=len(messages_deleted), members_deleted=members)
+        number=len(messages_deleted), members_deleted=members
+    )
+
+
+@client.command(name="bulk-delete", aliases=["bulk", "bdel"])
+async def bulk_delete(ctx: commands.Context, start: discord.Message, end: discord.Message):
+    """Deletes all messages from `start` to `end`"""
+
+    # Get the time the messages where created
+    start_t = start.created_at
+    end_t = end.created_at
+
+    # Check if the start message is after the end message
+    if end_t > start_t:
+        # Change the variables so the command can work
+        start_t, end_t = end_t, start_t
+
+    # Delete the messages
+    await start.delete()
+    messages_deleted = [start]
+    messages_deleted += await ctx.channel.purge(before=start_t, after=end_t)
+    messages_deleted.append(end)
+    await end.delete()
+
+    # Also delete the command message
+    await ctx.message.delete()
+
+    # Update logs
+    members = [m.author for m in messages_deleted]
+    await client.helpers.update_logs(
+        ctx, logs.DELETE,
+        number=len(messages_deleted), members_deleted=members
+    )
 
 
 @client.command(name="rr", brief="Remove reactions from messages")
