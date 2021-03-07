@@ -451,7 +451,7 @@ class Helpers:
 
         # Initialize the embed object
         embed = discord.Embed(
-            title=f"Help for {ctx.prefix}{group}",
+            title=f"Help for {self.client.command_prefix}{group}",
             description=f"{comm.brief}",
             color=0xff0000
         )
@@ -465,12 +465,12 @@ class Helpers:
         # Format the aliases of the command
         aliases = comm.aliases
         if aliases:
-            outalias = f"{ctx.prefix}[{comm.name}"
+            outalias = f"{self.client.command_prefix}[{comm.name}"
             for alias in aliases:
                 outalias += f"|{alias}"
             outalias += "] "
         else:
-            outalias = f"{ctx.prefix}{comm.name}"
+            outalias = f"{self.client.command_prefix}{comm.name}"
 
         # Get the parameters of the command formatted
         params = comm.signature
@@ -483,10 +483,10 @@ class Helpers:
         elif outalias:
             par = f"{outalias} "
         else:
-            par = f"{ctx.prefix}{group} "
+            par = f"{self.client.command_prefix}{group} "
 
         embed.add_field(
-            name=f"{ctx.prefix}{group}",
+            name=f"{self.client.command_prefix}{group}",
             value=f"{par}",
             inline=False
         )
@@ -743,7 +743,7 @@ class Helpers:
         # Add all the fields with the commands of the page
         for key, val in page_commands.items():
             embed.add_field(
-                name=f"{ctx.prefix}{key}",
+                name=f"{self.client.command_prefix}{key}",
                 value=f"{val}",
                 inline=False
             )

@@ -11,7 +11,7 @@ import googlesearch
 from datetime import datetime
 from itertools import product
 from discord.ext import commands
-
+from discord_slash import SlashCommand, SlashContext
 
 import morse
 import helpers
@@ -39,6 +39,9 @@ client.DISABLED_COMMANDS: dict = const.DISABLED_COMMANDS
 client.RULES: list = const.RULES
 client.latest_announcement = {"text": LAST_MESSAGE, "link": LAST_LINK, "id": LAST_ID}
 client.is_running = False
+
+slash = SlashCommand(client, sync_commands=True)
+slash_guild_ids = [const.PANEPISTHMIO_ID]
 
 
 @client.command(brief="Test the bot")
@@ -539,6 +542,7 @@ async def change_role_color(ctx: commands.Context, red=None, green=None, blue=No
     :param green: Can be None when hex is passed. This is the green value of rgb.
     :param blue: Can be None when hex is passed. This is the green value of rgb.
     """
+
     # * !A!B!C = !!(!A * !B * !C) = !(!!A + !!B + !!C) = !(A + B + C)
     if not (red or green or blue):
         return
@@ -573,6 +577,7 @@ async def change_role_color(ctx: commands.Context, red=None, green=None, blue=No
     roles = ctx.guild.roles
     position = len(roles) - 11
     await color_role.edit(position=position)
+    await ctx.send(f"Changed color to: #{hex_val}")
 
 
 @client.command(name="roll", brief="Get a random number!")
@@ -969,7 +974,7 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message = 
     execute = client.helpers.can_execute(ctx, manage_messages=True)
 
     if not execute:
-        await ctx.send(f"{ctx.author.mention} you don't have enough permissions to use {ctx.prefix}delete")
+        await ctx.send(f"{ctx.author.mention} you don't have enough permissions to use {client.command_prefix}delete")
         return
 
     # If the starting message is not specified, purge the last `amount` messages
@@ -982,8 +987,6 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message = 
         messages_deleted = await ctx.channel.purge(limit=number, before=message.created_at)
         await message.delete()
         await ctx.message.delete()
-
-        print(f"{ctx.author} did {ctx.prefix}delete {number} {message.id}")
     # If message and member are given, then retrieve `amount` messages
     # and delete the messages sent from `member`
     elif message and member:
@@ -991,15 +994,13 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message = 
         await message.delete()
         await ctx.message.delete()
 
-        # Just for logs
-        print(f"{ctx.author} did {ctx.prefix}delete {number} {message.id} {member}")
-
     # Update logs
     members = [m.author for m in messages_deleted]
     await client.helpers.update_logs(
         ctx, logs.DELETE,
         number=len(messages_deleted), members_deleted=members
     )
+    await ctx.send(f"Deleted {len(messages_deleted)} messages")
 
 
 @client.command(name="bulk-delete", aliases=["bulk", "bdel"])
@@ -1408,10 +1409,57 @@ async def toggle_cabbage(ctx: commands.Context) -> None:
     SEND_CABBAGE = not SEND_CABBAGE
 
 
+# ! --- Slash Commands ---
+@slash.slash(name="help", description=help.brief, guild_ids=slash_guild_ids)
+async def slash_help(ctx: SlashContext, group: str = None):
+    await help(ctx, group)
+
+
+@slash.slash(name="get-color", description=get_member_color.brief, guild_ids=slash_guild_ids)
+async def slash_get_member_color(ctx: SlashContext, member: discord.Member):
+    await get_member_color(ctx, member=member)
+
+
+@slash.slash(name="set-color", description=change_role_color.brief, guild_ids=slash_guild_ids)
+async def slash_change_role_color(ctx: SlashContext, red=None, green=None, blue=None):
+    await change_role_color(ctx, red=red, green=green, blue=blue)
+
+
+@slash.slash(name="mute", description=mute.brief, guild_ids=slash_guild_ids)
+async def slash_mute(ctx: SlashContext, member: discord.Member, minutes: float = 5.0):
+    minutes = float(minutes)
+    await mute(ctx, member=member, minutes=minutes)
+
+
+@slash.slash(name="unmute", description=unmute.brief, guild_ids=slash_guild_ids)
+async def slash_unmute(ctx: SlashContext, member: discord.Member):
+    await unmute(ctx, member=member)
+
+
+@slash.slash(name="delete", description=delete.brief, guild_ids=slash_guild_ids)
+async def slash_delete(ctx: SlashContext, number: int, message: discord.Message = None, member: discord.Member = None):  # noqa
+    number = int(number)
+
+    if isinstance(message, str):
+        message = discord.utils.get(ctx.channel.history, id=int(message))
+
+    if isinstance(member, str):
+        member = discord.utils.get(ctx.guild.members, id=int(member))
+
+    await delete(ctx, number=number, message=message, member=member)
+# ! ----------------------
+
+
 @client.event
 async def on_ready():
     """This is an event listener. It changes the bot's presence when the bot is ready"""
     print("NotificatorBot ready")
+
+
+@client.event
+async def on_slash_command_error(ctx, ex):
+    print(ex)
+    # await ctx.send(ex)
 
 
 @client.event
