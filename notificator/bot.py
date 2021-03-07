@@ -1000,7 +1000,6 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message = 
         ctx, logs.DELETE,
         number=len(messages_deleted), members_deleted=members
     )
-    await ctx.send(f"Deleted {len(messages_deleted)} messages")
 
 
 @client.command(name="bulk-delete", aliases=["bulk", "bdel"], brief="Delete all messages in the specified area")
@@ -1032,8 +1031,6 @@ async def bulk_delete(ctx: commands.Context, start: discord.Message, end: discor
         ctx, logs.DELETE,
         number=len(messages_deleted), members_deleted=members
     )
-
-    await ctx.send(f"Deleted {len(messages_deleted)} messages")
 
 
 @client.command(name="rr", brief="Remove reactions from messages")
@@ -1532,6 +1529,8 @@ async def slash_delete(ctx: SlashContext, number: int, message: discord.Message 
         member = discord.utils.get(ctx.guild.members, id=int(member))
 
     await delete(ctx, number=number, message=message, member=member)
+    msg = await ctx.send(".")
+    await msg.delete()
 # ! ----------------------
 
 
