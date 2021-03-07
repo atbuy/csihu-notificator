@@ -1369,13 +1369,18 @@ async def programma(ctx: commands.Context) -> None:
 
 
 @client.command(aliases=["commands"], brief="Webpage embed to help commands")
-# @commands.cooldown(1, 15, commands.BucketType.user)
+@commands.cooldown(1, 60, commands.BucketType.user)
 async def help(ctx, group: str = None) -> None:
     """
     Send an embed with the link to the csihu help page
 
     :param group: The command to get help from
     """
+
+    # This command is disabled in #general
+    if client.helpers.can_execute(ctx, unallowed_channels=[const.GENERAL_ID]):
+        await ctx.send(f"You can't execute this command in <#{const.GENERAL_ID}>")
+        return
 
     # If there is a command passed check if that command exists.
     # If it exists format the output like discord's help command does.
@@ -1425,6 +1430,47 @@ async def slash_change_role_color(ctx: SlashContext, red=None, green=None, blue=
     await change_role_color(ctx, red=red, green=green, blue=blue)
 
 
+@slash.slash(name="zoom", description=zoom.brief, guild_ids=slash_guild_ids)
+async def slash_zoom(ctx: SlashContext):
+    await zoom(ctx)
+
+
+@slash.slash(name="moodle", description=moodle.brief, guild_ids=slash_guild_ids)
+async def slash_moodle(ctx: SlashContext):
+    await moodle(ctx)
+
+
+@slash.slash(name="courses", description=courses.brief, guild_ids=slash_guild_ids)
+async def slash_courses(ctx: SlashContext):
+    await courses(ctx)
+
+
+@slash.slash(name="programma", description=programma.brief, guild_ids=slash_guild_ids)
+async def slash_programma(ctx: SlashContext):
+    await programma(ctx)
+
+
+@slash.slash(name="triantafyllidhs", description=triantafyllidhs_troll.brief, guild_ids=slash_guild_ids)
+async def slash_triantafyllidhs(ctx: SlashContext):
+    await triantafyllidhs_troll(ctx)
+
+
+@slash.slash(name="akou", description=akou_troll.brief, guild_ids=slash_guild_ids)
+async def slash_akou(ctx: SlashContext):
+    await akou_troll(ctx)
+
+
+@slash.slash(name="drip", description=drip.brief, guild_ids=slash_guild_ids)
+async def slash_drip(ctx: SlashContext):
+    await drip(ctx)
+
+
+@slash.slash(name="timer", description=timer.brief, guild_ids=slash_guild_ids)
+async def slash_timer(ctx: SlashContext, value: str):
+    await timer(ctx, value=value)
+
+
+# * --- Mod commands ---
 @slash.slash(name="mute", description=mute.brief, guild_ids=slash_guild_ids)
 async def slash_mute(ctx: SlashContext, member: discord.Member, minutes: float = 5.0):
     minutes = float(minutes)
