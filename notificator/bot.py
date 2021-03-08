@@ -156,6 +156,11 @@ async def get_icon(ctx: commands.Context, *, member: discord.Member = None) -> N
     :param member: (Optional) you can pass a member if you want to view this member's icon
     """
 
+    # This command is not allowed in #general
+    if not client.helpers.can_execute(ctx, unallowed_channels=[const.GENERAL_ID]):
+        await ctx.send(f"{ctx.author.mention} You can't use this command in <#{const.GENERAL_ID}>")
+        return
+
     if not member:
         url = ctx.author.avatar_url
         await ctx.send(f"{ctx.author.mention} your icon is located at: {url}")
@@ -602,6 +607,11 @@ async def gsearch(ctx: commands.Context, *, query: str) -> None:
     :param query: The query to make to google (what to search for)
     """
 
+    # This command is disabled in #general
+    if not client.helpers.can_execute(ctx, unallowed_channels=[const.GENERAL_ID]):
+        await ctx.send(f"{ctx.author.mention} You can't use this command in <#{const.GENERAL_ID}>")
+        return
+
     # Detect original language
     language = textblob.TextBlob(query).detect_language()
 
@@ -628,6 +638,11 @@ async def urban_dict(ctx: commands.Context, *, text: str) -> None:
 
     :param text: The text to search for
     """
+
+    # This command is disabled in #general
+    if not client.helpers.can_execute(ctx, unallowed_channels=[const.GENERAL_ID]):
+        await ctx.send(f"{ctx.author.mention} You can't use this command in <#{const.GENERAL_ID}>")
+        return
 
     # Search for the word
     try:
