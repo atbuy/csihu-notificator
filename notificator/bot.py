@@ -1255,8 +1255,7 @@ async def unmute(ctx: commands.Context, member: discord.Member) -> None:
 
 @client.command(
     name="mute", brief="Mute a member",
-    description="Mute a member for the specified amount of minutes", aliases=["m", "voulwne"]
-)
+    description="Mute a member for the specified amount of minutes", aliases=["m", "voulwne"])
 async def mute(ctx: commands.Context, member: discord.Member, minutes: float = 5.0) -> None:
     """
     Mutes a member for the specified amount of minutes
@@ -1271,9 +1270,7 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float = 5
         return
 
     # Check if the author can mute someone else
-    execute = client.helpers.can_execute(ctx, mute_members=True)
-
-    if not execute:
+    if not client.helpers.can_execute(ctx, mute_members=True):
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
         return
 
@@ -1380,7 +1377,7 @@ async def help(ctx, group: str = None) -> None:
     """
 
     # This command is disabled in #general
-    if client.helpers.can_execute(ctx, unallowed_channels=[const.GENERAL_ID]):
+    if not client.helpers.can_execute(ctx, unallowed_channels=[const.GENERAL_ID]):
         await ctx.send(f"You can't execute this command in <#{const.GENERAL_ID}>")
         return
 
