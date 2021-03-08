@@ -914,17 +914,9 @@ async def say(ctx: commands.Context, *, text: str) -> None:
     :param text: The text to be converted to emojis
     """
 
-    execute = True
-    if ctx.guild.id == const.PANEPISTHMIO_ID:  # Panephstimio ID
-        # This command is not allowed in the general chat
-        if ctx.channel.id == const.GENERAL_ID:
-            # If the message is in the general chat, then only moderators can execute it
-            execute = client.helpers.can_execute(ctx)
-        else:
-            execute = True
-
-    if not execute:
-        await ctx.send(f"{ctx.author.mention} You can't use this command in <#{const.GENERAL_ID}>")
+    # This command is not allowed in #general
+    if not client.helpers.can_execute(ctx, unallowed_channels=[const.GENERAL_ID]):
+        await ctx.send(f"{ctx.author.mention} You can't execute this command in <#{const.GENERAL_ID}")
         return
 
     output = ""
@@ -1480,6 +1472,7 @@ async def slash_drip(ctx: SlashContext):
     if slash_drip.name in client.DISABLED_COMMANDS:
         await ctx.send(f"{ctx.author.mention} this command is disabled")
         return
+
     await drip(ctx)
 
 
@@ -1489,6 +1482,7 @@ async def slash_timer(ctx: SlashContext, value: str):
     if slash_timer.name in client.DISABLED_COMMANDS:
         await ctx.send(f"{ctx.author.mention} this command is disabled")
         return
+
     await timer(ctx, value=value)
 
 
@@ -1503,7 +1497,41 @@ async def slash_donate(ctx: SlashContext):
     if slash_donate.name in client.DISABLED_COMMANDS:
         await ctx.send(f"{ctx.author.mention} this command is disabled")
         return
+
     await donate(ctx)
+
+
+@slash.slash(name="say", description=say.brief, guild_ids=slash_guild_ids)
+async def slash_say(ctx: SlashContext, text: str):
+    # Check if the command is disabled
+    if slash_say.name in client.DISABLED_COMMANDS:
+        await ctx.send(f"{ctx.author.mention} this command is disabled")
+        return
+
+    await say(ctx, text=text)
+
+
+@slash.slash(name="word", description=random_word.brief, guild_ids=slash_guild_ids)
+async def slash_random_word(ctx: SlashContext):
+    # Check if the command is disabled
+    if slash_random_word.name in client.DISABLED_COMMANDS:
+        await ctx.send(f"{ctx.author.mention} this command is disabled")
+        return
+
+    await random_word(ctx)
+
+
+@slash.slash(name="rules", description=rules.brief, guild_ids=slash_guild_ids)
+async def slash_rules(ctx: SlashContext, rule: int = None):
+    # Check if the command is disabled
+    if slash_rules.name in client.DISABLED_COMMANDS:
+        await ctx.send(f"{ctx.author.mention} this command is disabled")
+        return
+
+    if isinstance(rule, str):
+        rule = int(rule)
+
+    await rules(ctx, rule=rule)
 
 
 # * --- Mod commands ---

@@ -349,7 +349,7 @@ class Helpers:
                 if not (extension in self.const.ALLOWED_FILES):
                     await msg.delete()
                     await msg.channel.send(
-                        f"{msg.author.mention} you are not to upload `.{extension}` files"
+                        f"{msg.author.mention} you are not allowed to upload `.{extension}` files"
                         f"Use `.allowedfiles` to view all the allowed file types."
                     )
 
