@@ -1368,7 +1368,7 @@ async def programma(ctx: commands.Context) -> None:
 
 
 @client.command(aliases=["commands"], brief="Webpage embed to help commands")
-@commands.cooldown(1, 60, commands.BucketType.user)
+# @commands.cooldown(1, 60, commands.BucketType.user)
 async def help(ctx, group: str = None) -> None:
     """
     Send an embed with the link to the csihu help page
