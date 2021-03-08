@@ -24,6 +24,7 @@ LAST_ID = const.LAST_ID
 LAST_LINK = const.LAST_LINK
 LAST_MESSAGE = const.LAST_MESSAGE
 SEND_CABBAGE = False
+SPAM_FILTER = True
 
 TOKEN = os.environ.get("CSIHU_NOTIFICATOR_BOT_TOKEN")
 intents = discord.Intents.all()
@@ -1397,12 +1398,29 @@ async def toggle_cabbage(ctx: commands.Context) -> None:
     global SEND_CABBAGE
 
     # Check if the user can execute this command
-    execute = client.helpers.can_execute(ctx)
-    if not execute:
-        await ctx.send(f"{ctx.author.mention} You don't have enough permissions to use this command")
+    if not client.helpers.can_execute(ctx):
+        await ctx.send(f"{ctx.author.mention} You are not allowed to use this command")
         return
 
     SEND_CABBAGE = not SEND_CABBAGE
+
+    await ctx.send(f"Cabbage sending is {'on' if SEND_CABBAGE else 'off'}")
+
+
+@client.command(name="filter", aliases=["sf", "spam", "spamfilter"], brief="Toggle spam filter")
+async def toggle_spam(ctx: commands.Context) -> None:
+    """Toggle the spam filter variable"""
+
+    global SPAM_FILTER
+
+    # Check if the user can execute this command
+    if not client.helpers.can_execute(ctx):
+        await ctx.send(f"{ctx.author.mention} You are not allowed to use this command.")
+        return
+
+    SPAM_FILTER = not SPAM_FILTER
+
+    await ctx.send(f"Spam filter is {'on' if SPAM_FILTER else 'off'}")
 
 
 # ! --- Slash Commands ---
@@ -1590,12 +1608,6 @@ async def on_message(msg: discord.Message) -> None:
         # Run the bot without checking if the message was from a moderator
         await run_bot(ctx, give_pass=True)
 
-    # Check if the bot is mentioned, and add reactions to it, if it is.
-    mentioned = client.helpers.check_for_mention(ctx)
-    if mentioned:
-        await client.helpers.mention_reaction(ctx)
-        return
-
     # Handle attachments in messages
     if msg.attachments:
         # Check if the attachment is a txt file.
@@ -1616,7 +1628,7 @@ async def on_message(msg: discord.Message) -> None:
         await ctx.send("https://tenor.com/view/lettuce-hannibal-buress-eat-hungry-food-gif-5358227")
 
     # If the message is not in the spam-chat, check if it should be allowed
-    if not msg.channel.id == const.SPAM_CHAT_ID:
+    if not msg.channel.id == const.SPAM_CHAT_ID and SPAM_FILTER:
         if not client.helpers.valid_message(check_msg):
             await asyncio.sleep(0.5)
             await msg.delete()
@@ -1635,6 +1647,12 @@ async def on_message(msg: discord.Message) -> None:
             # Check if the message was supposed to be a command
             await client.process_commands(msg)
             return
+
+    # Check if the bot is mentioned, and add reactions to it
+    mentioned = client.helpers.check_for_mention(ctx)
+    if mentioned:
+        await client.helpers.mention_reaction(ctx)
+        return
 
 
 @client.event
