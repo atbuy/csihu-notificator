@@ -1253,7 +1253,10 @@ async def unmute(ctx: commands.Context, member: discord.Member) -> None:
     await client.helpers.update_logs(ctx, logs.UNMUTE, member=member)
 
 
-@client.command(name="mute", brief="Mute a member", description="Mute a member for the specified amount of minutes")
+@client.command(
+    name="mute", brief="Mute a member",
+    description="Mute a member for the specified amount of minutes", aliases=["m", "voulwne"]
+)
 async def mute(ctx: commands.Context, member: discord.Member, minutes: float = 5.0) -> None:
     """
     Mutes a member for the specified amount of minutes
