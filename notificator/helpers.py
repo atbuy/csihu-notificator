@@ -656,8 +656,7 @@ class Helpers:
             return True
 
         # Check if there are any special characters in the message and remove them
-        characters = list(
-            filter(lambda x: x in msg, self.const.SPECIAL_CHARACTERS))
+        characters = list(filter(lambda x: x in msg, self.const.SPECIAL_CHARACTERS))
         if characters:
             for char in characters:
                 msg = msg.replace(char, "")

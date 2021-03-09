@@ -24,7 +24,7 @@ LAST_ID = const.LAST_ID
 LAST_LINK = const.LAST_LINK
 LAST_MESSAGE = const.LAST_MESSAGE
 SEND_CABBAGE = False
-SPAM_FILTER = True
+SPAM_FILTER = False
 
 TOKEN = os.environ.get("CSIHU_NOTIFICATOR_BOT_TOKEN")
 intents = discord.Intents.all()
