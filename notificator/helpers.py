@@ -76,6 +76,7 @@ class const:
 
         self.MY_ID = 222950176770228225
         self.MODERATOR_ID = 760078403264184341
+        self.HELPER_ROLE_ID = 818875607190208554
         self.OWNER_ID = 760085688133222420
         self.WAITING_ROOM_ID = 763090286372585522
         self.BOT_ROLE_ID = 760084024663605279
@@ -207,6 +208,7 @@ class Helpers:
                 self.const.START_EMOJI, self.const.ARROW_BACKWARD,
                 self.const.ARROW_FORWARD, self.const.END_EMOJI
             ]
+            self.allowed_helper_commands = ["mute", "unmute", "delete", "slowmode"]
             self.testing = False
 
             # Decrement the total pages by one to fix empty last page error
@@ -599,6 +601,11 @@ class Helpers:
         for role in ctx.author.roles:
             if role.id in (self.const.MODERATOR_ID, self.const.OWNER_ID, self.const.BOT_ROLE_ID):
                 return True
+            if role.id == self.const.HELPER_ROLE_ID:
+                command_names = [ctx.command.name] + ctx.command.aliases
+                for cmd in command_names:
+                    if cmd in self.allowed_helper_commands:
+                        return True
 
         if not execute and kwargs:
             # If he doesn't, check if he has enough permissions

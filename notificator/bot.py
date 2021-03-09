@@ -1094,10 +1094,8 @@ async def slow(ctx: commands.Context, time: str) -> None:
     """
 
     # Check if the member can execute this command
-    execute = client.helpers.can_execute(ctx, manage_channels=True)
-
-    if not execute:
-        await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
+    if not client.helpers.can_execute(ctx, manage_channels=True):
+        await ctx.send(f"{ctx.author.mention} You don't have enough permission to use this command.")
         return
 
     slowed, time_type = time[0:len(time)-1], time[-1]
@@ -1272,14 +1270,14 @@ async def mute(ctx: commands.Context, member: discord.Member, minutes: float = 5
     :param minutes: The amount of minutes to mute for
     """
 
-    # One hour mute limit
-    if minutes > 300:
-        await ctx.send(f"{ctx.author.mention} you can't mute someone for more than 5 hours.")
-        return
-
     # Check if the author can mute someone else
     if not client.helpers.can_execute(ctx, mute_members=True):
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
+        return
+
+    # One hour mute limit
+    if minutes > 300:
+        await ctx.send(f"{ctx.author.mention} you can't mute someone for more than 5 hours.")
         return
 
     # Get the muted role
