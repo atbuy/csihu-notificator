@@ -1054,20 +1054,18 @@ async def remove_reactions(ctx: commands.Context, amount: int, message: discord.
         The command the member sent, the `message` object and the previous `amount` messages are accounted for
     """
 
+    # Check if the member can execute this command
+    if not client.helpers.can_execute(ctx, manage_messages=True):
+        await ctx.send(f"{ctx.author.mention} You don't have enough permissions to use this command.")
+        return
+
     # Can't get negative amount of messages
     if amount < 0:
         return
 
     # Only allowed to get 10 messages
-    if amount > 10:
-        await ctx.send(f"{ctx.author.mention} you can't remove reactions from more than 10 messages")
-        return
-
-    # Check if the member can execute this command
-    execute = client.helpers.can_execute(ctx, manage_messages=True)
-
-    if not execute:
-        await ctx.send(f"{ctx.author.mention} you don't have enough permission to perform this action")
+    if amount > 100:
+        await ctx.send(f"{ctx.author.mention} you can't remove reactions from more than 100 messages")
         return
 
     if message:
