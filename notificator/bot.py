@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 import os
 import io
-import troll
 import json
+import troll
 import random
 import asyncio
 import discord
@@ -1432,6 +1432,40 @@ async def toggle_spam(ctx: commands.Context) -> None:
     SPAM_FILTER = not SPAM_FILTER
 
     await ctx.send(f"Spam filter is {'on' if SPAM_FILTER else 'off'}")
+
+
+@client.command(name="stats", aliases=["get-stats", "getstats"], brief="Get statistics for mods")
+async def get_statistics(ctx: commands.Context):
+    """Returns a json file with mod stats"""
+
+    if not client.helpers.can_execute(ctx):
+        await ctx.send(f"{ctx.author.mention} You are not allowed to use this command")
+        return
+
+    # Get the log channel
+    log_channel: discord.TextChannel = discord.utils.get(ctx.guild.text_channels, id=const.LOGS_CHANNEL_ID)
+
+    # Read all the embeds
+    messages = log_channel.history(limit=1000000)
+
+    stats_dict = {}
+    counter = 1
+    async for msg in messages:
+        embed = msg.embeds[0]
+        stat = embed.to_dict()
+        fields = stat["fields"]
+        stats_dict[counter] = {
+            "author": stat["author"]["name"],
+            "action": stat["fields"][1]["value"],
+            "fields": {fields[j]["name"]: fields[j]["value"] for j in range(2, len(stat["fields"]))}
+        }
+        counter += 1
+
+    # Create a file-like object to write the json data
+    data = io.StringIO(json.dumps(stats_dict, indent=4))
+
+    # Send the JSON file
+    await ctx.send(f"{ctx.author.mention}. Moderator statistics:\n", file=discord.File(data, filename="statistics.json"))
 
 
 # ! --- Slash Commands ---
