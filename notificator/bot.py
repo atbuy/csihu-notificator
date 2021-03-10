@@ -1466,7 +1466,7 @@ async def get_statistics(ctx: commands.Context):
     log_channel: discord.TextChannel = discord.utils.get(ctx.guild.text_channels, id=const.LOGS_CHANNEL_ID)
 
     # Read all the embeds
-    messages = log_channel.history(limit=1000000)
+    messages = log_channel.history(limit=1_000_000)
 
     stats_dict = {}
     counter = 1
