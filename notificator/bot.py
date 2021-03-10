@@ -695,10 +695,28 @@ async def timer(ctx: commands.Context, value: str) -> None:
     try:
         if ending:
             timed = int(value[:len(value) - 1])
+
+            if ending == "h":
+                if timed > 6:
+                    await ctx.send(f"{ctx.author.mention} You can't set an alarm for more than 6 hours.")
+                    return
+            elif ending == "m":
+                if timed > 6*60:
+                    await ctx.send(f"{ctx.author.mention} You can't set an alarm for more than 6 hours.")
+                    return
+            elif ending == "s":
+                if timed > 6*60*60:
+                    await ctx.send(f"{ctx.author.mention} You can't set an alarm for more than 6 hours.")
+                    return
+
             # Send success message
             await ctx.send(f"{ctx.author.mention} set an alarm for {timed} {time_type[ending]}")
         else:
             timed = int(value)
+            if timed > 6*3600:
+                await ctx.send(f"{ctx.author.mention} You can't set an alarm for more than 6 hours.")
+                return
+
             # Send success message
             await ctx.send(f"{ctx.author.mention} set an alarm for {timed} seconds.")
     except ValueError:
