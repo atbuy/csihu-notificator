@@ -1489,14 +1489,29 @@ async def get_statistics(ctx: commands.Context):
 
 
 @client.command(name="vclogs", aliases=["join"], brief="Log users that joined the voice channel")
-async def voice_chat_log(ctx: commands.Context):
+async def voice_chat_log(ctx: commands.Context, mode: str = None):
     """Keeps track of people that join a voice channel"""
 
-    global VC_LOG
+    global VC_LOGS
+
+    if not ctx.author.id == const.MY_ID:
+        await ctx.send(f"{ctx.author.mention} You are not allowed to use this command")
+        return
+
+    if mode == "view":
+        indented = json.dumps(VC_LOGS, indent=2)
+        try:
+            await ctx.send(f"```json\n{indented}```")
+        except discord.HTTPException:
+            data = io.StringIO(json.dumps(indented, indent=4))
+            await ctx.send(
+                content=f"{ctx.author.mention}. Voice Chat Logs:\n",
+                file=discord.File(data, filename="voice_chat_logs.json")
+            )
+        return
 
     channel = ctx.author.voice.channel
-    await channel.connec5()
-    VC_LOG.add(ctx.author.name)
+    await channel.connect()
 
 
 # ! --- Slash Commands ---
@@ -1657,6 +1672,27 @@ async def slash_delete(ctx: SlashContext, number: int, message: discord.Message 
 
 
 @client.event
+async def on_voice_state_update(ctx: discord.Member, before: discord.member.VoiceState, after: discord.member.VoiceState):
+    """Adds member to the list of members that joined the call in order"""
+    global VC_LOGS
+
+    # Clear VC_LOGS when the bot is removed from the call
+    if ctx.name == client.user.name and after.channel is None:
+        VC_LOGS = {}
+        return
+    elif ctx.name == client.user.name and after.channel:
+        return
+
+    # Add the name of the person that joined the call the a set
+    index = len(VC_LOGS) + 1
+    VC_LOGS[index] = {ctx.name: {
+        "action": "joined" if after.channel else "left",
+        "time": datetime.now().strftime("%H:%M:%S")
+        }
+    }
+
+
+@client.event
 async def on_ready():
     """This is an event listener. It changes the bot's presence when the bot is ready"""
     print("NotificatorBot ready")
@@ -1670,7 +1706,7 @@ async def on_slash_command_error(ctx, ex):
 
 @client.event
 async def on_command_error(ctx: commands.Context, e):
-    print(f"Command {ctx.command.name}: {e}")
+    print(f"Command <{ctx.command.name}> - Member #{ctx.author} - Channel #{ctx.channel} - Error: {e}")
 
 
 @client.event
