@@ -1510,8 +1510,11 @@ async def voice_chat_log(ctx: commands.Context, mode: str = None):
             )
         return
 
-    channel = ctx.author.voice.channel
-    await channel.connect()
+    voice = ctx.author.voice
+    if voice:
+        await voice.channel.connect()
+        return
+    await ctx.send("You are not connected in a voice channel")
 
 
 # ! --- Slash Commands ---
@@ -1672,21 +1675,25 @@ async def slash_delete(ctx: SlashContext, number: int, message: discord.Message 
 
 
 @client.event
-async def on_voice_state_update(ctx: discord.Member, before: discord.member.VoiceState, after: discord.member.VoiceState):
+async def on_voice_state_update(member: discord.Member, before: discord.member.VoiceState, after: discord.member.VoiceState):
     """Adds member to the list of members that joined the call in order"""
     global VC_LOGS
 
     # Clear VC_LOGS when the bot is removed from the call
-    if ctx.name == client.user.name and after.channel is None:
+    if member.name == client.user.name and after.channel is None:
         VC_LOGS = {}
         return
-    elif ctx.name == client.user.name and after.channel:
+    elif member.name == client.user.name and after.channel:
+        return
+
+    # Only keep logs if the bot is in a voice channel
+    if not client.voice_clients:
         return
 
     # Add the name of the person that joined the call the a set
     index = len(VC_LOGS) + 1
-    VC_LOGS[index] = {ctx.name: {
-        "action": "joined" if after.channel else "left",
+    VC_LOGS[index] = {member.name: {
+        "action": "joined" if member.voice else "left",
         "time": datetime.now().strftime("%H:%M:%S")
         }
     }
