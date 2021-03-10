@@ -25,6 +25,7 @@ LAST_LINK = const.LAST_LINK
 LAST_MESSAGE = const.LAST_MESSAGE
 SEND_CABBAGE = False
 SPAM_FILTER = False
+VC_LOGS = {}
 
 TOKEN = os.environ.get("CSIHU_NOTIFICATOR_BOT_TOKEN")
 intents = discord.Intents.all()
@@ -1438,6 +1439,7 @@ async def toggle_spam(ctx: commands.Context) -> None:
 async def get_statistics(ctx: commands.Context):
     """Returns a json file with mod stats"""
 
+    # Check if the member is allowed to use this command
     if not client.helpers.can_execute(ctx):
         await ctx.send(f"{ctx.author.mention} You are not allowed to use this command")
         return
@@ -1466,6 +1468,17 @@ async def get_statistics(ctx: commands.Context):
 
     # Send the JSON file
     await ctx.send(f"{ctx.author.mention}. Moderator statistics:\n", file=discord.File(data, filename="statistics.json"))
+
+
+@client.command(name="vclogs", aliases=["join"], brief="Log users that joined the voice channel")
+async def voice_chat_log(ctx: commands.Context):
+    """Keeps track of people that join a voice channel"""
+
+    global VC_LOG
+
+    channel = ctx.author.voice.channel
+    await channel.connec5()
+    VC_LOG.add(ctx.author.name)
 
 
 # ! --- Slash Commands ---
@@ -1635,6 +1648,11 @@ async def on_ready():
 async def on_slash_command_error(ctx, ex):
     print(ex)
     # await ctx.send(ex)
+
+
+@client.event
+async def on_command_error(ctx: commands.Context, e):
+    print(f"Command {ctx.command.name}: {e}")
 
 
 @client.event
