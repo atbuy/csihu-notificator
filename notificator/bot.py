@@ -1693,7 +1693,7 @@ async def on_voice_state_update(member: discord.Member, before: discord.member.V
     # Add the name of the person that joined the call the a set
     index = len(VC_LOGS) + 1
     VC_LOGS[index] = {member.name: {
-        "action": "joined" if member.voice and not before.channel else "left",
+        "action": "joined" if not before.channel and after.channel else "left",
         "time": datetime.now().strftime("%H:%M:%S")
         }
     }
