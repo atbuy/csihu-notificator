@@ -1706,7 +1706,7 @@ async def on_slash_command_error(ctx, ex):
 
 @client.event
 async def on_command_error(ctx: commands.Context, e):
-    print(f"Command <{ctx.command.name}> - Member #{ctx.author} - Channel #{ctx.channel} - Error: {e}")
+    print(f"Command <{ctx.command.name}> - Member @{ctx.author} - Channel #{ctx.channel} - Error: {e}")
 
 
 @client.event

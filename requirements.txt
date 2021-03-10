@@ -18,3 +18,4 @@ imageio==2.8.0
 numpy==1.19.3
 scikit-image==0.17.2
 discord-py-slash-command==1.0.9.5
+discord[voice]==1.6.0
