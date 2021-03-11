@@ -1681,6 +1681,13 @@ async def on_voice_state_update(member: discord.Member, before: discord.member.V
 
     # Clear VC_LOGS when the bot is removed from the call
     if member.name == client.user.name and after.channel is None:
+        # Get Voice chat channel
+        channel = discord.utils.get(member.guild.text_channels, id=const.VC_LOG_CHANNEL_ID)
+
+        # Send log data
+        file = io.StringIO(json.dumps(VC_LOGS, indent=2))
+        await channel.send(file=discord.File(file, filename="voice_chat_logs.json"))
+
         VC_LOGS = {}
         return
     elif member.name == client.user.name and after.channel:
