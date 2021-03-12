@@ -8,7 +8,7 @@ import asyncio
 import discord
 import textblob
 import googlesearch
-from gtts import gTTS
+# from gtts import gTTS
 from datetime import datetime
 from itertools import product
 from discord.ext import commands
@@ -1518,42 +1518,45 @@ async def voice_chat_log(ctx: commands.Context, mode: str = None):
     await ctx.send("You are not connected in a voice channel")
 
 
-@client.command(name="vsay", brief="Make the bot say something")
-async def voice_say(ctx: commands.Context, *, text: str):
-    """Make the bot say something in the voice channel you are in"""
+# ! Not Implemented Yet
+# @client.command(name="vsay", brief="Make the bot say something")
+# async def voice_say(ctx: commands.Context, *, text: str):
+#     """Make the bot say something in the voice channel you are in"""
 
-    voice = ctx.author.voice
-    if not voice:
-        await ctx.send(f"{ctx.author.mention} You are not connected to a voice channel.")
-        return
+#     voice = ctx.author.voice
+#     if not voice:
+#         await ctx.send(f"{ctx.author.mention} You are not connected to a voice channel.")
+#         return
 
-    # Text longer than 50 characters is not allowed
-    if len(text) > 50:
-        await ctx.send(f"{ctx.author.mention} You are not allowed to input more that 50 characters.")
-        return
+#     # Text longer than 50 characters is not allowed
+#     if len(text) > 50:
+#         await ctx.send(f"{ctx.author.mention} You are not allowed to input more that 50 characters.")
+#         return
 
-    # Join the voice channel
-    if not client.voice_clients:
-        voice = await voice.channel.connect()
-    else:
-        voice: discord.VoiceClient = discord.utils.get(client.voice_clients, guild=ctx.guild)
+#     # Join the voice channel
+#     if not client.voice_clients:
+#         voice = await voice.channel.connect()
+#     else:
+#         voice: discord.VoiceClient = discord.utils.get(client.voice_clients, guild=ctx.guild)
 
-    if voice.is_playing():
-        await ctx.send(f"{ctx.author.mention} Bot is currently talking")
-        return
+#     if voice.is_playing():
+#         await ctx.send(f"{ctx.author.mention} Bot is currently talking")
+#         return
 
-    # File to save the tts to
-    fp = io.BytesIO()
+#     # File to save the tts to
+#     fp = io.BytesIO()
 
-    # Create the tts obj and write to the fp
-    tts = gTTS(text)
-    tts.write_to_fp(fp)
-    fp.seek(0)
-    print(text)
+#     # Detect language
+#     blob = textblob.TextBlob(text)
+#     lang = blob.detect_language()
+#     # Create the tts obj and write to the fp
+#     tts = gTTS(text, lang=lang)
+#     tts.write_to_fp(fp)
+#     fp.seek(0)
 
-    # Say the text in the voice channel
-    text_say = discord.FFmpegPCMAudio(fp)
-    voice.play(text_say)
+#     # Say the text in the voice channel
+#     text_say = discord.FFmpegPCMAudio(fp, pipe=True)
+#     voice.play(text_say)
 
 
 # ! --- Slash Commands ---
@@ -1762,11 +1765,6 @@ async def on_ready():
 async def on_slash_command_error(ctx, ex):
     print(ex)
     # await ctx.send(ex)
-
-
-@client.event
-async def on_command_error(ctx: commands.Context, e):
-    print(f"Command <{ctx.command.name}> - Member @{ctx.author} - Channel #{ctx.channel} - Error: {e}")
 
 
 @client.event
