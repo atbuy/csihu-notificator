@@ -19,4 +19,4 @@ scikit-image==0.17.2
 discord-py-slash-command==1.0.9.5
 PyNaCl==1.3.0
 gtts==2.2.0
-git+https://github.com/Vitaman02/discord.py.git@7dd2cf0#egg=discord.py.git
+git+https://github.com/Vitaman02/discord.py.git@7dd2cf0#egg=discord.py
