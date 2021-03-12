@@ -8,6 +8,7 @@ import asyncio
 import discord
 import textblob
 import googlesearch
+from gtts import gTTS
 from datetime import datetime
 from itertools import product
 from discord.ext import commands
@@ -1517,6 +1518,44 @@ async def voice_chat_log(ctx: commands.Context, mode: str = None):
     await ctx.send("You are not connected in a voice channel")
 
 
+@client.command(name="vsay", brief="Make the bot say something")
+async def voice_say(ctx: commands.Context, *, text: str):
+    """Make the bot say something in the voice channel you are in"""
+
+    voice = ctx.author.voice
+    if not voice:
+        await ctx.send(f"{ctx.author.mention} You are not connected to a voice channel.")
+        return
+
+    # Text longer than 50 characters is not allowed
+    if len(text) > 50:
+        await ctx.send(f"{ctx.author.mention} You are not allowed to input more that 50 characters.")
+        return
+
+    # Join the voice channel
+    if not client.voice_clients:
+        voice = await voice.channel.connect()
+    else:
+        voice: discord.VoiceClient = discord.utils.get(client.voice_clients, guild=ctx.guild)
+
+    if voice.is_playing():
+        await ctx.send(f"{ctx.author.mention} Bot is currently talking")
+        return
+
+    # File to save the tts to
+    fp = io.BytesIO()
+
+    # Create the tts obj and write to the fp
+    tts = gTTS(text)
+    tts.write_to_fp(fp)
+    fp.seek(0)
+    print(text)
+
+    # Say the text in the voice channel
+    text_say = discord.FFmpegPCMAudio(fp)
+    voice.play(text_say)
+
+
 # ! --- Slash Commands ---
 @slash.slash(name="get-color", description=get_member_color.brief, guild_ids=slash_guild_ids)
 async def slash_get_member_color(ctx: SlashContext, member: discord.Member):
@@ -1681,7 +1720,10 @@ async def on_voice_state_update(member: discord.Member, before: discord.member.V
 
     # Clear VC_LOGS when the bot is removed from the call
     if member.name == client.user.name and after.channel is None:
-        # Get Voice chat channel
+        if not VC_LOGS:
+            return
+
+        # Get voice chat log channel
         channel = discord.utils.get(member.guild.text_channels, id=const.VC_LOG_CHANNEL_ID)
 
         # Send log data
