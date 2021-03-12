@@ -17,6 +17,8 @@ from discord_slash import SlashCommand, SlashContext
 import morse
 import helpers
 
+# Load opus
+discord.opus.load_opus()
 
 const = helpers.const()
 urbandict = helpers.UrbanDictionary()
