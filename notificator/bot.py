@@ -1552,6 +1552,7 @@ async def voice_say(ctx: commands.Context, *, text: str):
     # Create the tts obj and write to the fp
     tts = gTTS(text, lang=lang)
     tts.write_to_fp(fp)
+
     fp.seek(0)
 
     # Say the text in the voice channel
