@@ -9,7 +9,7 @@ import discord
 import textblob
 import googlesearch
 from gtts import gTTS
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import product
 from discord.ext import commands
 from discord_slash import SlashCommand, SlashContext
@@ -17,6 +17,8 @@ from discord_slash import SlashCommand, SlashContext
 import morse
 import helpers
 
+# Load opus library
+discord.opus.load_opus("opus")
 
 const = helpers.const()
 urbandict = helpers.UrbanDictionary()
@@ -1621,6 +1623,45 @@ async def get_authors(ctx: commands.Context, channel: discord.TextChannel = None
     except discord.HTTPException:
         data = io.StringIO(json.dumps(unique_authors, indent=4))
         await ctx.send(content=f"Unique authors of {channel.mention}:\n", file=discord.File(data, filename="authors.json"))
+
+
+# ! Not Implemented yet
+@client.command(name="record", aliases=["rec"], brief="Record a voice channel")
+async def record(ctx: commands.Context, seconds: int, member: discord.Member = None):
+    raise NotImplementedError
+
+    if seconds > 10:
+        await ctx.send(f"{ctx.author.mention} Can't record more than 10 seconds.")
+        return
+
+    # Check if the author is in a voice channel
+    if not ctx.author.voice:
+        await ctx.send(f"{ctx.author.mention} You are not connected to a voice channel")
+        return
+
+    # Join the voice channel if not already connected
+    if not ctx.voice_client:
+        voice = await ctx.author.voice.channel.connect()
+    else:
+        voice = ctx.voice_client
+
+    # File to save the recording to
+    wav = io.BytesIO()
+    print("prelisten")
+    # If a member is passed, only record their voice
+    if member:
+        voice.listen(discord.UserFilter(discord.WaveSink(wav), member))
+    else:
+        voice.listen(discord.WaveSink(wav))
+
+    # Calculated the datetime to sleen_until
+    print("waiting...")
+    until = datetime.now() + timedelta(seconds=seconds)
+    await discord.utils.sleep_until(until)
+    print("stopped waiting")
+    voice.stop_listening()
+    print("stopped listening")
+    await ctx.send("Here's the recording:\n", file=discord.File(wav, filename="recording.wav"))
 
 
 # ! --- Slash Commands ---
