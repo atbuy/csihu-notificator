@@ -1518,7 +1518,6 @@ async def voice_chat_log(ctx: commands.Context, mode: str = None):
     await ctx.send("You are not connected in a voice channel")
 
 
-# ! Not Implemented Yet
 @client.command(name="vsay", brief="Make the bot say something")
 async def voice_say(ctx: commands.Context, *, text: str):
     """Make the bot say something in the voice channel you are in"""
@@ -1558,6 +1557,70 @@ async def voice_say(ctx: commands.Context, *, text: str):
     # Say the text in the voice channel
     text_say = discord.FFmpegPCMAudio(fp.read(), pipe=True)
     voice.play(text_say)
+
+
+@client.command(name="copy-channel", brief="Copy a channel")
+async def copy_channel(ctx: commands.Context, channel: discord.TextChannel, _from: discord.Message = None):
+    """Copy a channel to a new channel"""
+
+    # This command can only be used by me
+    if not ctx.author.id == const.MY_ID:
+        await ctx.send("You are not allowed to use this command")
+        return
+
+    # The channel to send a message to
+    log_channel = discord.utils.get(ctx.guild.text_channels, id=const.COPY_CHANNEL_CHANNEL_ID)
+
+    await log_channel.send(F"----- COPYING CHANNEL: {channel.mention} ----")
+    # keep a list of all members that wrote in a channel
+    unique_authors = []
+
+    # Iterate over all messages and send them to the copy channel
+    async for msg in channel.history(limit=None, oldest_first=True, after=_from):
+        # Format the message and send it
+        formatted = f"{msg.author.mention}` said:` {msg.content}\n `{msg.created_at.strftime('%H:%M:%S   %d-%m-%y')}`"
+        await log_channel.send(formatted)
+
+        # If the message has attachments send them
+        if msg.attachments:
+            for file in msg.attachments:
+                await log_channel.send(file.url)
+
+        # Add author to the list
+        if not (msg.author in unique_authors):
+            unique_authors.append(ctx.author)
+    await log_channel.send("Members that wrote in the channel" + " - ".join([m.mention for m in unique_authors]))
+
+
+@client.command(name="get-authors", brief="Get all authors in a channel")
+async def get_authors(ctx: commands.Context, channel: discord.TextChannel = None):
+
+    # Not allowed to use this command because it is too slow
+    if not ctx.author.id == const.MY_ID:
+        await ctx.send("You are not allowed to use this command")
+        return
+
+    # If a channel is not passed use the current channel
+    if not channel:
+        channel = ctx.channel
+
+    # Copy all the authors in the channel
+    unique_authors = {}
+    counter = 0
+    async for msg in channel.history(limit=None, oldest_first=True):
+        name = str(msg.author)
+        if name in unique_authors.values():
+            continue
+        unique_authors[counter] = name
+        counter += 1
+
+    # Format the names and send them
+    try:
+        formatted = " - ".join(unique_authors.values())
+        await ctx.send(f"Unique authors of {channel.mention}:\n ```json\n{formatted} ```")
+    except discord.HTTPException:
+        data = io.StringIO(json.dumps(unique_authors, indent=4))
+        await ctx.send(content=f"Unique authors of {channel.mention}:\n", file=discord.File(data, filename="authors.json"))
 
 
 # ! --- Slash Commands ---
