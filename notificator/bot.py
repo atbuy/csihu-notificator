@@ -18,7 +18,8 @@ import morse
 import helpers
 
 # Load opus library
-discord.opus.load_opus("opus")
+if not os.environ.get("CSIHU_ON_HEROKU"):
+    discord.opus.load_opus("opus")
 
 const = helpers.const()
 urbandict = helpers.UrbanDictionary()
