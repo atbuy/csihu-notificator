@@ -9,9 +9,10 @@ import discord
 import textblob
 import googlesearch
 from gtts import gTTS
-from datetime import datetime, timedelta
+from pytz import timezone
 from itertools import product
 from discord.ext import commands
+from datetime import datetime, timedelta
 from discord_slash import SlashCommand, SlashContext
 
 import morse
@@ -1856,7 +1857,7 @@ async def on_voice_state_update(member: discord.Member, before: discord.member.V
     index = len(VC_LOGS) + 1
     VC_LOGS[index] = {member.name: {
         "action": "joined" if not before.channel and after.channel else "left",
-        "time": datetime.now().strftime("%H:%M:%S")
+        "time": datetime.now(timezone("Europe/Athens")).strftime("%H:%M:%S")
         }
     }
 
