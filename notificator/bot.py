@@ -406,6 +406,7 @@ async def donate(ctx: commands.Context):
 
 
 @client.command(name="gnwmh", aliases=["apopsh"], brief=None)
+@commands.cooldown(1, 60, commands.BucketType.user)
 async def opinion_troll(ctx: commands.Context):
     """Replies to the author"""
 
