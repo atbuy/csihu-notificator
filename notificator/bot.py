@@ -1386,7 +1386,7 @@ async def courses(ctx: commands.Context) -> None:
 @client.command(name="zoom", brief="Zoom Link")
 async def zoom(ctx: commands.Context) -> None:
     """Send the Zoom link to the author's channel"""
-    await ctx.send(f"Zoom Link: <https://zoom.us/j/95316736704>\nCode: {const.ZOOM_CODE}")
+    await ctx.send(f"Zoom Link: <https://zoom.us/j/95316736704>\nCode: **{const.ZOOM_CODE}**")
 
 
 @client.command(name="programma", aliases=["sch", "schedule", "sched"], brief="Sends the semester's schedule")

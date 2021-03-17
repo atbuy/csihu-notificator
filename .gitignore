@@ -1,9 +1,4 @@
 .vscode
 */__pycache__
-add_commands.py
 deprecated.txt
 .pytest_cache
-data/info.json
-data/troll_data.json
-data/commands.json
-data/data.json
