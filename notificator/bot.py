@@ -408,6 +408,14 @@ async def donate(ctx: commands.Context):
 @client.command(name="gnwmh", aliases=["apopsh"], brief=None)
 async def opinion_troll(ctx: commands.Context):
     """Replies to the author"""
+
+    # This command is whitelisted for bots-commands
+    if not client.helpers.can_execute(ctx, allowed_channels=[const.BOTS_COMMANDS_CHANNEL_ID]):
+        await ctx.send(
+            f"{ctx.author.mention} You are not allowed to use this command outside <#{const.BOTS_COMMANDS_CHANNEL_ID}>"
+        )
+        return
+
     await troll.opinion_troll.run(ctx)
 # * ----------------------
 
