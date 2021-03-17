@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+import random
 from discord.ext import commands
 
 
@@ -20,6 +21,7 @@ akou_data = data["akou_troll"]
 tria_data = data["triantafyllidhs"]
 deadobserver_data = data["deadobserver"]
 drip_data = data["drip"]
+opinion_data = data["opinion"]
 
 
 class donate_troll:
@@ -93,3 +95,14 @@ class drip_troll:
 
         text = drip_data["text"]
         await ctx.send(text)
+
+
+class opinion_troll:
+    brief = opinion_data["brief"]
+
+    async def run(ctx: commands.Context) -> None:
+        """Replies to the author"""
+
+        phrases = opinion_data["phrases"]
+        phrase = random.choices(phrases, weights=[0.3, 0.3, 0.3, 0.2], k=1)[0]
+        await ctx.send(f"{ctx.author.mention}\n{phrase}")

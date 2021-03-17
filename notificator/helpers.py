@@ -1033,6 +1033,8 @@ class Helpers:
         # Get the first element of the list that contains the text and clean it
         final_text = ""
         for text in paragraphs[0].stripped_strings:
+            if len(text) < 2:
+                continue
             if text[-1] == "." or text[-2] == ".":
                 final_text += text + "\n"
             else:

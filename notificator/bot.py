@@ -349,7 +349,7 @@ async def tag_voice_channel(ctx: commands.Context) -> None:
         await ctx.send(f"{ctx.author.mention} you are alone in the voice channel")
 
 
-# --- Troll Commands ---
+# * --- Troll Commands ---
 @client.command(name="tria", aliases=["triantafyllidhs", "trias", "mono"], brief=troll.trias_troll.brief)
 @commands.cooldown(1, 60, commands.BucketType.channel)
 async def triantafyllidhs_troll(ctx: commands.Context) -> None:
@@ -403,6 +403,13 @@ async def drip(ctx: commands.Context) -> None:
 async def donate(ctx: commands.Context):
     """Sends fake "donation" links"""
     await troll.donate_troll.run(ctx)
+
+
+@client.command(name="gnwmh", aliases=["apopsh"], brief=None)
+async def opinion_troll(ctx: commands.Context):
+    """Replies to the author"""
+    await troll.opinion_troll.run(ctx)
+# * ----------------------
 
 
 @client.command(name="count", brief="Count from 0 to a 100")
