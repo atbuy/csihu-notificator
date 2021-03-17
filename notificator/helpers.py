@@ -61,8 +61,15 @@ def _post_info_file_data(data: str) -> requests.Response:
 
 class const:
     def __init__(self):
+        self.ROOT = Path(__file__).parent.parent
+        self.DATA_PATH = os.path.join(self.ROOT, "data")
+
         # Load info data from the API
         self.info = _get_info_file_data()
+
+        # Open data file and load json
+        with open(os.path.join(self.DATA_PATH, "data.json")) as file:
+            data = json.load(file)
 
         # Declare constants
         self.LAST_ID = self.info["last_id"]
@@ -73,6 +80,8 @@ class const:
         self.SPECIAL_CHARACTERS = self.info["special_characters"]
         self.DISABLED_COMMANDS = self.info["disabled_commands"]
         self.RULES = self.info["rules"]
+
+        self.ZOOM_CODE = data["zoom_code"]
 
         self.MY_ID = 222950176770228225
         self.MODERATOR_ID = 760078403264184341
@@ -100,8 +109,6 @@ class const:
         self.END_EMOJI = "\U000023ed"
 
         self.CHARS_DIGITS = string.ascii_uppercase + string.digits
-        self.ROOT = Path(__file__).parent.parent
-        self.DATA_PATH = os.path.join(self.ROOT, "data")
 
 
 class HasteBinAPI:
