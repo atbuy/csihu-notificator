@@ -104,5 +104,5 @@ class opinion_troll:
         """Replies to the author"""
 
         phrases = opinion_data["phrases"]
-        phrase = random.choices(phrases, weights=[0.3, 0.3, 0.3, 0.2], k=1)[0]
+        phrase = random.choices(phrases, weights=[0.3, 0.3, 0.3, 0.1], k=1)[0]
         await ctx.send(f"{ctx.author.mention}\n{phrase}")
