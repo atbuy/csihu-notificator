@@ -406,7 +406,7 @@ async def donate(ctx: commands.Context):
 
 
 @client.command(name="gnwmh", aliases=["apopsh"], brief=None)
-@commands.cooldown(1, 60, commands.BucketType.user)
+@commands.cooldown(1, 10, commands.BucketType.user)
 async def opinion_troll(ctx: commands.Context):
     """Replies to the author"""
 
@@ -1876,6 +1876,14 @@ async def on_voice_state_update(member: discord.Member, before: discord.member.V
         "time": datetime.now(timezone("Europe/Athens")).strftime("%H:%M:%S")
         }
     }
+
+
+@client.event
+async def on_command_error(ctx: commands.Context, e):
+    if isinstance(e, commands.errors.CommandOnCooldown):
+        if client.helpers.can_execute(ctx):
+            ctx.command.reset_cooldown(ctx)
+            await ctx.reinvoke()
 
 
 @client.event

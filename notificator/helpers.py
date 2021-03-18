@@ -1034,8 +1034,8 @@ class Helpers:
         final_text = ""
         for text in paragraphs[0].stripped_strings:
             if len(text) < 2:
-                continue
-            if text[-1] == "." or text[-2] == ".":
+                final_text += text + " "
+            elif text[-1] == "." or text[-2] == ".":
                 final_text += text + "\n"
             else:
                 final_text += text + " "
