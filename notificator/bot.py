@@ -10,7 +10,7 @@ import textblob
 import googlesearch
 from gtts import gTTS
 from pytz import timezone
-from typing import Optional
+from typing import Optional, Union
 from itertools import product
 from discord.ext import commands
 from datetime import datetime, timedelta
@@ -1008,22 +1008,19 @@ async def say(ctx: commands.Context, *, text: str) -> None:
 
 
 @client.command(aliases=["del"], brief="Delete messages")
-async def delete(ctx: commands.Context, number: int, message: discord.Message = None, member: discord.Member = None) -> None:
+async def delete(ctx: commands.Context, number: int, action: Optional[Union[discord.Message, discord.Member]] = None) -> None:
     """
     Delete an ammount of messages from the author's channel
 
     :param number: The amount of messages to remove
-    :param message: The messagge to get message history from
-    :param member: Delete only this member's messages
+    :param action: Can be of type discord.Message or discord.Member.
 
     .. note::
-        If :param message: is not specified then the default message is the last message sent
-        If :param member: is not specified then all the messages of all members are deleted
-        If :param member: is specified the amount of messages doesn't change and the bot checks
-        the history of `number` messages. This doesn't delete `number` messages of specified `member`
+        if `action` is a message, then `number` messages before the creation date of `action` will be deleted.
+        if `action` is a member, then `number` messages will be retrieved. Those that have author == `action` will be deleted.
     """
     def check(message):
-        return message.author == member
+        return message.author == action
 
     if number < 0:
         return
@@ -1040,20 +1037,19 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message = 
         return
 
     # If the starting message is not specified, purge the last `amount` messages
-    if not message:
+    if not action:
         number += 1
         messages_deleted = await ctx.channel.purge(limit=number)
     # If the starting message is specified, delete the specified message
     # delete `amount` message before it, delete the `delete` command message
-    elif not member:
-        messages_deleted = await ctx.channel.purge(limit=number, before=message.created_at)
-        await message.delete()
+    elif isinstance(action, discord.Message):
+        messages_deleted = await ctx.channel.purge(limit=number, before=action.created_at)
+        await action.delete()
         await ctx.message.delete()
     # If message and member are given, then retrieve `amount` messages
     # and delete the messages sent from `member`
-    elif message and member:
-        messages_deleted = await ctx.channel.purge(limit=number, before=message.created_at, check=check)
-        await message.delete()
+    elif isinstance(action, discord.Member):
+        messages_deleted = await ctx.channel.purge(limit=number, check=check)
         await ctx.message.delete()
 
     # Update logs
@@ -1065,8 +1061,11 @@ async def delete(ctx: commands.Context, number: int, message: discord.Message = 
 
 
 @client.command(name="bulk-delete", aliases=["bulk", "bdel"], brief="Delete all messages in the specified area")
-async def bulk_delete(ctx: commands.Context, start: discord.Message, end: discord.Message):
+async def bulk_delete(ctx: commands.Context, start: discord.Message, end: discord.Message, member: discord.Member = None):
     """Deletes all messages from `start` to `end`"""
+
+    def check(msg):
+        return msg.author == member
 
     # Get the time the messages where created
     start_t = start.created_at
@@ -1078,11 +1077,23 @@ async def bulk_delete(ctx: commands.Context, start: discord.Message, end: discor
         start_t, end_t = end_t, start_t
 
     # Delete the messages
-    await start.delete()
-    messages_deleted = [start]
-    messages_deleted += await ctx.channel.purge(before=start_t, after=end_t)
-    messages_deleted.append(end)
-    await end.delete()
+    messages_deleted = []
+    if member:
+        if start.author == member:
+            await start.delete()
+            messages_deleted = [start]
+
+        messages_deleted += await ctx.channel.purge(before=start_t, after=end_t, check=check)
+
+        if end.author == member:
+            messages_deleted.append(end)
+            await end.delete()
+    else:
+        await start.delete()
+        messages_deleted = [start]
+        messages_deleted += await ctx.channel.purge(before=start_t, after=end_t)
+        messages_deleted.append(end)
+        await end.delete()
 
     # Also delete the command message
     await ctx.message.delete()
