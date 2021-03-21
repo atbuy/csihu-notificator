@@ -10,6 +10,7 @@ import textblob
 import googlesearch
 from gtts import gTTS
 from pytz import timezone
+from typing import Optional
 from itertools import product
 from discord.ext import commands
 from datetime import datetime, timedelta
@@ -922,37 +923,53 @@ async def is_running(ctx: commands.Context) -> None:
 
 
 @client.command(brief="POG a message")
-async def pog(ctx: commands.Context, msg: discord.Message) -> None:
+async def pog(ctx: commands.Context, msg: discord.Message = None) -> None:
     """
     Add the reactions "p", "o" and "p" to the specified message object
 
     :param msg: The message to add the reactions to
     """
+
+    # If the msg is a reply to a message, use that msg
+    if ctx.message.reference:
+        channel: discord.TextChannel = discord.utils.get(ctx.guild.text_channels, id=ctx.message.reference.channel_id)
+        msg = await channel.fetch_message(ctx.message.reference.message_id)
     p_o_g_reactions = ["\U0001f1f5", "\U0001f1f4", "\U0001f1ec"]
     for reaction in p_o_g_reactions:
         await msg.add_reaction(reaction)
 
 
 @client.command(name="pog?", brief="POG? a message")
-async def _pog(ctx: commands.Context, msg: discord.Message) -> None:
+async def _pog(ctx: commands.Context, msg: discord.Message = None) -> None:
     """
     Add the reactions "p", "o", "g" and "?" to the specified `msg`
 
     :param msg: The message object to add the reactions to
     """
+
+    # If the msg is a reply to a message, use that msg
+    if ctx.message.reference:
+        channel: discord.TextChannel = discord.utils.get(ctx.guild.text_channels, id=ctx.message.reference.channel_id)
+        msg = await channel.fetch_message(ctx.message.reference.message_id)
     pog_reactions = ["\U0001f1f5", "\U0001f1f4", "\U0001f1ec", "\U00002753"]
     for reaction in pog_reactions:
         await msg.add_reaction(reaction)
 
 
 @client.command(brief="React text to a message")
-async def react(ctx: commands.Context, msg: discord.Message, *, text: str) -> None:
+async def react(ctx: commands.Context, msg: Optional[discord.Message], *, text: str) -> None:
     """
     React each character in `text` with emojis
 
     :param msg: The message to add the reactions to
     :param text: The text to add reactions to
     """
+
+    # If the msg is a reply to a message, use that msg
+    if ctx.message.reference:
+        channel: discord.TextChannel = discord.utils.get(ctx.guild.text_channels, id=ctx.message.reference.channel_id)
+        msg = await channel.fetch_message(ctx.message.reference.message_id)
+
     for char in text:
         if char.isalpha():
             # The unicode value for each emoji characters
@@ -1300,13 +1317,18 @@ async def unmute(ctx: commands.Context, member: discord.Member) -> None:
 @client.command(
     name="mute", brief="Mute a member",
     description="Mute a member for the specified amount of minutes", aliases=["m", "voulwne"])
-async def mute(ctx: commands.Context, member: discord.Member, minutes: float = 5.0) -> None:
+async def mute(ctx: commands.Context, member: Optional[discord.Member], minutes: float = 5.0) -> None:
     """
     Mutes a member for the specified amount of minutes
 
     :param member: The member to mute
     :param minutes: The amount of minutes to mute for
     """
+
+    # Check if this is a reply. If it is use the author of the reference
+    if ctx.message.reference:
+        msg = await ctx.fetch_message(id=ctx.message.reference.message_id)
+        member = msg.author
 
     # Check if the author can mute someone else
     if not client.helpers.can_execute(ctx, mute_members=True):
@@ -1884,6 +1906,8 @@ async def on_command_error(ctx: commands.Context, e):
         if client.helpers.can_execute(ctx):
             ctx.command.reset_cooldown(ctx)
             await ctx.reinvoke()
+    else:
+        print(e)
 
 
 @client.event
