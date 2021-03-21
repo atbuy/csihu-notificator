@@ -932,8 +932,7 @@ async def pog(ctx: commands.Context, msg: discord.Message = None) -> None:
 
     # If the msg is a reply to a message, use that msg
     if ctx.message.reference:
-        channel: discord.TextChannel = discord.utils.get(ctx.guild.text_channels, id=ctx.message.reference.channel_id)
-        msg = await channel.fetch_message(ctx.message.reference.message_id)
+        msg = await ctx.fetch_message(ctx.message.reference.message_id)
     p_o_g_reactions = ["\U0001f1f5", "\U0001f1f4", "\U0001f1ec"]
     for reaction in p_o_g_reactions:
         await msg.add_reaction(reaction)
@@ -949,8 +948,7 @@ async def _pog(ctx: commands.Context, msg: discord.Message = None) -> None:
 
     # If the msg is a reply to a message, use that msg
     if ctx.message.reference:
-        channel: discord.TextChannel = discord.utils.get(ctx.guild.text_channels, id=ctx.message.reference.channel_id)
-        msg = await channel.fetch_message(ctx.message.reference.message_id)
+        msg = await ctx.fetch_message(ctx.message.reference.message_id)
     pog_reactions = ["\U0001f1f5", "\U0001f1f4", "\U0001f1ec", "\U00002753"]
     for reaction in pog_reactions:
         await msg.add_reaction(reaction)
@@ -967,8 +965,7 @@ async def react(ctx: commands.Context, msg: Optional[discord.Message], *, text: 
 
     # If the msg is a reply to a message, use that msg
     if ctx.message.reference:
-        channel: discord.TextChannel = discord.utils.get(ctx.guild.text_channels, id=ctx.message.reference.channel_id)
-        msg = await channel.fetch_message(ctx.message.reference.message_id)
+        msg = await ctx.fetch_message(ctx.message.reference.message_id)
 
     for char in text:
         if char.isalpha():
