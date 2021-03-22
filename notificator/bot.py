@@ -2000,10 +2000,6 @@ async def on_member_join(member: discord.Member) -> None:
 client.helpers = helpers.Helpers(client)
 client.FOLDED_COMMANDS = client.helpers.fold_commands()
 
-# Create an instance of the hastebin API wrapper
-# To upload files and get their key
-client.hastebin = helpers.HasteBinAPI()
-
 
 def start():
     # Run the bot
