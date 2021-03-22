@@ -106,28 +106,6 @@ class const:
         self.CHARS_DIGITS = string.ascii_uppercase + string.digits
 
 
-class HasteBinAPI:
-    def __init__(self):
-        self.base_url = "https://hastebin.com"
-        self.key = None
-        self.headers = {
-            "accept-language": "el-GR,el;q=0.9,en;q=0,8",
-            "accept": ("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,"
-                       "image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
-        }
-
-    @property
-    def url(self):
-        return f"{self.base_url}/{self.key}"
-
-    def upload(self, text: str) -> Union[str, None]:
-        url = f"{self.base_url}/documents"
-        req = requests.post(url, headers=self.headers, data=text)
-        if req.status_code == 200:
-            self.key = req.json()["key"]
-            return self.url
-
-
 class UrbanDictionary:
     def __init__(self, term=None):
         self.base_url = "https://www.urbandictionary.com/define.php?term={}"
