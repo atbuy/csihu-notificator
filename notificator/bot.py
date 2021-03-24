@@ -604,7 +604,7 @@ async def change_role_color(ctx: commands.Context, red=None, green=None, blue=No
 
     # Get the top position, to place the role and move it after all the locked roles.
     roles = ctx.guild.roles
-    position = len(roles) - 11
+    position = len(roles) - 10
     await color_role.edit(position=position)
     await ctx.send(f"Changed color to: #{hex_val}")
 
