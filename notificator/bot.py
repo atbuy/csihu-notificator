@@ -986,7 +986,7 @@ async def say(ctx: commands.Context, *, text: str) -> None:
 
     # This command is not allowed in #general
     if not client.helpers.can_execute(ctx, unallowed_channels=[const.GENERAL_ID]):
-        await ctx.send(f"{ctx.author.mention} You can't execute this command in <#{const.GENERAL_ID}")
+        await ctx.send(f"{ctx.author.mention} You can't execute this command in <#{const.GENERAL_ID}>")
         return
 
     output = ""
