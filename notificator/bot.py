@@ -303,12 +303,17 @@ async def truth_table(ctx: commands.Context, *, text: str) -> None:
 
 
 @client.command(name="dmorse", brief="Decode morse code to text")
-async def morse_decoder(ctx: commands.Context, *, text: str) -> None:
+async def morse_decoder(ctx: commands.Context, *, text: str = None) -> None:
     """
     Decrypt morse code to text
 
     :param text: The morse code to decrypt
     """
+
+    # Check if this is a reply. If it is use the that message's text
+    if ctx.message.reference:
+        msg = await ctx.fetch_message(id=ctx.message.reference.message_id)
+        text = msg.content
 
     # Decode the morse code and send it
     decrypted = morse.decrypt(text)
