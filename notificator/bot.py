@@ -1523,7 +1523,7 @@ async def get_statistics(ctx: commands.Context, from_message: discord.Message = 
 
     # Read all the embeds
     if from_message:
-        messages = log_channel.history(limit=None, after=from_message.id)
+        messages = log_channel.history(limit=None, after=from_message)
     else:
         messages = log_channel.history(limit=None)
 
