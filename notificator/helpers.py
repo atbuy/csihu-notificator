@@ -298,6 +298,7 @@ class Helpers:
                 async for x in AsyncCodeExecutor(script):
                     if isinstance(x, pyplot.Figure):
                         plot_out = x
+                        continue
 
                     if time.time() - start_time < timeout:
                         output += str(x)
@@ -315,10 +316,11 @@ class Helpers:
                             plot_out.savefig(buffer, format="png")
                             buffer.seek(0)
                             await msg.channel.send(file=discord.File(buffer, filename="plot.png"))
-                        if safe:
-                            await msg.channel.send(f"{msg.author.mention}\n{output}")
-                        else:
-                            await msg.channel.send(f"{msg.author.mention}```python\n{output} ```")
+                        if output:
+                            if safe:
+                                await msg.channel.send(f"{msg.author.mention}\n{output}")
+                            else:
+                                await msg.channel.send(f"{msg.author.mention}```python\n{output} ```")
                     except discord.errors.HTTPException:
                         await msg.channel.send(f"{msg.author.mention}. Can't send message over 2000 characters")
 
