@@ -1685,7 +1685,7 @@ async def get_authors(ctx: commands.Context, channel: discord.TextChannel = None
 
 
 @client.command(name="plot", brief="Pass an equation to plot. Equations must be in valid python.")
-async def plotter(ctx: commands.Context, equation: str,  start: float = -100, end: float = 100):
+async def plotter(ctx: commands.Context, *, equation: str):
     """
     Sends a matplotlib plot, that graphs the equation passed
     """
@@ -1701,7 +1701,7 @@ async def plotter(ctx: commands.Context, equation: str,  start: float = -100, en
         if char in ascii_letters:
             variables.append(char)
 
-    x = np.arange(start, end+1, 0.1)
+    x = np.arange(-100, 100.1, 0.1)
     y = []
     for i in x:
         val = equation
