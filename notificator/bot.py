@@ -1690,11 +1690,6 @@ async def plotter(ctx: commands.Context, *, equation: str):
     Sends a matplotlib plot, that graphs the equation passed
     """
 
-    # Check if the starting value is larger than the end
-    if end < start:
-        await ctx.send("End value cannot be smaller than starting value")
-        return
-
     # Find the variables in the equation
     variables = []
     for char in equation:
