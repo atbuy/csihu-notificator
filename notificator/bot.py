@@ -1756,6 +1756,10 @@ async def plotter(ctx: commands.Context, *, equation: str):
 @client.command(name="plotgif", brief="Creates a gif of a 3D plot.")
 @commands.cooldown(1, 300, commands.BucketType.channel)
 async def gif_plotter(ctx: commands.Context, *, equation: str):
+    # Removing until a way to use efficiently is found
+    if not ctx.author.id == client.helpers.MY_ID:
+        raise NotImplementedError
+
     # Find the variables in the equation
     variables = []
     for char in equation:
@@ -2044,6 +2048,8 @@ async def on_command_error(ctx: commands.Context, e):
         if client.helpers.can_execute(ctx):
             ctx.command.reset_cooldown(ctx)
             await ctx.reinvoke()
+    elif isinstance(e, NotImplementedError):
+        await ctx.send("This command is not implemented yet, or not published for general use")
     else:
         print(e)
 
