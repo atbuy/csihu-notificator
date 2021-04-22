@@ -4,6 +4,7 @@ import io
 import json
 import troll
 import random
+import imageio
 import asyncio
 import discord
 import textblob
@@ -1684,7 +1685,7 @@ async def get_authors(ctx: commands.Context, channel: discord.TextChannel = None
         await ctx.send(content=f"Unique authors of {channel.mention}:\n", file=discord.File(data, filename="authors.json"))
 
 
-@client.command(name="plot", brief="Pass an equation to plot. Equations must be in valid python.")
+@client.command(name="plot", aliases=["graph", "plt"], brief="Pass an equation to plot. Equations must be in valid python.")
 async def plotter(ctx: commands.Context, *, equation: str):
     """
     Sends a matplotlib plot, that graphs the equation passed
@@ -1696,26 +1697,110 @@ async def plotter(ctx: commands.Context, *, equation: str):
         if char in ascii_letters:
             variables.append(char)
 
-    x = np.arange(-100, 100.1, 0.1)
-    y = []
-    for i in x:
-        val = equation
-        for char in variables:
-            val = val.replace(char, str(i))
-        y.append(eval(val))
+    length = len(variables)
+    if length > 2:
+        await ctx.send("Can't plot 4D graphs")
+        return
 
     # Clear the figure before writing over it
     plt.clf()
-
-    # Plot the values
     plt.title("Graph")
-    plt.plot(x, y)
+
+    # Create the points of x-axis
+    x = np.arange(-100, 100.1, 0.1)
+    # If there are not variables plot the number
+    if length == 0:
+        if equation.isdigit() or equation.isdecimal():
+            y = [float(equation) for i in x]
+        else:
+            await ctx.send("Not a number")
+            return
+    # If there is only 1 variable replace it with the values
+    elif length == 1:
+        y = []
+        for i in x:
+            e = eval(equation.replace(variables[0], str(i)))
+            y.append(e)
+
+        plt.plot(x, y)
+    # If there are 2 variables iterate 2 times over each value of x
+    # and replace both
+    elif length == 2:
+        for v in variables:
+            equation = equation.replace(v, "{}")
+
+        # Create a figure to plot the surface on
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+        X = np.arange(-5, 5, 0.1)
+        Y = np.arange(-5, 5, 0.1)
+        X, Y = np.meshgrid(X, Y)
+        z = []
+        for i in range(len(X)):
+            z.append([])
+            for j in range(len(X[i])):
+                val = equation.format(str(X[i][j]), str(Y[i][j]))
+                e = eval(val)
+                z[i].append(e)
+        z = np.array(z)
+        surface = ax.plot_surface(X, Y, z, cmap="viridis", edgecolor="none")
+        fig.colorbar(surface, shrink=0.5, aspect=5)
 
     # Make a buffer that holds the plot to send through discord
     buffer = io.BytesIO()
     plt.savefig(buffer, format="png")
     buffer.seek(0)
     await ctx.send(f"{ctx.author.mention}", file=discord.File(buffer, filename="graph.png"))
+
+
+@client.command(name="plotgif", brief="Creates a gif of a 3D plot.")
+@commands.cooldown(1, 300, commands.BucketType.channel)
+async def gif_plotter(ctx: commands.Context, *, equation: str):
+    # Find the variables in the equation
+    variables = []
+    for char in equation:
+        if char in ascii_letters:
+            variables.append(char)
+
+    length = len(variables)
+    if length != 2:
+        await ctx.send("Can't create gif from non-3D graphs")
+        return
+
+    # Reusing code idgaf
+    for v in variables:
+        equation = equation.replace(v, "{}")
+
+    # Create a figure to plot the surface on
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+    X = np.arange(-5, 5, 0.1)
+    Y = np.arange(-5, 5, 0.1)
+    X, Y = np.meshgrid(X, Y)
+    z = []
+    for i in range(len(X)):
+        z.append([])
+        for j in range(len(X[i])):
+            val = equation.format(str(X[i][j]), str(Y[i][j]))
+            e = eval(val)
+            z[i].append(e)
+    z = np.array(z)
+    surface = ax.plot_surface(X, Y, z, cmap="viridis", edgecolor="none")
+    fig.colorbar(surface, shrink=0.5, aspect=5)
+
+    images = []
+    for angle in range(0, 180, 5):
+        buffer = io.BytesIO()
+        ax.view_init(30, angle)
+        plt.savefig(buffer, format="png")
+        buffer.seek(0)
+        images.append(imageio.imread(buffer))
+
+    output = io.BytesIO()
+    imageio.mimsave(output, images, 'GIF')
+    output.seek(0)
+
+    await ctx.send(f"{ctx.author.mention}", file=discord.File(output, "graph.gif"))
 
 
 # ! Not Implemented yet
