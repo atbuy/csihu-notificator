@@ -7,7 +7,9 @@ import random
 import asyncio
 import discord
 import textblob
+import numpy as np
 import googlesearch
+import matplotlib.pyplot as plt
 from gtts import gTTS
 from pytz import timezone
 from typing import Optional, Union
@@ -15,7 +17,7 @@ from itertools import product
 from discord.ext import commands
 from datetime import datetime, timedelta
 from discord_slash import SlashCommand, SlashContext
-
+from string import ascii_letters
 import morse
 import helpers
 
@@ -1680,6 +1682,45 @@ async def get_authors(ctx: commands.Context, channel: discord.TextChannel = None
     except discord.HTTPException:
         data = io.StringIO(json.dumps(unique_authors, indent=4))
         await ctx.send(content=f"Unique authors of {channel.mention}:\n", file=discord.File(data, filename="authors.json"))
+
+
+@client.command(name="plot", brief="Pass an equation to plot. Equations must be in valid python.")
+async def plotter(ctx: commands.Context, equation: str,  start: float = -100, end: float = 100):
+    """
+    Sends a matplotlib plot, that graphs the equation passed
+    """
+
+    # Check if the starting value is larger than the end
+    if end < start:
+        await ctx.send("End value cannot be smaller than starting value")
+        return
+
+    # Find the variables in the equation
+    variables = []
+    for char in equation:
+        if char in ascii_letters:
+            variables.append(char)
+
+    x = np.arange(start, end+1, 0.1)
+    y = []
+    for i in x:
+        val = equation
+        for char in variables:
+            val = val.replace(char, str(i))
+        y.append(eval(val))
+
+    # Clear the figure before writing over it
+    plt.clf()
+
+    # Plot the values
+    plt.title("Graph")
+    plt.plot(x, y)
+
+    # Make a buffer that holds the plot to send through discord
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+    await ctx.send(f"{ctx.author.mention}", file=discord.File(buffer, filename="graph.png"))
 
 
 # ! Not Implemented yet
