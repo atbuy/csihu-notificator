@@ -18,6 +18,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from discord.ext import commands
 from skimage.transform import swirl
+from matplotlib import pyplot
 from jishaku.repl.compilation import AsyncCodeExecutor
 
 
@@ -292,8 +293,12 @@ class Helpers:
             output = ""
             timeout = 10
             start_time = time.time()
+            plot_out = None
             try:
                 async for x in AsyncCodeExecutor(script):
+                    if isinstance(x, pyplot.Figure):
+                        plot_out = x
+
                     if time.time() - start_time < timeout:
                         output += str(x)
                     else:
@@ -305,6 +310,11 @@ class Helpers:
                     await msg.add_reaction(self.const.TICK_EMOJI)
 
                     try:
+                        if plot_out:
+                            buffer = io.BytesIO()
+                            plot_out.savefig(buffer, format="png")
+                            buffer.seek(0)
+                            await msg.channel.send(file=discord.File(buffer, filename="plot.png"))
                         if safe:
                             await msg.channel.send(f"{msg.author.mention}\n{output}")
                         else:
