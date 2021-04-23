@@ -1757,7 +1757,7 @@ async def plotter(ctx: commands.Context, *, equation: str):
 @commands.cooldown(1, 300, commands.BucketType.channel)
 async def gif_plotter(ctx: commands.Context, *, equation: str):
     # Removing until a way to use efficiently is found
-    if not ctx.author.id == const.MY_ID:
+    if not (ctx.author.id == const.MY_ID):
         raise NotImplementedError
 
     # Find the variables in the equation
