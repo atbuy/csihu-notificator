@@ -1694,7 +1694,7 @@ async def plotter(ctx: commands.Context, *, equation: str):
 
     # Clean equation
     equation = client.helpers.clean_equation(equation)
-    
+
     # Get the list ofvariables in the equation
     variables = client.helpers.get_equation_variables(equation)
     vs = list(set(variables))
@@ -1755,6 +1755,9 @@ async def gif_plotter(ctx: commands.Context, *, equation: str):
     # if not (ctx.author.id == const.MY_ID):
     #     raise NotImplementedError
     # /shrug
+
+    # Clean equation
+    equation = client.helpers.clean_equation(equation)
 
     # Get the variables of the equation
     variables = client.helpers.get_equation_variables(equation)
