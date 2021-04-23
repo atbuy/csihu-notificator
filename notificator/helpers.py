@@ -11,9 +11,11 @@ import requests
 import traceback
 import functools
 import numpy as np
+import numexpr as ne
+import numexpr.necompiler as nec
 from PIL import Image
 from pathlib import Path
-from typing import Union, List
+from typing import Union, List, Tuple
 from bs4 import BeautifulSoup
 from datetime import datetime
 from discord.ext import commands
@@ -1046,3 +1048,43 @@ class Helpers:
     def is_txt(self, msg: discord.Message) -> bool:
         """Checks if the attachement is a text file"""
         return msg.attachments[0].filename.split(".")[1] == "txt"
+
+    def get_equation_variables(self, equation: str) -> Tuple[str, list]:
+        """
+        Converts an un-formatted equation to a more useable form,
+        used to format values to variable places
+
+        :return: Returns a tuple with the equation and the list of variables
+        """
+
+        # Find all variables from the equation given
+        variables = list(map(
+            lambda x: x.value,
+            nec.typeCompileAst(
+                nec.expressionToAST(
+                    nec.stringToExpression(equation, {}, {})
+                )
+            ).allOf('variable')
+        ))
+
+        return variables
+
+    def get_z_axis(self, equation: str, variables: list, x: np.ndarray, y: np.ndarray) -> np.ndarray:
+        """
+        Creates the Z axis based on an equation passed
+
+        :param equation: An equation formatted as str
+        :param x: The x-axis. Is of type np.ndarray
+        :param y: The y-axis. Is of type np.ndarray
+        :return z: The z-axis.
+                This is a np.ndarray with elements evaluated
+                from the equation.
+        """
+        z = []
+        for i in range(len(x)):
+            z.append([])
+            for j in range(len(x[i])):
+                data = {variables[0]: x[i][j], variables[1]: y[i][j]}
+                e = ne.evaluate(equation, data)
+                z[i].append(e)
+        return np.array(z)

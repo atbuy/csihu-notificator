@@ -9,6 +9,7 @@ import asyncio
 import discord
 import textblob
 import numpy as np
+import numexpr as ne
 import googlesearch
 import matplotlib.pyplot as plt
 from gtts import gTTS
@@ -18,7 +19,7 @@ from itertools import product
 from discord.ext import commands
 from datetime import datetime, timedelta
 from discord_slash import SlashCommand, SlashContext
-from string import ascii_letters
+
 import morse
 import helpers
 
@@ -1691,20 +1692,10 @@ async def plotter(ctx: commands.Context, *, equation: str):
     Sends a matplotlib plot, that graphs the equation passed
     """
 
-    # Find the variables in the equation
-    variables = []
-    for char in equation:
-        if char in ascii_letters:
-            variables.append(char)
-
-    length = len(set(variables))
-    if length > 2:
-        await ctx.send("Can't plot 4D graphs")
-        return
-
-    # Fix equation to format without rounding
-    for v in set(variables):
-        equation = equation.replace(v, "{}")
+    # Get the list ofvariables in the equation
+    variables = client.helpers.get_equation_variables(equation)
+    vs = list(set(variables))
+    length = len(vs)
 
     # Clear the figure before writing over it
     plt.clf()
@@ -1725,8 +1716,8 @@ async def plotter(ctx: commands.Context, *, equation: str):
     elif length == 1:
         y = []
         for i in x:
-            val = equation.format(str(i))
-            y.append(eval(val))
+            e = ne.evaluate(equation, {vs[0]: i})
+            y.append(e)
 
         plt.plot(x, y)
     # If there are 2 variables iterate 2 times over each value of x
@@ -1738,24 +1729,10 @@ async def plotter(ctx: commands.Context, *, equation: str):
         X = np.arange(-5, 5, 0.1)
         Y = np.arange(-5, 5, 0.1)
         X, Y = np.meshgrid(X, Y)
-        z = []
-        sv = list(set(variables))
-        for i in range(len(X)):
-            z.append([])
-            for j in range(len(X[i])):
-                data = []
-                x = X[i][j]
-                y = Y[i][j]
-                for char in variables:
-                    if char == sv[0]:
-                        data.append(x)
-                    else:
-                        data.append(y)
-                val = equation.format(*data)
-                e = eval(val)
-                z[i].append(e)
-        z = np.array(z)
-        surface = ax.plot_surface(X, Y, z, cmap="viridis", edgecolor="none")
+        z = client.helpers.get_z_axis(equation, vs, X, Y)
+        colors = ["viridis", "coolwarm"]
+
+        surface = ax.plot_surface(X, Y, z, cmap=random.choice(colors), edgecolor="none")
         fig.colorbar(surface, shrink=0.5, aspect=5)
 
     # Make a buffer that holds the plot to send through discord
@@ -1772,47 +1749,29 @@ async def gif_plotter(ctx: commands.Context, *, equation: str):
     if not (ctx.author.id == const.MY_ID):
         raise NotImplementedError
 
-    # Find the variables in the equation
-    variables = []
-    for char in equation:
-        if char in ascii_letters:
-            variables.append(char)
+    # Get the variables of the equation
+    variables = client.helpers.get_equation_variables(equation)
+    vs = list(set(variables))
+    length = len(vs)
 
-    length = len(set(variables))
     if length != 2:
         await ctx.send("Can't create gif from non-3D graphs")
         return
 
-    # Reusing code idgaf
-    for v in variables:
-        equation = equation.replace(v, "{}")
-
     # Create a figure to plot the surface on
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
+    # Calculate X, Y and Z axis
     X = np.arange(-5, 5, 0.1)
     Y = np.arange(-5, 5, 0.1)
     X, Y = np.meshgrid(X, Y)
-    z = []
-    sv = list(set(variables))
-    for i in range(len(X)):
-        z.append([])
-        for j in range(len(X[i])):
-            data = []
-            x = X[i][j]
-            y = Y[i][j]
-            for char in variables:
-                if char == sv[0]:
-                    data.append(x)
-                else:
-                    data.append(y)
-            val = equation.format(*data)
-            e = eval(val)
-            z[i].append(e)
-    z = np.array(z)
-    surface = ax.plot_surface(X, Y, z, cmap="viridis", edgecolor="none")
+    z = client.helpers.get_z_axis(equation, vs, X, Y)
+
+    colors = ["viridis", "coolwarm"]
+    surface = ax.plot_surface(X, Y, z, cmap=random.choice(colors), edgecolor="none")
     fig.colorbar(surface, shrink=0.5, aspect=5)
 
+    # Create a list of images with different angles of the plot
     images = []
     for angle in range(0, 180, 5):
         buffer = io.BytesIO()
@@ -1821,6 +1780,7 @@ async def gif_plotter(ctx: commands.Context, *, equation: str):
         buffer.seek(0)
         images.append(imageio.imread(buffer))
 
+    # Create a gif file from the list of images
     output = io.BytesIO()
     imageio.mimsave(output, images, 'GIF')
     output.seek(0)
