@@ -1745,11 +1745,13 @@ async def plotter(ctx: commands.Context, *, equation: str):
 
 
 @client.command(name="plotgif", brief="Creates a gif of a 3D plot.")
-@commands.cooldown(1, 300, commands.BucketType.channel)
+@commands.cooldown(1, 120, commands.BucketType.channel)
 async def gif_plotter(ctx: commands.Context, *, equation: str):
+
     # Removing until a way to use efficiently is found
-    if not (ctx.author.id == const.MY_ID):
-        raise NotImplementedError
+    # if not (ctx.author.id == const.MY_ID):
+    #     raise NotImplementedError
+    # /shrug
 
     # Get the variables of the equation
     variables = client.helpers.get_equation_variables(equation)
