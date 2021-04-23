@@ -1781,18 +1781,18 @@ async def gif_plotter(ctx: commands.Context, *, equation: str):
     surface = ax.plot_surface(X, Y, z, cmap=color_map, edgecolor="none")
     fig.colorbar(surface, shrink=0.5, aspect=5)
 
-    # Create a list of images with different angles of the plot
-    images = []
-    for angle in range(0, 180, 5):
-        buffer = io.BytesIO()
-        ax.view_init(30, angle)
-        plt.savefig(buffer, format="png")
-        buffer.seek(0)
-        images.append(imageio.imread(buffer))
+    def images_generator():
+        """Yields all BytesIO plots from different angles"""
+        for angle in range(0, 360, 10):
+            buffer = io.BytesIO()
+            ax.view_init(30, angle)
+            plt.savefig(buffer, format="png")
+            buffer.seek(0)
+            yield imageio.imread(buffer)
 
     # Create a gif file from the list of images
     output = io.BytesIO()
-    imageio.mimsave(output, images, 'GIF')
+    imageio.mimsave(output, images_generator(), 'GIF')
     output.seek(0)
 
     await ctx.send(f"{ctx.author.mention}", file=discord.File(output, "graph.gif"))
