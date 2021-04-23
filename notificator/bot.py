@@ -1711,6 +1711,7 @@ async def plotter(ctx: commands.Context, *, equation: str):
             await ctx.send("Not a number")
             return
 
+        plt.style.use("fivethirtyeight")
         plt.plot(x, y)
     # If there is only 1 variable replace it with the values
     elif length == 1:
@@ -1719,6 +1720,7 @@ async def plotter(ctx: commands.Context, *, equation: str):
             e = ne.evaluate(equation, {vs[0]: i})
             y.append(e)
 
+        plt.style.use("fivethirtyeight")
         plt.plot(x, y)
     # If there are 2 variables iterate 2 times over each value of x
     # and replace both
@@ -1730,9 +1732,9 @@ async def plotter(ctx: commands.Context, *, equation: str):
         Y = np.arange(-5, 5, 0.1)
         X, Y = np.meshgrid(X, Y)
         z = client.helpers.get_z_axis(equation, vs, X, Y)
-        colors = ["viridis", "coolwarm"]
 
-        surface = ax.plot_surface(X, Y, z, cmap=random.choice(colors), edgecolor="none")
+        color_map = random.choice(const.PLOT_COLORS)
+        surface = ax.plot_surface(X, Y, z, cmap=color_map, edgecolor="none")
         fig.colorbar(surface, shrink=0.5, aspect=5)
 
     # Make a buffer that holds the plot to send through discord
@@ -1767,8 +1769,8 @@ async def gif_plotter(ctx: commands.Context, *, equation: str):
     X, Y = np.meshgrid(X, Y)
     z = client.helpers.get_z_axis(equation, vs, X, Y)
 
-    colors = ["viridis", "coolwarm"]
-    surface = ax.plot_surface(X, Y, z, cmap=random.choice(colors), edgecolor="none")
+    color_map = random.choice(const.PLOT_COLORS)
+    surface = ax.plot_surface(X, Y, z, cmap=color_map, edgecolor="none")
     fig.colorbar(surface, shrink=0.5, aspect=5)
 
     # Create a list of images with different angles of the plot

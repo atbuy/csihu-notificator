@@ -106,6 +106,16 @@ class const:
         self.ARROW_FORWARD = "\U000025b6"
         self.END_EMOJI = "\U000023ed"
 
+        self.PLOT_COLORS = [
+            "viridis", "coolwarm", "winter",
+            "summer", "cool", "autumn",
+            "spring", "gray", "magma",
+            "bone", "pink", "copper",
+            "seismic", "Spectral", "twilight",
+            "hsv", "tab20", "tab10",
+            "ocean"
+        ]
+
         self.CHARS_DIGITS = string.ascii_uppercase + string.digits
 
 
