@@ -1702,6 +1702,10 @@ async def plotter(ctx: commands.Context, *, equation: str):
         await ctx.send("Can't plot 4D graphs")
         return
 
+    # Fix equation to format without rounding
+    for v in set(variables):
+        equation = equation.replace(v, "{}")
+
     # Clear the figure before writing over it
     plt.clf()
     plt.title("Graph")
@@ -1715,20 +1719,19 @@ async def plotter(ctx: commands.Context, *, equation: str):
         else:
             await ctx.send("Not a number")
             return
+
+        plt.plot(x, y)
     # If there is only 1 variable replace it with the values
     elif length == 1:
         y = []
         for i in x:
-            e = eval(equation.replace(variables[0], str(i)))
-            y.append(e)
+            val = equation.format(str(i))
+            y.append(eval(val))
 
         plt.plot(x, y)
     # If there are 2 variables iterate 2 times over each value of x
     # and replace both
     elif length == 2:
-        for v in variables:
-            equation = equation.replace(v, "{}")
-
         # Create a figure to plot the surface on
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
@@ -1736,10 +1739,19 @@ async def plotter(ctx: commands.Context, *, equation: str):
         Y = np.arange(-5, 5, 0.1)
         X, Y = np.meshgrid(X, Y)
         z = []
+        sv = list(set(variables))
         for i in range(len(X)):
             z.append([])
             for j in range(len(X[i])):
-                val = equation.format(str(X[i][j]), str(Y[i][j]))
+                data = []
+                x = X[i][j]
+                y = Y[i][j]
+                for char in variables:
+                    if char == sv[0]:
+                        data.append(x)
+                    else:
+                        data.append(y)
+                val = equation.format(*data)
                 e = eval(val)
                 z[i].append(e)
         z = np.array(z)
@@ -1782,10 +1794,19 @@ async def gif_plotter(ctx: commands.Context, *, equation: str):
     Y = np.arange(-5, 5, 0.1)
     X, Y = np.meshgrid(X, Y)
     z = []
+    sv = list(set(variables))
     for i in range(len(X)):
         z.append([])
         for j in range(len(X[i])):
-            val = equation.format(str(X[i][j]), str(Y[i][j]))
+            data = []
+            x = X[i][j]
+            y = Y[i][j]
+            for char in variables:
+                if char == sv[0]:
+                    data.append(x)
+                else:
+                    data.append(y)
+            val = equation.format(*data)
             e = eval(val)
             z[i].append(e)
     z = np.array(z)
