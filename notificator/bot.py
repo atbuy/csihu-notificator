@@ -1782,7 +1782,11 @@ async def gif_plotter(ctx: commands.Context, *, equation: str):
     fig.colorbar(surface, shrink=0.5, aspect=5)
 
     def images_generator():
-        """Yields all BytesIO plots from different angles"""
+        """
+        Yields all BytesIO plots from different angles
+
+        This is used to save memory, not execution time
+        """
         for angle in range(0, 360, 10):
             buffer = io.BytesIO()
             ax.view_init(30, angle)
