@@ -1059,6 +1059,16 @@ class Helpers:
         """Checks if the attachement is a text file"""
         return msg.attachments[0].filename.split(".")[1] == "txt"
 
+    def clean_equation(self, equation: str) -> str:
+        """
+        Cleans an equation
+        This function removes markdown from the equation
+
+        :return str: The cleaned equation
+        """
+
+        return equation.replace("`", "")
+
     def get_equation_variables(self, equation: str) -> Tuple[str, list]:
         """
         Converts an un-formatted equation to a more useable form,

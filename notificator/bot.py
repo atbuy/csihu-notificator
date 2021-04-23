@@ -1692,6 +1692,9 @@ async def plotter(ctx: commands.Context, *, equation: str):
     Sends a matplotlib plot, that graphs the equation passed
     """
 
+    # Clean equation
+    equation = client.helpers.clean_equation(equation)
+    
     # Get the list ofvariables in the equation
     variables = client.helpers.get_equation_variables(equation)
     vs = list(set(variables))
