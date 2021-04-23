@@ -1697,7 +1697,7 @@ async def plotter(ctx: commands.Context, *, equation: str):
         if char in ascii_letters:
             variables.append(char)
 
-    length = len(variables)
+    length = len(set(variables))
     if length > 2:
         await ctx.send("Can't plot 4D graphs")
         return
@@ -1766,7 +1766,7 @@ async def gif_plotter(ctx: commands.Context, *, equation: str):
         if char in ascii_letters:
             variables.append(char)
 
-    length = len(variables)
+    length = len(set(variables))
     if length != 2:
         await ctx.send("Can't create gif from non-3D graphs")
         return
