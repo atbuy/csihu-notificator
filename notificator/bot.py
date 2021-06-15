@@ -2,7 +2,6 @@
 import os
 import io
 import json
-import troll
 import random
 import imageio
 import asyncio
@@ -20,8 +19,10 @@ from discord.ext import commands
 from datetime import datetime, timedelta
 from discord_slash import SlashCommand, SlashContext
 
+import troll
 import morse
 import helpers
+
 
 # Load opus library
 if not os.environ.get("CSIHU_ON_HEROKU"):
@@ -1514,7 +1515,7 @@ async def toggle_spam(ctx: commands.Context) -> None:
 
 
 @client.command(name="stats", aliases=["get-stats", "getstats"], brief="Get statistics for mods")
-async def get_statistics(ctx: commands.Context, from_message: int = None):
+async def get_statistics(ctx: commands.Context, from_message: discord.Message = None):
     """Returns a json file with mod stats"""
 
     # Check if the member is allowed to use this command
