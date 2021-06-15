@@ -1515,7 +1515,7 @@ async def toggle_spam(ctx: commands.Context) -> None:
 
 
 @client.command(name="stats", aliases=["get-stats", "getstats"], brief="Get statistics for mods")
-async def get_statistics(ctx: commands.Context, from_message: discord.Message = None):
+async def get_statistics(ctx: commands.Context, from_message: discord.Message = None, to_message: discord.Message = None):
     """Returns a json file with mod stats"""
 
     # Check if the member is allowed to use this command
@@ -1528,8 +1528,9 @@ async def get_statistics(ctx: commands.Context, from_message: discord.Message = 
 
     # Read all the embeds
     if from_message:
-        msg = await log_channel.fetch_message(from_message)
-        messages = log_channel.history(limit=None, after=msg.created_at)
+        messages = log_channel.history(limit=None, after=from_message.created_at)
+    elif from_message and to_message:        
+        messages = log_channel.history(limit=None, after=from_message.created_at, before=to_message.created_at)
     else:
         messages = log_channel.history(limit=None)
 
