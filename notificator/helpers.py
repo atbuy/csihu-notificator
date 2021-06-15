@@ -111,9 +111,8 @@ class const:
             "summer", "cool", "autumn",
             "spring", "gray", "magma",
             "bone", "pink", "copper",
-            "seismic", "Spectral", "twilight",
-            "hsv", "tab20", "tab10",
-            "ocean"
+            "Spectral", "twilight", "hsv",
+            "tab20", "tab10", "ocean"
         ]
 
         self.CHARS_DIGITS = string.ascii_uppercase + string.digits
