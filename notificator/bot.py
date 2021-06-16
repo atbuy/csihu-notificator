@@ -19,9 +19,9 @@ from discord.ext import commands
 from datetime import datetime, timedelta
 from discord_slash import SlashCommand, SlashContext
 
-import troll
-import morse
-import helpers
+from . import troll
+from . import morse
+from . import helpers
 
 
 # Load opus library
@@ -46,10 +46,10 @@ client = commands.Bot(
     help_command=None,
     activity=discord.Activity(type=discord.ActivityType.listening, name=".help")
 )
-client.info_data: dict = const.info
-client.DATA_PATH: str = const.DATA_PATH
-client.DISABLED_COMMANDS: dict = const.DISABLED_COMMANDS
-client.RULES: list = const.RULES
+client.info_data = const.info
+client.DATA_PATH = const.DATA_PATH
+client.DISABLED_COMMANDS = const.DISABLED_COMMANDS
+client.RULES = const.RULES
 client.latest_announcement = {"text": LAST_MESSAGE, "link": LAST_LINK, "id": LAST_ID}
 client.is_running = False
 
@@ -1529,7 +1529,7 @@ async def get_statistics(ctx: commands.Context, from_message: discord.Message = 
     # Read all the embeds
     if from_message:
         messages = log_channel.history(limit=None, after=from_message.created_at)
-    elif from_message and to_message:        
+    elif from_message and to_message:
         messages = log_channel.history(limit=None, after=from_message.created_at, before=to_message.created_at)
     else:
         messages = log_channel.history(limit=None)
