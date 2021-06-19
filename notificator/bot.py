@@ -19,9 +19,9 @@ from discord.ext import commands
 from datetime import datetime, timedelta
 from discord_slash import SlashCommand, SlashContext
 
-from . import troll
-from . import morse
-from . import helpers
+import troll
+import morse
+import helpers
 
 
 # Load opus library
