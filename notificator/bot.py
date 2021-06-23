@@ -949,7 +949,7 @@ async def pog(ctx: commands.Context, msg: discord.Message = None) -> None:
 
 
 @client.command(name="pog?", brief="POG? a message")
-async def _pog(ctx: commands.Context, msg: discord.Message = None) -> None:
+async def pog_(ctx: commands.Context, msg: discord.Message = None) -> None:
     """
     Add the reactions "p", "o", "g" and "?" to the specified `msg`
 
@@ -1353,7 +1353,7 @@ async def mute(ctx: commands.Context, member: Optional[discord.Member], minutes:
         await ctx.send(f"{ctx.author.mention} you don't have enough permissions to perform this action")
         return
 
-    # One hour mute limit
+    # Five hour mute limit
     if minutes > 300:
         await ctx.send(f"{ctx.author.mention} you can't mute someone for more than 5 hours.")
         return
@@ -1802,6 +1802,146 @@ async def gif_plotter(ctx: commands.Context, *, equation: str):
     output.seek(0)
 
     await ctx.send(f"{ctx.author.mention}", file=discord.File(output, "graph.gif"))
+
+
+@client.command(
+    name="strikefw",
+    brief="Give a strike for the nsfw channels to a member. Three strikes result in a 20 minute ban."
+)
+async def strikefw(ctx: commands.Context, member: Optional[discord.Member] = None):
+    """Gives a strike to the member, or the reference author"""
+
+    # Check if the author is a moderator
+    if not client.helpers.can_execute(ctx):
+        await ctx.send(f"{ctx.author.mention} You are not allowed to use this command.")
+        return
+
+    # Check if there is a member passed or a reference author
+    if not member:
+        if ctx.message.reference:
+            msg = await ctx.fetch_message(id=ctx.message.reference.message_id)
+            member = msg.author
+        else:
+            await ctx.send(f"{ctx.author.mention} You need to pass a member.")
+            return
+
+    # Moderators cannot strike other moderators
+    if client.helpers.is_mod(member):
+        await ctx.send(f"{ctx.author.mention} You can't strike a moderator.")
+        return
+
+    # Check if the member is already striked
+    # If he is then add one more strike and check if it has reached 3.
+    # At 3 strikes, remove all nsfw roles for 20 minutes.
+    # If he isn't then create an instance of the member's id and increment the strikes to 1.
+    if str(member.id) in const.STRIKES:
+        strikes = const.STRIKES[f"{member.id}"]
+        strikes["nsfw"] += 1
+        await ctx.send(f"{ctx.author.mention} has striked {member.mention}. Current strikes: {strikes['nsfw']}")
+        # If the member has 3 strikes, then remove nsfw roles
+        if strikes["nsfw"] == 3:
+            await member.send("You have been banned from NSFW channels, because you were issued 3 strikes from moderators.")
+            await client.helpers.remove_role_contains(member, "nsfw")
+    else:
+        const.STRIKES[f"{member.id}"] = {"nsfw": 1, "sfw": 0}
+        await ctx.send(f"{ctx.author.mention} has striked {member.mention}. Current strikes: 1")
+
+    # Update JSON db from the API
+    client.info_data["strikes"] = const.STRIKES
+    data = json.dumps(client.info_data)
+    client.helpers.post_info_file_data(data)
+
+
+@client.command(
+    name="strike",
+    brief="Give a strike to a member. Three strikes result in a 20 minute mute."
+)
+async def strike(ctx: commands.Context, member: Optional[discord.Member] = None):
+    """Gives a strike to the member, or the reference author"""
+
+    # Check if the author is a moderator
+    if not client.helpers.can_execute(ctx):
+        await ctx.send(f"{ctx.author.mention} You are not allowed to use this command.")
+        return
+
+    # Check if there is a member passed or a reference author
+    if not member:
+        if ctx.message.reference:
+            msg = await ctx.fetch_message(id=ctx.message.reference.message_id)
+            member = msg.author
+        else:
+            await ctx.send(f"{ctx.author.mention} You need to pass a member.")
+            return
+
+    # Moderators cannot strike other moderators
+    if client.helpers.is_mod(member):
+        await ctx.send(f"{ctx.author.mention} You can't strike a moderator.")
+        return
+
+    # Check if the member is already striked
+    # If he is then add one more strike and check if it has reached 3.
+    # At 3 strikes, remove all nsfw roles for 20 minutes.
+    # If he isn't then create an instance of the member's id and increment the strikes to 1.
+    if str(member.id) in const.STRIKES:
+        strikes = const.STRIKES[f"{member.id}"]
+        strikes["sfw"] += 1
+        await ctx.send(f"{ctx.author.mention} has striked {member.mention}. Current strikes: {strikes['sfw']}")
+        # If the member has 3 strikes, then remove nsfw roles
+        if strikes["sfw"] == 3:
+            await member.send(
+                "You have been muted for {const.STRIKE_MUTE_MINUTES},"
+                " because you were issued 3 strikes from moderators."
+            )
+            await mute(ctx, member, const.STRIKE_MUTE_MINUTES)
+            const.STRIKES[f"{member.id}"]["sfw"] = 0
+    else:
+        const.STRIKES[f"{member.id}"] = {"nsfw": 0, "sfw": 1}
+        await ctx.send(f"{ctx.author.mention} has striked {member.mention}. Current strikes: 1")
+
+    # Update JSON db from the API
+    client.info_data["strikes"] = const.STRIKES
+    data = json.dumps(client.info_data)
+    client.helpers.post_info_file_data(data)
+
+
+@client.command(name="vstrikesfw", aliases=["vfw"], brief="View how many nsfw strikes you have gotten.")
+async def strikesfw(ctx: commands.Context, member: Optional[discord.Member] = None):
+    """Check how many strikes a member has gotten"""
+
+    # Check if there is a member passed or a reference author
+    if not member:
+        if ctx.message.reference:
+            msg = await ctx.fetch_message(id=ctx.message.reference.message_id)
+            member = msg.author
+        else:
+            member = ctx.author
+
+    if str(member.id) in const.STRIKES:
+        strikes = const.STRIKES[f"{member.id}"]["nsfw"]
+    else:
+        strikes = 0
+
+    await ctx.send(f"{member.mention} You have {strikes} nsfw strikes.")
+
+
+@client.command(name="vstrikes", aliases=["vs"], brief="View how many strikes you have gotten.")
+async def strikes(ctx: commands.Context, member: Optional[discord.Member] = None):
+    """Check how many strikes a member has gotten"""
+
+    # Check if there is a member passed or a reference author
+    if not member:
+        if ctx.message.reference:
+            msg = await ctx.fetch_message(id=ctx.message.reference.message_id)
+            member = msg.author
+        else:
+            member = ctx.author
+
+    if str(member.id) in const.STRIKES:
+        strikes = const.STRIKES[f"{member.id}"]["sfw"]
+    else:
+        strikes = 0
+
+    await ctx.send(f"{member.mention} You have {strikes} strikes.")
 
 
 # ! Not Implemented yet

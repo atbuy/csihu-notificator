@@ -15,7 +15,7 @@ import numexpr as ne
 import numexpr.necompiler as nec
 from PIL import Image
 from pathlib import Path
-from typing import Union, List, Tuple
+from typing import Any, Union, List, Tuple
 from bs4 import BeautifulSoup
 from datetime import datetime
 from discord.ext import commands
@@ -80,6 +80,7 @@ class const:
         self.SPECIAL_CHARACTERS = self.info["special_characters"]
         self.DISABLED_COMMANDS = self.info["disabled_commands"]
         self.RULES = self.info["rules"]
+        self.STRIKES = self.info["strikes"]
 
         self.MY_ID = 222950176770228225
         self.MODERATOR_ID = 760078403264184341
@@ -116,6 +117,8 @@ class const:
         ]
 
         self.CHARS_DIGITS = string.ascii_uppercase + string.digits
+
+        self.STRIKE_MUTE_MINUTES = 20
 
 
 class UrbanDictionary:
@@ -253,6 +256,33 @@ class Helpers:
                 await ctx.author.remove_roles(role)
                 await role.delete()
 
+    async def remove_role_contains(self, member: discord.Member, text: str) -> None:
+        """Removes all roles that contain the `text` provided
+
+        :param text: String to look for inside a member's role list
+
+        ..note:
+            `text` and role names are lowered before evaluation
+        """
+
+        for role in member.roles:
+            if text.lower() in str(role).lower():
+                await member.remove_roles(role)
+
+    async def add_role_contains(self, member: discord.Member, text: str) -> None:
+        """Adds all roles that contain `text` to the `member`
+
+        :param member: The member to add roles to
+        :param text: The text to match server roles with
+
+        ..note:
+            All roles and `text` are lowered before evaluation
+        """
+        text_lower = text.lower()
+        for role in member.guild.roles:
+            if text_lower in str(role).lower():
+                member.add_roles(role)
+
     async def mute_timer(self, ctx: commands.Context, member: discord.Member, minutes: float) -> None:
         """
         Timer until the specified time, to remove the `mute` role
@@ -284,6 +314,17 @@ class Helpers:
             await member.add_roles(synadelfos_role)
 
             await ctx.send(f"{member.mention} is now unmuted")
+
+    async def async_timer(self, minutes: float) -> None:
+        """Sleeps for the specified amount of time
+
+        :param minutes: Minutes to sleep for
+        """
+
+        counter = minutes * 60
+        while counter > 0:
+            await asyncio.sleep(1)
+            counter -= 1
 
     async def execute_python_script(self, msg: discord.Message, script: str, safe: bool = False) -> None:
         """
@@ -583,6 +624,16 @@ class Helpers:
             if comm.name == name:
                 return comm
 
+        return False
+
+    def is_mod(self, member: discord.Member) -> bool:
+        """Checks if a member is a mod or not"""
+
+        for role in member.roles:
+            if role.id in (
+                    self.const.MODERATOR_ID, self.const.OWNER_ID,
+                    self.const.BOT_ROLE_ID, self.const.HELPER_ROLE_ID):
+                return True
         return False
 
     def can_execute(self, ctx: commands.Context, **kwargs) -> bool:
