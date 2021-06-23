@@ -15,7 +15,7 @@ import numexpr as ne
 import numexpr.necompiler as nec
 from PIL import Image
 from pathlib import Path
-from typing import Any, Union, List, Tuple
+from typing import Union, List, Tuple
 from bs4 import BeautifulSoup
 from datetime import datetime
 from discord.ext import commands
