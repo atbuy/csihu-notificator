@@ -12,4 +12,5 @@ PyNaCl>=1.4.0
 gtts>=2.2.0
 pytz>=2021.1
 numexpr>=2.7.3
-git+https://github.com/Vitaman02/discord.py.git@467bbb8#egg=discord.py
+discord.py>=1.7.3
+discord.py[voice]>=17.3
