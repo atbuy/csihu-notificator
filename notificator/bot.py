@@ -26,7 +26,7 @@ import helpers
 
 # Load opus library
 if not os.environ.get("CSIHU_ON_HEROKU"):
-    discord.opus.load_opus("opus")
+    discord.opus.load_opus(os.environ.get("OPUSDLL_PATH"))
 
 const = helpers.const()
 urbandict = helpers.UrbanDictionary()
