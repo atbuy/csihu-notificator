@@ -17,7 +17,7 @@ from typing import Optional, Union
 from itertools import product
 from discord.ext import commands
 from datetime import datetime, timedelta
-from discord_slash import SlashCommand
+# from discord_slash import SlashCommand
 
 import troll
 import morse
@@ -53,8 +53,8 @@ client.RULES = const.RULES
 client.latest_announcement = {"text": LAST_MESSAGE, "link": LAST_LINK, "id": LAST_ID}
 client.is_running = False
 
-slash = SlashCommand(client, sync_commands=True)
-slash_guild_ids = [const.PANEPISTHMIO_ID]
+# slash = SlashCommand(client, sync_commands=True)
+# slash_guild_ids = [const.PANEPISTHMIO_ID]
 
 
 @client.command(brief="Test the bot")

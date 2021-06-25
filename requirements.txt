@@ -13,4 +13,4 @@ gtts>=2.2.0
 pytz>=2021.1
 numexpr>=2.7.3
 discord.py>=1.7.3
-discord.py[voice]>=17.3
+discord.py[voice]>=1.7.3
