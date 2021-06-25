@@ -17,7 +17,7 @@ from typing import Optional, Union
 from itertools import product
 from discord.ext import commands
 from datetime import datetime, timedelta
-from discord_slash import SlashCommand, SlashContext
+from discord_slash import SlashCommand
 
 import troll
 import morse
@@ -1985,7 +1985,7 @@ async def record(ctx: commands.Context, seconds: int, member: discord.Member = N
 
 # ! --- Slash Commands ---
 @slash.slash(name="get-color", description=get_member_color.brief, guild_ids=slash_guild_ids)
-async def slash_get_member_color(ctx: SlashContext, member: discord.Member):
+async def slash_get_member_color(ctx, member: discord.Member):
     # Check if the command is disabled
     if slash_get_member_color.name in client.DISABLED_COMMANDS:
         await ctx.send(f"{ctx.author.mention} this command is disabled")
@@ -1995,7 +1995,7 @@ async def slash_get_member_color(ctx: SlashContext, member: discord.Member):
 
 
 @slash.slash(name="set-color", description=change_role_color.brief, guild_ids=slash_guild_ids)
-async def slash_change_role_color(ctx: SlashContext, red=None, green=None, blue=None):
+async def slash_change_role_color(ctx, red=None, green=None, blue=None):
     # Check if the command is disabled
     if slash_change_role_color.name in client.DISABLED_COMMANDS:
         await ctx.send(f"{ctx.author.mention} this command is disabled")
@@ -2005,7 +2005,7 @@ async def slash_change_role_color(ctx: SlashContext, red=None, green=None, blue=
 
 
 @slash.slash(name="zoom", description=zoom.brief, guild_ids=slash_guild_ids)
-async def slash_zoom(ctx: SlashContext):
+async def slash_zoom(ctx):
     # Check if the command is disabled
     if slash_zoom.name in client.DISABLED_COMMANDS:
         await ctx.send(f"{ctx.author.mention} this command is disabled")
@@ -2015,7 +2015,7 @@ async def slash_zoom(ctx: SlashContext):
 
 
 @slash.slash(name="moodle", description=moodle.brief, guild_ids=slash_guild_ids)
-async def slash_moodle(ctx: SlashContext):
+async def slash_moodle(ctx):
     # Check if the command is disabled
     if slash_moodle.name in client.DISABLED_COMMANDS:
         await ctx.send(f"{ctx.author.mention} this command is disabled")
@@ -2025,7 +2025,7 @@ async def slash_moodle(ctx: SlashContext):
 
 
 @slash.slash(name="courses", description=courses.brief, guild_ids=slash_guild_ids)
-async def slash_courses(ctx: SlashContext):
+async def slash_courses(ctx):
     # Check if the command is disabled
     if slash_courses.name in client.DISABLED_COMMANDS:
         await ctx.send(f"{ctx.author.mention} this command is disabled")
@@ -2035,7 +2035,7 @@ async def slash_courses(ctx: SlashContext):
 
 
 @slash.slash(name="programma", description=programma.brief, guild_ids=slash_guild_ids)
-async def slash_programma(ctx: SlashContext):
+async def slash_programma(ctx):
     # Check if the command is disabled
     if slash_programma.name in client.DISABLED_COMMANDS:
         await ctx.send(f"{ctx.author.mention} this command is disabled")
@@ -2045,7 +2045,7 @@ async def slash_programma(ctx: SlashContext):
 
 
 @slash.slash(name="drip", description=drip.brief, guild_ids=slash_guild_ids)
-async def slash_drip(ctx: SlashContext):
+async def slash_drip(ctx):
     # Check if the command is disabled
     if slash_drip.name in client.DISABLED_COMMANDS:
         await ctx.send(f"{ctx.author.mention} this command is disabled")
@@ -2055,7 +2055,7 @@ async def slash_drip(ctx: SlashContext):
 
 
 @slash.slash(name="timer", description=timer.brief, guild_ids=slash_guild_ids)
-async def slash_timer(ctx: SlashContext, value: str):
+async def slash_timer(ctx, value: str):
     # Check if the command is disabled
     if slash_timer.name in client.DISABLED_COMMANDS:
         await ctx.send(f"{ctx.author.mention} this command is disabled")
@@ -2065,12 +2065,12 @@ async def slash_timer(ctx: SlashContext, value: str):
 
 
 @slash.slash(name="disabled", description=view_disabled_commands.brief, guild_ids=slash_guild_ids)
-async def slash_disabled(ctx: SlashContext):
+async def slash_disabled(ctx):
     await view_disabled_commands(ctx)
 
 
 @slash.slash(name="donate", description=donate.brief, guild_ids=slash_guild_ids)
-async def slash_donate(ctx: SlashContext):
+async def slash_donate(ctx):
     # Check if the command is disabled
     if slash_donate.name in client.DISABLED_COMMANDS:
         await ctx.send(f"{ctx.author.mention} this command is disabled")
@@ -2080,7 +2080,7 @@ async def slash_donate(ctx: SlashContext):
 
 
 @slash.slash(name="say", description=say.brief, guild_ids=slash_guild_ids)
-async def slash_say(ctx: SlashContext, text: str):
+async def slash_say(ctx, text: str):
     # Check if the command is disabled
     if slash_say.name in client.DISABLED_COMMANDS:
         await ctx.send(f"{ctx.author.mention} this command is disabled")
@@ -2090,7 +2090,7 @@ async def slash_say(ctx: SlashContext, text: str):
 
 
 @slash.slash(name="word", description=random_word.brief, guild_ids=slash_guild_ids)
-async def slash_random_word(ctx: SlashContext):
+async def slash_random_word(ctx):
     # Check if the command is disabled
     if slash_random_word.name in client.DISABLED_COMMANDS:
         await ctx.send(f"{ctx.author.mention} this command is disabled")
@@ -2100,7 +2100,7 @@ async def slash_random_word(ctx: SlashContext):
 
 
 @slash.slash(name="rules", description=rules.brief, guild_ids=slash_guild_ids)
-async def slash_rules(ctx: SlashContext, rule: int = None):
+async def slash_rules(ctx, rule: int = None):
     # Check if the command is disabled
     if slash_rules.name in client.DISABLED_COMMANDS:
         await ctx.send(f"{ctx.author.mention} this command is disabled")
@@ -2114,18 +2114,18 @@ async def slash_rules(ctx: SlashContext, rule: int = None):
 
 # * --- Mod commands ---
 @slash.slash(name="mute", description=mute.brief, guild_ids=slash_guild_ids)
-async def slash_mute(ctx: SlashContext, member: discord.Member, minutes: float = 5.0):
+async def slash_mute(ctx, member: discord.Member, minutes: float = 5.0):
     minutes = float(minutes)
     await mute(ctx, member=member, minutes=minutes)
 
 
 @slash.slash(name="unmute", description=unmute.brief, guild_ids=slash_guild_ids)
-async def slash_unmute(ctx: SlashContext, member: discord.Member):
+async def slash_unmute(ctx, member: discord.Member):
     await unmute(ctx, member=member)
 
 
 @slash.slash(name="delete", description=delete.brief, guild_ids=slash_guild_ids)
-async def slash_delete(ctx: SlashContext, number: int, message: discord.Message = None, member: discord.Member = None):  # noqa
+async def slash_delete(ctx, number: int, message: discord.Message = None, member: discord.Member = None):  # noqa
     number = int(number)
 
     if isinstance(message, str):
