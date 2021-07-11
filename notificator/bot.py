@@ -1515,7 +1515,7 @@ async def toggle_spam(ctx: commands.Context) -> None:
 
 
 @client.command(name="stats", aliases=["get-stats", "getstats"], brief="Get statistics for mods")
-async def get_statistics(ctx: commands.Context, from_message: discord.Message = None, to_message: discord.Message = None):
+async def get_statistics(ctx: commands.Context, from_message: int = None, to_message: int = None):
     """Returns a json file with mod stats"""
 
     # Check if the member is allowed to use this command
@@ -1526,11 +1526,23 @@ async def get_statistics(ctx: commands.Context, from_message: discord.Message = 
     # Get the log channel
     log_channel: discord.TextChannel = discord.utils.get(ctx.guild.text_channels, id=const.LOGS_CHANNEL_ID)
 
+    # Swap messages to correct their positions
+    if from_message > to_message:
+        from_message, to_message = to_message, from_message
+
+    # Convert message ids to message objects
+    from_message = await log_channel.fetch_message(from_message)
+    to_message = await log_channel.fetch_message(to_message)
+
+    # Create 1 second delta time object to add and subctract
+    # so the function becomes inclusive on both sides
+    delta = timedelta(seconds=1)
+
     # Read all the embeds
-    if from_message:
-        messages = log_channel.history(limit=None, after=from_message.created_at)
-    elif from_message and to_message:
-        messages = log_channel.history(limit=None, after=from_message.created_at, before=to_message.created_at)
+    if from_message and to_message:
+        messages = log_channel.history(limit=None, after=from_message.created_at - delta, before=to_message.created_at + delta)
+    elif from_message:
+        messages = log_channel.history(limit=None, after=from_message.created_at - delta)
     else:
         messages = log_channel.history(limit=None)
 
