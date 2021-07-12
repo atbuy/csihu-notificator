@@ -810,6 +810,17 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
         await ctx.send("```Couldn't find announcement.```")
 
 
+@client.command(name="last-merimna", brief="Sends the latest announcement from foititikh merimna.")
+async def last_merimna(ctx: commands.Context) -> None:
+    """Sends the latest announcement from foititikh merimna."""
+
+    # Get the last announcement
+    ann = client.helpers.search_merimna(ctx)
+
+    # Send it to the channel
+    await client.helpers.send_announcement(ctx.channel, ann)
+
+
 @client.command(name="last_id", brief="View last announcement's id")
 async def change_last_id(ctx: commands.Context, id_num: int = None) -> None:
     """
@@ -879,11 +890,25 @@ async def run_bot(ctx: commands.Context, give_pass: bool = None) -> None:
             data_dict_as_str = json.dumps(client.info_data)
             client.helpers.post_info_file_data(data_dict_as_str)
 
-            try:
-                await announcement_channel.send(f"New announcement.\nLink: <{ann.link}>\n\n**{ann.title}**\n```{ann.text} ```")
-            except discord.errors.HTTPException:
-                await announcement_channel.send(
-                    f"Announcement to long to send over discord.\nLink: <{ann.link}>\n\n**{ann.title}**")
+            # Send the announcement to the announcement channel
+            await client.helpers.send_announcement(announcement_channel, ann)
+
+        # In the same loop we want to check the site of `foititikh merimna`
+        # for new announcements
+        ann = client.helpers.search_merimna(ctx, const.LAST_MERIMNA)
+        if ann.found:
+            # Update the latest announcement string
+            const.LAST_MERIMNA = ann.title
+
+            # Update the info dictionary
+            client.info_data["last_merimna"] = ann.title
+
+            # Upload data to server
+            data_dict_as_str = json.dumps(client.info_data)
+            client.helpers.post_info_file_data(data_dict_as_str)
+
+            # Send the announcement to the announcement channel
+            await client.helpers.send_announcement(announcement_channel, ann)
 
         # Sleep for 5 minutes before pinging the website again
         await asyncio.sleep(300)

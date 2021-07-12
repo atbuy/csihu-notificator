@@ -3,6 +3,8 @@ import io
 import PIL
 import json
 import time
+import lxml  # noqa
+import cchardet  # noqa
 import string
 import imageio
 import asyncio
@@ -15,7 +17,7 @@ import numexpr as ne
 import numexpr.necompiler as nec
 from PIL import Image
 from pathlib import Path
-from typing import Union, List, Tuple
+from typing import List, Tuple
 from bs4 import BeautifulSoup
 from datetime import datetime
 from discord.ext import commands
@@ -75,6 +77,7 @@ class const:
         self.LAST_ID = self.info["last_id"]
         self.LAST_LINK = self.info["last_link"]
         self.LAST_MESSAGE = self.info["last_message"]
+        self.LAST_MERIMNA = self.info["last_merimna"]
         self.ALLOWED_FILES = self.info["allowed_files"]
         self.CHARACTERS = self.info["emoji_characters"]
         self.SPECIAL_CHARACTERS = self.info["special_characters"]
@@ -141,7 +144,7 @@ class UrbanDictionary:
         req = requests.get(self.base_url.format(term))
 
         # Parse the HTML
-        soup = BeautifulSoup(req.text, "html.parser")
+        soup = BeautifulSoup(req.text, "lxml")
 
         # Get the element of the first panel
         first_panel = soup.find("div", {"class": "def-panel"})
@@ -162,22 +165,18 @@ class Announcement:
     def __init__(self):
         self.id = None
         self.title = None
-        self.text = None
-
-    @property
-    def link(self) -> Union[str, None]:
-        if self.found:
-            return f"https://www.cs.ihu.gr/view_announcement.xhtml?id={self.id}"
+        self.text = ""
+        self.link = None
 
     @property
     def found(self) -> bool:
-        if self.title and self.id and self.text:
+        if self.title and self.text:
             return True
         return False
 
     def __str__(self):
         if self.found:
-            return self.title
+            return f"<Announcement id={self.id} title={self.title} link={self.link}>"
         return "Couldn't find announcement."
 
 
@@ -600,6 +599,17 @@ class Helpers:
         # Get the logs-channel and send the embed
         logs_channel = discord.utils.get(ctx.guild.text_channels, name="log-channel")
         await logs_channel.send(embed=embed)
+
+    async def send_announcement(self, channel: discord.TextChannel, ann: Announcement) -> None:
+        """Sends an announcement to the channel given"""
+
+        try:
+            await channel.send(f"New announcement.\nLink: <{ann.link}>\n\n**{ann.title}**\n```{ann.text} ```")
+        except discord.errors.HTTPException:
+            await channel.send(
+                f"Announcement to long to send over discord."
+                f"\nLink: <{ann.link}>\n\n**{ann.title}**"
+            )
 
     def check_for_mention(self, ctx: commands.Context) -> bool:
         """
@@ -1067,7 +1077,7 @@ class Helpers:
 
         return output
 
-    def search_id(self, ann_id: int) -> tuple:
+    def search_id(self, ann_id: int) -> Announcement:
         """GET the announcements webpage of csihu"""
 
         # Create headers so the reguest doesn't get denied
@@ -1076,7 +1086,7 @@ class Helpers:
         }
         req = requests.get(
             f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}", headers=headers)
-        soup = BeautifulSoup(req.text, "html.parser")
+        soup = BeautifulSoup(req.text, "lxml")
 
         # Get all the paragraph tags and the title
         paragraphs = soup.find_all("p")
@@ -1102,6 +1112,49 @@ class Helpers:
             ann.id = ann_id
             ann.title = title
             ann.text = final_text.strip("\n")
+            ann.link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}"
+
+        return ann
+
+    def search_merimna(self, ctx: commands.Context, last_ann: str = "") -> Announcement:
+        """Parses the site for `foititikh merimna` for new announcements
+
+        If the latest announcement's title is different than the saved one,
+        then that announcement is parsed and sent to the channel
+        """
+        headers = {
+            "Referer": "http://www.teikav.edu.gr/portal/index.php/el/student-care-news"
+        }
+        BASE = "http://www.teikav.edu.gr"
+        url = f"{BASE}/portal/index.php/el/student-care-news"
+
+        req = requests.get(url, headers=headers)
+        soup = BeautifulSoup(req.text, "lxml")
+
+        # Get the div with the latest announcement
+        latest_news = soup.find("ul", attrs={"class": "latestnewspaperclip"})
+        latest = latest_news.find("li")
+        last_text = latest.get_text().strip()
+
+        # Check if the found announcement is different from the given one
+        ann = Announcement()
+        if last_text != last_ann:
+            # Get the link of the latest announcement
+            link = latest.find("a").get("href")
+            link = BASE + link
+
+            # Parse that page
+            req = requests.get(link, headers=headers)
+            soup = BeautifulSoup(req.text, "lxml")
+
+            # Get title and text
+            new_announcement = soup.find(attrs={"id": "component"})
+            title = new_announcement.find(attrs={"class": "article_header"}).get_text().strip()
+            body = new_announcement.find(attrs={"class": "article_text"}).get_text().strip()
+
+            ann.title = title
+            ann.text = body
+            ann.link = link
 
         return ann
 
