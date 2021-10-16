@@ -1,4 +1,6 @@
 # -*- coding: UTF-8 -*-
+# ! DISCORD.PY IS NOW DEPRCATED.
+# ! This bot will now be rewritten in a diffrerent discord api library
 import os
 import io
 import json

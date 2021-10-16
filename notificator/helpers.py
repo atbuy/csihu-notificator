@@ -141,7 +141,7 @@ class UrbanDictionary:
 
     def get_definition(self, term: str):
         # Get the url
-        req = requests.get(self.base_url.format(term))
+        req = requests.get(self.base_url.format(term), verify=False)
 
         # Parse the HTML
         soup = BeautifulSoup(req.text, "lxml")
@@ -718,6 +718,10 @@ class Helpers:
         if check_msg.startswith("<:") and check_msg.endswith(">"):
             return True
 
+        # Disallow 9gag links
+        if check_msg.startswith("https://9gag") or check_msg.startswith("https://www.9gag"):
+            return False
+
         # Check if the message is a single link
         if check_msg.startswith("https://") or check_msg.startswith("http://"):
             return True
@@ -731,6 +735,7 @@ class Helpers:
         # If the message is less than 3 characters it's allowed
         if len(msg) < 3:
             return True
+
         # If the message only contains special characters it's allowed
         if not msg:
             return True
@@ -1085,7 +1090,7 @@ class Helpers:
             "Referer": "https://cs.ihu.gr/",
         }
         req = requests.get(
-            f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}", headers=headers)
+            f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}", headers=headers, verify=False)
         soup = BeautifulSoup(req.text, "lxml")
 
         # Get all the paragraph tags and the title
