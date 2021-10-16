@@ -1086,11 +1086,8 @@ class Helpers:
         """GET the announcements webpage of csihu"""
 
         # Create headers so the reguest doesn't get denied
-        headers = {
-            "Referer": "https://cs.ihu.gr/",
-        }
-        req = requests.get(
-            f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}", headers=headers, verify=False)
+        headers = {"Referer": "https://cs.ihu.gr/"}
+        req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}", headers=headers, verify=False)
         soup = BeautifulSoup(req.text, "lxml")
 
         # Get all the paragraph tags and the title
