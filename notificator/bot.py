@@ -1298,7 +1298,7 @@ async def translate(ctx: commands.Context, *, text: str) -> None:
     translated = translator.translate(text, dest=translate_to)
     text = translated.text
 
-    await ctx.send(f"{ctx.author.mention} Translation from {translate_from} to {translate_to}.\n```{text}```")
+    await ctx.send(f"{ctx.author.mention} Translation from {translate_from} to {translate_to}. Confidence: {detected.confidence}.\n```{text}```")
 
 
 @client.command(name="f", aliases=["fmode", "f-mode"], brief="Set slow mode in a channel")
