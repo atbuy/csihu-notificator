@@ -18,7 +18,9 @@ from pytz import timezone
 from typing import Optional, Union
 from itertools import product
 from discord.ext import commands
+from googletrans import Translator
 from datetime import datetime, timedelta
+
 # from discord_slash import SlashCommand
 
 import troll
@@ -1285,18 +1287,18 @@ async def translate(ctx: commands.Context, *, text: str) -> None:
         await ctx.send(f"This command can only be executed in <#{const.BOTS_COMMANDS_CHANNEL_ID}>")
         return
 
-    blob = textblob.TextBlob(text)
-    translate_from = blob.detect_language()
-    translate_to = "el"
-    try:
-        text = str(blob.translate(to=translate_to))
-    except textblob.exceptions.NotTranslated:
-        print("Text was in 'el'")
+    translator = Translator()
 
-    if text:
-        await ctx.send(f"{ctx.author.mention} Translation from {translate_from} to {translate_to}: ```{text} ```")
-    else:
-        await ctx.send(f"{ctx.author.mention}. Couldn't translate")
+    # Find origin language and set destination language
+    translate_from = translator.detect(text)
+    translate_to = "el"
+
+    # Translate and get confidence
+    translated = translator.translate(text, dest=translate_to)
+    text = translated.text
+    confidence = translate_from.confidence
+
+    await ctx.send(f"{ctx.author.mention} Translation from {translate_from.lang} to {translate_to}. Confidence: {confidence}: ```{text}```")
 
 
 @client.command(name="f", aliases=["fmode", "f-mode"], brief="Set slow mode in a channel")
