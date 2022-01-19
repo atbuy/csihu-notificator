@@ -801,7 +801,9 @@ async def search_by_id(ctx: commands.Context, ann_id: int) -> None:
     :return: None
     """
     # Get an Announcement object
-    ann = client.helpers.search_id(ann_id)
+    async with ctx.channel.typing():
+        ann = client.helpers.search_id(ann_id)
+
     if ann.found:
         try:
             await ctx.send(f"Announcement found.\nLink: <{ann.link}>\n\n**{ann.title}**\n```{ann.text} ```")
@@ -879,9 +881,10 @@ async def run_bot(ctx: commands.Context, give_pass: bool = None) -> None:
     announcement_channel = discord.utils.get(ctx.guild.text_channels, name="announcements")
 
     while True:
-        ann = client.helpers.search_id(LAST_ID)
-        if ann.found:
-            LAST_ID += 1
+        ann = client.helpers.get_latest_announcement()
+        if ann.found and ann.id != LAST_ID:
+            LAST_ID = ann.id
+
             # Update the latest announcement dictionary
             client.latest_announcement = {"text": ann.text, "link": ann.link, "id": LAST_ID}
 
@@ -1298,7 +1301,10 @@ async def translate(ctx: commands.Context, *, text: str) -> None:
     translated = translator.translate(text, dest=translate_to)
     text = translated.text
 
-    await ctx.send(f"{ctx.author.mention} Translation from {translate_from} to {translate_to}. Confidence: {detected.confidence}.\n```{text}```")
+    await ctx.send(
+        f"{ctx.author.mention} Translation from {translate_from} to {translate_to}. "
+        "Confidence: {detected.confidence}.\n```{text}```"
+    )
 
 
 @client.command(name="f", aliases=["fmode", "f-mode"], brief="Set slow mode in a channel")

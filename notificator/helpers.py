@@ -1085,37 +1085,62 @@ class Helpers:
     def search_id(self, ann_id: int) -> Announcement:
         """GET the announcements webpage of csihu"""
 
+        def found_announcement(ann):
+            return ann.find("guid").get_text().endswith(str(ann_id))
+
         # Create headers so the reguest doesn't get denied
         headers = {"Referer": "https://cs.ihu.gr/"}
-        req = requests.get(f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}", headers=headers, verify=False)
+        req = requests.get("https://cs.ihu.gr/webresources/feed.xml", headers=headers, verify=False)
         soup = BeautifulSoup(req.text, "lxml")
 
-        # Get all the paragraph tags and the title
-        paragraphs = soup.find_all("p")
-        title = soup.find("h3")
+        # Get most recent announcement
+        announcements = soup.find_all("item")
+        found = list(filter(found_announcement, announcements))
+        if not found:
+            return Announcement()
 
-        # Get the first element of the list that contains the text and clean it
-        final_text = ""
-        for i in range(len(paragraphs)-2):
-            for text in paragraphs[i].stripped_strings:
-                if len(text) < 2:
-                    final_text += text + " "
-                elif text[-1] == "." or text[-2] == ".":
-                    final_text += text + "\n"
-                else:
-                    final_text += text + " "
+        # Get first announcement with the ID we are looking for
+        found = found[0]
 
-        # Get the title's text and clean it
-        title = title.get_text().strip()
+        # Get announcement attributes
+        title = found.find("title").get_text().strip()
+        link = found.find("guid").get_text().strip().replace("http", "https").replace(":80", "")
+        description = found.find("description").get_text().strip()
+        ann_id = link.split("id=")[-1]
 
         # Create an Announcement object to return
-        # even if the announcement isn't found
+        ann = Announcement()
+        ann.id = ann_id
+        ann.title = title
+        ann.text = description
+        ann.link = link
+
+        return ann
+
+    def get_latest_announcement(self) -> Announcement:
+        """GET the announcements webpage of csihu"""
+
+        # Create headers so the reguest doesn't get denied
+        headers = {"Referer": "https://cs.ihu.gr/"}
+        req = requests.get("https://cs.ihu.gr/webresources/feed.xml", headers=headers, verify=False)
+        soup = BeautifulSoup(req.text, "lxml")
+
+        # Get most recent announcement
+        latest = soup.find("item")
+
+        # Get announcement attributes
+        title = latest.find("title").get_text().strip()
+        link = latest.find("guid").get_text().strip().replace("http", "https").replace(":80", "")
+        description = latest.find("description").get_text().strip()
+        ann_id = int(link.split("id=")[-1])
+
+        # Create an Announcement object to return
         ann = Announcement()
         if title:
             ann.id = ann_id
             ann.title = title
-            ann.text = final_text.strip("\n")
-            ann.link = f"https://www.cs.ihu.gr/view_announcement.xhtml?id={ann_id}"
+            ann.text = description
+            ann.link = link
 
         return ann
 
