@@ -2227,16 +2227,16 @@ async def on_voice_state_update(member: discord.Member, before: discord.member.V
     }
 
 
-@client.event
-async def on_command_error(ctx: commands.Context, e):
-    if isinstance(e, commands.errors.CommandOnCooldown):
-        if client.helpers.can_execute(ctx):
-            ctx.command.reset_cooldown(ctx)
-            await ctx.reinvoke()
-    elif isinstance(e, NotImplementedError):
-        await ctx.send("This command is not implemented yet, or not published for general use")
-    else:
-        print(e)
+# @client.event
+# async def on_command_error(ctx: commands.Context, e):
+#     if isinstance(e, commands.errors.CommandOnCooldown):
+#         if client.helpers.can_execute(ctx):
+#             ctx.command.reset_cooldown(ctx)
+#             await ctx.reinvoke()
+#     elif isinstance(e, NotImplementedError):
+#         await ctx.send("This command is not implemented yet, or not published for general use")
+#     else:
+#         print(e)
 
 
 @client.event
