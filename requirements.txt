@@ -15,4 +15,4 @@ discord.py==1.7.3
 discord.py[voice]==1.7.3
 googletrans==4.0.0rc1
 matplotlib==3.5.1
-pygsearch>=0.4.2
+pygsearch>=0.5.1
