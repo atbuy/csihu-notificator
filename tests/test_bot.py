@@ -13,7 +13,7 @@ from notificator.helpers import Helpers  # noqa
 # Write tests here
 def test_version():
     """Check the version of the package"""
-    assert notificator.__version__ == "0.9.0"
+    assert notificator.__version__ == "1.0.0"
 
 
 def test_sort_dict():
