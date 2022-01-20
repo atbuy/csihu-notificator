@@ -1,7 +1,6 @@
 beautifulsoup4==4.9.3
 textblob==0.17.1
 jishaku==1.20.0.220
-googlesearch-python==1.0.1
 requests==2.25.1
 Pillow==9.0.0
 imageio==2.9.0
@@ -17,3 +16,4 @@ discord.py==1.7.3
 discord.py[voice]==1.7.3
 googletrans==4.0.0rc1
 matplotlib==3.5.1
+pygsearch>=0.4.2

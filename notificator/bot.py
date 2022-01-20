@@ -11,14 +11,14 @@ import discord
 import textblob
 import numpy as np
 import numexpr as ne
-import googlesearch
 import matplotlib.pyplot as plt
 from gtts import gTTS
 from pytz import timezone
-from typing import Optional, Union
+from pygsearch import gsearch
 from itertools import product
 from discord.ext import commands
 from googletrans import Translator
+from typing import Optional, Union
 from datetime import datetime, timedelta
 
 import urllib3
@@ -642,7 +642,7 @@ async def roll(ctx: commands.Context, start: int = 0, end: int = 10_000) -> None
 
 
 @client.command(name="gsearch", aliases=["gs", "googlesearch"], brief="Search google")
-async def gsearch(ctx: commands.Context, *, query: str) -> None:
+async def gsearch_cmd(ctx: commands.Context, *, query: str) -> None:
     """
     Searches google and returns the first 10 results
 
@@ -654,21 +654,13 @@ async def gsearch(ctx: commands.Context, *, query: str) -> None:
         await ctx.send(f"{ctx.author.mention} You can't use this command in <#{const.GENERAL_ID}>")
         return
 
-    # Detect original language
-    language = textblob.TextBlob(query).detect_language()
+    async with ctx.typing():
+        # Detect original language
+        language = textblob.TextBlob(query).detect_language()
 
-    # Search for the text input
-    search = googlesearch.search(query, num_results=10, lang=language)
-
-    # Place all the results in a list to index
-    results = [item for item in search]
-
-    output = ""
-    for i in range(len(results)):
-        if i < len(results):
-            output += f"**{i+1})** <{results[i]}>\n"
-        else:
-            output += f"**{i+1})** <{results[i]}>"
+        # Search for the text input
+        results = gsearch(query, num_results=10, lang=language)
+        output = "\n".join(f"**{i+1})** <{res.link}>" for i, res in enumerate(results))
 
     await ctx.send(f"**Results:**\n{output}")
 
