@@ -1,4 +1,4 @@
-beautifulsoup4==4.9.1
+beautifulsoup4==4.9.3
 textblob==0.17.1
 jishaku==1.20.0.220
 googlesearch-python==1.0.1
