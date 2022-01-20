@@ -3,8 +3,6 @@ import io
 import PIL
 import json
 import time
-import lxml  # noqa
-import cchardet  # noqa
 import string
 import imageio
 import asyncio
