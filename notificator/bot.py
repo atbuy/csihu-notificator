@@ -21,11 +21,16 @@ from discord.ext import commands
 from googletrans import Translator
 from datetime import datetime, timedelta
 
+import urllib3
+
 # from discord_slash import SlashCommand
 
 import troll
 import morse
 import helpers
+
+# Disable warnings for announcements
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 # Load opus library
@@ -1805,31 +1810,6 @@ async def gif_plotter(ctx: commands.Context, *, equation: str):
     #     raise NotImplementedError
     # /shrug
 
-    # Clean equation
-    equation = client.helpers.clean_equation(equation)
-
-    # Get the variables of the equation
-    variables = client.helpers.get_equation_variables(equation)
-    vs = list(set(variables))
-    length = len(vs)
-
-    if length != 2:
-        await ctx.send("Can't create gif from non-3D graphs")
-        return
-
-    # Create a figure to plot the surface on
-    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-
-    # Calculate X, Y and Z axis
-    X = np.arange(-5, 5, 0.1)
-    Y = np.arange(-5, 5, 0.1)
-    X, Y = np.meshgrid(X, Y)
-    z = client.helpers.get_z_axis(equation, vs, X, Y)
-
-    color_map = random.choice(const.PLOT_COLORS)
-    surface = ax.plot_surface(X, Y, z, cmap=color_map, edgecolor="none")
-    fig.colorbar(surface, shrink=0.5, aspect=5)
-
     def images_generator():
         """
         Yields all BytesIO plots from different angles
@@ -1843,12 +1823,38 @@ async def gif_plotter(ctx: commands.Context, *, equation: str):
             buffer.seek(0)
             yield imageio.imread(buffer)
 
-    # Create a gif file from the list of images
-    output = io.BytesIO()
-    imageio.mimsave(output, images_generator(), 'GIF')
-    output.seek(0)
+    # Clean equation
+    equation = client.helpers.clean_equation(equation)
 
-    await ctx.send(f"{ctx.author.mention}", file=discord.File(output, "graph.gif"))
+    # Get the variables of the equation
+    variables = client.helpers.get_equation_variables(equation)
+    vs = list(set(variables))
+    length = len(vs)
+
+    if length != 2:
+        await ctx.send("Can't create gif from non-3D graphs")
+        return
+
+    async with ctx.typing():
+        # Create a figure to plot the surface on
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+        # Calculate X, Y and Z axis
+        X = np.arange(-5, 5, 0.1)
+        Y = np.arange(-5, 5, 0.1)
+        X, Y = np.meshgrid(X, Y)
+        z = client.helpers.get_z_axis(equation, vs, X, Y)
+
+        color_map = random.choice(const.PLOT_COLORS)
+        surface = ax.plot_surface(X, Y, z, cmap=color_map, edgecolor="none")
+        fig.colorbar(surface, shrink=0.5, aspect=5)
+
+        # Create a gif file from the list of images
+        output = io.BytesIO()
+        imageio.mimsave(output, images_generator(), 'GIF')
+        output.seek(0)
+
+        await ctx.send(f"{ctx.author.mention}", file=discord.File(output, "graph.gif"))
 
 
 @client.command(
