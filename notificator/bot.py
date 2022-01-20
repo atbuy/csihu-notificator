@@ -659,8 +659,8 @@ async def gsearch_cmd(ctx: commands.Context, *, query: str) -> None:
         language = textblob.TextBlob(query).detect_language()
 
         # Search for the text input
-        results = gsearch(query, num_results=10, lang=language)
-        output = "\n".join(f"**{i+1})** <{res.link}>" for i, res in enumerate(results))
+        results = gsearch(query, num=10, lang=language)
+        output = "\n".join(f"**{i+1})** {res.title}: <{res.link}>" for i, res in enumerate(results))
 
     await ctx.send(f"**Results:**\n{output}")
 
