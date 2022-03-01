@@ -2,3 +2,4 @@
 */__pycache__
 deprecated.txt
 .pytest_cache
+.venv/*

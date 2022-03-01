@@ -2309,7 +2309,7 @@ async def on_member_join(member: discord.Member) -> None:
 
     :param member: The member joining, to add the role to
     """
-    if member.guild == const.PANEPISTHMIO_ID:
+    if member.guild.id == const.PANEPISTHMIO_ID:
         print(f"Member {member} joined")
         synadelfos_role = member.guild.get_role(const.SYNADELFOS_ROLE_ID)
         await member.add_roles(synadelfos_role)
