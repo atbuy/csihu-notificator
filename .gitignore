@@ -3,3 +3,5 @@
 deprecated.txt
 .pytest_cache
 .venv/*
+env/
+.env

@@ -20,10 +20,13 @@ from discord.ext import commands
 from googletrans import Translator
 from typing import Optional, Union
 from datetime import datetime, timedelta
-
+from dotenv import load_dotenv
 import urllib3
 
 # from discord_slash import SlashCommand
+
+# Load environment variables
+load_dotenv()
 
 import troll
 import morse
@@ -47,7 +50,7 @@ SEND_CABBAGE = False
 SPAM_FILTER = False
 VC_LOGS = {}
 
-TOKEN = os.environ.get("CSIHU_NOTIFICATOR_BOT_TOKEN")
+TOKEN = os.getenv("CSIHU_NOTIFICATOR_BOT_TOKEN")
 intents = discord.Intents.all()
 client = commands.Bot(
     command_prefix=".",
@@ -2234,7 +2237,7 @@ async def on_command_error(ctx: commands.Context, e):
     elif isinstance(e, NotImplementedError):
         await ctx.send("This command is not implemented yet, or not published for general use")
     else:
-        print(e)
+        print(e, e.__traceback__)
 
 
 @client.event
