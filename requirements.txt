@@ -10,7 +10,7 @@ PyNaCl==1.4.0
 gtts==2.2.3
 pytz==2021.3
 numexpr==2.8.1
-lxml==4.7.1
+lxml==4.9.1
 discord.py==1.7.3
 discord.py[voice]==1.7.3
 googletrans==4.0.0rc1
