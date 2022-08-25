@@ -1,0 +1,27 @@
+[flake8]
+ignore = "E402"
+max-line-length = 88
+
+[tool.isort]
+profile = "black"
+
+[tool.poetry]
+name = "cs-ihu-notifierbot"
+version = "2.0.0"
+description = "A bot that is used for the CompsSci Discord Server"
+authors = ["Vitaman02"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+discord = "2.0.0"
+python-dotenv = "^0.20.0"
+
+[tool.poetry.dev-dependencies]
+black = "22.3.0"
+flake8 = "5.0.4"
+pre-commit = "2.20.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
