@@ -3,6 +3,7 @@ from functools import wraps
 import discord
 
 from csihu import helpers
+from csihu.logger import log
 
 
 def can_execute(
@@ -28,7 +29,9 @@ def can_execute(
             ):
                 return await func(*args, **kwargs)
 
+            command = interaction.command.name
             mention = interaction.user.mention
+            log(f"Disallowed execution of {command} from {mention}.")
             send = interaction.response.send_message
             return await send(f"{mention} You are not allowed to use this command.")
 

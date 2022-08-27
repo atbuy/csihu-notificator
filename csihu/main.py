@@ -11,11 +11,12 @@ from dotenv import load_dotenv
 # since it uses the TROLL_URL for the troll commands.
 load_dotenv()
 
-from csihu.cogs import Troll  # noqa: E402
+from csihu.cogs import Events, Troll  # noqa: E402
+from csihu.logger import setup_logger  # noqa: E402
 
 TOKEN = os.getenv("CSIHU_TOKEN")
 intents = discord.Intents.all()
-activity = Activity(type=ActivityType.listening, name=".help")
+activity = Activity(type=ActivityType.listening, name="?help")
 bot = commands.Bot(command_prefix="?", intents=intents, activity=activity)
 
 
@@ -74,12 +75,18 @@ async def main(bot: commands.Bot) -> None:
 
     # Load cogs
     await bot.add_cog(Troll(bot))
+    await bot.add_cog(Events(bot))
+
+    # Initialize logger
+    setup_logger()
 
     # Run bot
     try:
         await bot.start(TOKEN)
+    except KeyboardInterrupt:
+        pass
     finally:
-        await bot.logout()
+        await bot.close()
 
 
 asyncio.run(main(bot))
