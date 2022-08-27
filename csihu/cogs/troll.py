@@ -8,13 +8,13 @@ from csihu.decorators import can_execute
 
 
 class Troll(commands.Cog):
-    """This is a Cog for Troll commands.
+    """This is a cog for Troll commands.
 
     Troll commands are hidden and can be only viewed on runtime,
     by using the command on the discord server.
     """
 
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @slash_commands.command(name="tria", description=troll.trias_troll.brief)
@@ -44,6 +44,7 @@ class Troll(commands.Cog):
 
     @slash_commands.command(name="gnwmh", description=troll.opinion_troll.brief)
     @commands.cooldown(1, 60, commands.BucketType.user)
+    @can_execute()
     async def opinion_troll(self, interaction: discord.Interaction) -> None:
         """Send a troll command"""
 

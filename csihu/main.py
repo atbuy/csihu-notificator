@@ -7,12 +7,13 @@ from discord import Activity, ActivityType
 from discord.ext import commands
 from dotenv import load_dotenv
 
+from csihu.logger import setup_logger
+
 # Load environment variables before loading `Troll`,
 # since it uses the TROLL_URL for the troll commands.
 load_dotenv()
 
-from csihu.cogs import Events, Troll  # noqa: E402
-from csihu.logger import setup_logger  # noqa: E402
+from csihu.cogs import Events, Links, Troll  # noqa: E402
 
 TOKEN = os.getenv("CSIHU_TOKEN")
 intents = discord.Intents.all()
@@ -76,6 +77,7 @@ async def main(bot: commands.Bot) -> None:
     # Load cogs
     await bot.add_cog(Troll(bot))
     await bot.add_cog(Events(bot))
+    await bot.add_cog(Links(bot))
 
     # Initialize logger
     setup_logger()
