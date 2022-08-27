@@ -6,8 +6,8 @@ max-line-length = 88
 profile = "black"
 
 [tool.poetry]
-name = "cs-ihu-notifierbot"
-version = "2.0.0"
+name = "csihu"
+version = "2.2.0"
 description = "A bot that is used for the CompsSci Discord Server"
 authors = ["Vitaman02"]
 license = "MIT"
@@ -16,6 +16,7 @@ license = "MIT"
 python = "^3.10"
 discord = "2.0.0"
 python-dotenv = "^0.20.0"
+requests = "2.28.1"
 
 [tool.poetry.dev-dependencies]
 black = "22.6.0"
