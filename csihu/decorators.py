@@ -20,7 +20,6 @@ def can_execute(
         @wraps(func)
         async def wrapper(*args, **kwargs) -> None:
 
-            print(allowed_channels, unallowed_channels)
             interaction: discord.Interaction = args[1]
             if helpers.can_execute(
                 interaction,
