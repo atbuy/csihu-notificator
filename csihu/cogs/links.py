@@ -33,3 +33,9 @@ class Links(commands.Cog):
         send = interaction.response.send_message
         link = os.getenv("CSIHU_MOODLE_URL")
         await send(f"Here's the Moodle link: <{link}>", ephemeral=True)
+
+    @slash_commands.command(name="github", description="Github link")
+    async def github(self, interaction: discord.Interaction) -> None:
+        send = interaction.response.send_message
+        link = os.getenv("CSIHU_GITHUB_URL")
+        await send(f"Here's the Github link: <{link}>", ephemeral=True)
