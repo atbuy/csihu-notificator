@@ -11,6 +11,8 @@ version = "2.5.1"
 description = "A bot that is used for the CompsSci Discord Server"
 authors = ["Vitaman02"]
 license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/Vitaman02/CS-IHU-NotifierBot"
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -22,6 +24,10 @@ requests = "2.28.1"
 black = "22.6.0"
 flake8 = "5.0.4"
 pre-commit = "2.20.0"
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/Vitaman02/CS-IHU-NotifierBot/issues"
+"CI/CD" = "https://github.com/Vitaman02/CS-IHU-NotifierBot/actions"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
