@@ -91,4 +91,5 @@ async def main(bot: commands.Bot) -> None:
         await bot.close()
 
 
-asyncio.run(main(bot))
+if __name__ == "__main__":
+    asyncio.run(main(bot))
