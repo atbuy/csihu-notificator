@@ -13,7 +13,7 @@ from csihu.logger import log, setup_logger
 # since it uses the TROLL_URL for the troll commands.
 load_dotenv()
 
-from csihu.cogs import Events, Links, Mod, Troll  # noqa: E402
+from csihu.cogs import Commands, Events, Links, Mod, Troll  # noqa: E402
 
 TOKEN = os.getenv("CSIHU_TOKEN")
 intents = discord.Intents.all()
@@ -94,6 +94,7 @@ async def main(bot: commands.Bot) -> None:
     await bot.add_cog(Events(bot))
     await bot.add_cog(Links(bot))
     await bot.add_cog(Mod(bot))
+    await bot.add_cog(Commands(bot))
 
     # Initialize logger
     setup_logger()
