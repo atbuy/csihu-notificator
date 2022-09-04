@@ -1,3 +1,5 @@
+import asyncio
+
 import discord
 
 from csihu import constants as const
@@ -69,3 +71,47 @@ async def remove_unallowed_files(message: discord.Message) -> None:
                 "You might have to convert to a different file type."
             )
             return
+
+
+async def mute_timer(
+    interaction: discord.Interaction,
+    member: discord.Member,
+    seconds: float,
+) -> bool:
+    """Waits for the specified amount of seconds.
+
+    While waiting for the amount of time given,
+    also check for the muted role to be active in
+    the member's roles.
+
+    If the muted role is active, that means that the member
+    is still muted. If it is inactie, that means that the
+    role was removed either by a moderator or with the use of the
+    /unmute command.
+
+    Returns:
+        True if the member has to be unmuted.
+        False if the member doesn't have to be unmuted.
+    """
+
+    counter = seconds
+
+    while counter > 0:
+        await asyncio.sleep(1)
+        counter -= 1
+
+    # Get updated member object
+    member = await interaction.guild.fetch_member(member.id)
+
+    # Get roles
+    muted_role = interaction.guild.get_role(const.ROLE_MUTED_ID)
+    member_role = interaction.guild.get_role(const.ROLE_MEMBER_ID)
+
+    # Unmute member by removing muted role and adding member role
+    # Check if member should be unmuted
+    if muted_role not in member.roles:
+        return
+
+    await member.remove_roles(muted_role)
+    await member.add_roles(member_role)
+    log(f"Member {member.mention} has been unmuted.")
