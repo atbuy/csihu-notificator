@@ -302,6 +302,17 @@ python-versions = ">=3.5"
 cli = ["click (>=5.0)"]
 
 [[package]]
+name = "python-urbandict"
+version = "0.2.3"
+description = "Python wrapper for the Urban Dictionary API."
+category = "main"
+optional = false
+python-versions = ">=3.9,<4.0"
+
+[package.dependencies]
+requests = ">=2.28.1,<3.0.0"
+
+[[package]]
 name = "pyyaml"
 version = "6.0"
 description = "YAML parser and emitter for Python"
@@ -388,7 +399,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "212c0534e28ac974c0f37371cf021734ed1e2d15786ddbf1011488b6bb503697"
+content-hash = "c41c2ef38e93d662966b2bc0173b23e8a91f3e1a5bd9d594356fa461c09fd716"
 
 [metadata.files]
 aiohttp = [
@@ -707,6 +718,10 @@ pyflakes = [
 python-dotenv = [
     {file = "python-dotenv-0.20.0.tar.gz", hash = "sha256:b7e3b04a59693c42c36f9ab1cc2acc46fa5df8c78e178fc33a8d4cd05c8d498f"},
     {file = "python_dotenv-0.20.0-py3-none-any.whl", hash = "sha256:d92a187be61fe482e4fd675b6d52200e7be63a12b724abbf931a40ce4fa92938"},
+]
+python-urbandict = [
+    {file = "python-urbandict-0.2.3.tar.gz", hash = "sha256:be981d35f76e2cee516fe0c80940bafc6986c63fbcf645cb62c015778900da24"},
+    {file = "python_urbandict-0.2.3-py3-none-any.whl", hash = "sha256:ba5f79e8bfd25b67c55c2cb23fe09e5d45bd5ff548d04d7e73a9b3e168348473"},
 ]
 pyyaml = [
     {file = "PyYAML-6.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:d4db7c7aef085872ef65a8fd7d6d09a14ae91f691dec3e87ee5ee0539d516f53"},

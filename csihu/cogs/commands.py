@@ -1,6 +1,8 @@
 import discord
 from discord import app_commands as slash_commands
 from discord.ext import commands
+from pyurbandict import UrbanDict
+from pyurbandict.parse import Definition
 
 
 class Commands(commands.Cog):
@@ -18,3 +20,34 @@ class Commands(commands.Cog):
         send = interaction.response.send_message
         mention = interaction.user.mention
         await send(f"Hello {mention}", ephemeral=ephemeral)
+
+    @slash_commands.command(
+        name="urban-dictionary",
+        description="Search urban dictionary",
+    )
+    async def urban_dict(self, interaction: discord.Interaction, *, query: str):
+        """Search urban dictionary."""
+        send = interaction.response.send_message
+
+        # Get the first result
+        results: list[Definition] = UrbanDict(query).search()
+        if not results:
+            await send(f"No results found for query `{query}`", ephemeral=True)
+            return
+
+        result = results[0]
+
+        # Create the embed
+        embed = discord.Embed(
+            title=query,
+            description=result.definition,
+            url=result.permalink,
+            color=discord.Color.blurple(),
+        )
+        embed.add_field(name="Example", value=result.example, inline=False)
+        embed.add_field(name="Author", value=result.author, inline=False)
+        embed.add_field(name="Thumbs up", value=result.thumbs_up)
+        embed.add_field(name="Thumbs down", value=result.thumbs_down)
+
+        # Send the embed
+        await send(embed=embed, ephemeral=True)
