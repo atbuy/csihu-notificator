@@ -1,9 +1,29 @@
 import asyncio
+import os
+from dataclasses import dataclass
 
 import discord
+import requests
+import urllib3
+from bs4 import BeautifulSoup
+from bs4.element import Tag
+from discord import Colour
 
 from csihu import constants as const
 from csihu.logger import log
+
+# Disable InsecureRequestWarning
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+
+@dataclass
+class Announcement:
+    """Announcement dataclass"""
+
+    id: int
+    title: str
+    description: str
+    link: str
 
 
 def can_execute(
@@ -77,7 +97,7 @@ async def mute_timer(
     interaction: discord.Interaction,
     member: discord.Member,
     seconds: float,
-) -> bool:
+) -> None:
     """Waits for the specified amount of seconds.
 
     While waiting for the amount of time given,
@@ -115,3 +135,52 @@ async def mute_timer(
     await member.remove_roles(muted_role)
     await member.add_roles(member_role)
     log(f"Member {member.mention} has been unmuted.")
+
+
+async def parse_feed(current_id: int = -1) -> Announcement:
+    """Parse RSS feed and return announcements."""
+
+    # Get RSS feed
+    feed_url = os.getenv("ANNOUNCEMENT_FEED_URL")
+    headers = {"Referer": os.getenv("ANNOUNCEMENT_BASE_URL")}
+    feed = requests.get(feed_url, headers=headers, verify=False)
+    soup = BeautifulSoup(feed.text, "xml")
+
+    # Parse all announcements
+    out = []
+    items = soup.find_all("item")
+    for item in items:
+        item: Tag
+
+        # Parse attributes
+        title = item.find("title").text
+        description = item.find("description").text
+        description = description.replace("....", "").replace("...", "")
+        link = item.find("link").text
+        id = int(link.split("id=")[-1])
+
+        # No need to parse announcements
+        # that have already been sent
+        if id <= current_id:
+            break
+
+        # Create object and append to output
+        ann = Announcement(id, title, description, link)
+        out.append(ann)
+
+    return out
+
+
+async def create_announcement_embed(ann: Announcement) -> discord.Embed:
+    """Create embed from announcement."""
+
+    # Create embed
+    embed = discord.Embed(
+        title=ann.title,
+        description=ann.description,
+        url=ann.link,
+        color=Colour.from_rgb(*const.ANNOUNCEMENT_EMBED_COLOR),
+    )
+    embed.set_footer(text=f"Announcement ID: {ann.id}")
+
+    return embed

@@ -5,15 +5,10 @@ from typing import Literal
 import discord
 from discord import Activity, ActivityType
 from discord.ext import commands
-from dotenv import load_dotenv
 
-from csihu.logger import log, setup_logger
-
-# Load environment variables before loading `Troll`,
-# since it uses the TROLL_URL for the troll commands.
-load_dotenv()
-
-from csihu.cogs import Commands, Events, Links, Mod, Troll  # noqa: E402
+from csihu.cogs import Announcements, Commands, Events, Links, Mod, Troll
+from csihu.helpers import Announcement  # noqa: E402
+from csihu.logger import setup_logger
 
 TOKEN = os.getenv("CSIHU_TOKEN")
 intents = discord.Intents.all()
@@ -71,23 +66,13 @@ async def sync(
     await ctx.send(f"Synced the tree to {ret}/{len(guilds)}.")
 
 
-@bot.event
-async def on_error(ctx: commands.Context, error: Exception) -> None:
-    """Handle errors for slash commands"""
-
-    # Ignore missing permissions
-    # if isinstance(error, commands.MissingPermissions):
-    #     return
-
-    # Handle other errors
-    await ctx.send(f"An error occured: {error}")
-
-    # Log the error
-    log(f"Error in {ctx.command}:", error)
-
-
 async def main(bot: commands.Bot) -> None:
     """Initializes the bot"""
+
+    # ! Temporary use of the last announcement.
+    # ! Will be replaced with a database.
+    # TODO Remove this
+    bot.last_announcement = Announcement(826, "nothing", "nothing", "nolink")
 
     # Load cogs
     await bot.add_cog(Troll(bot))
@@ -95,17 +80,13 @@ async def main(bot: commands.Bot) -> None:
     await bot.add_cog(Links(bot))
     await bot.add_cog(Mod(bot))
     await bot.add_cog(Commands(bot))
+    await bot.add_cog(Announcements(bot))
 
     # Initialize logger
     setup_logger()
 
     # Run bot
-    try:
-        await bot.start(TOKEN)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        await bot.close()
+    await bot.start(TOKEN)
 
 
 if __name__ == "__main__":

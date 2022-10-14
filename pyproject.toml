@@ -17,9 +17,10 @@ homepage = "https://github.com/Vitaman02/CS-IHU-NotifierBot"
 [tool.poetry.dependencies]
 python = "^3.10"
 discord = "2.0.0"
-python-dotenv = "^0.20.0"
 requests = "2.28.1"
 python-urbandict = "^0.2.3"
+beautifulsoup4 = "^4.11.1"
+lxml = "^4.9.1"
 
 [tool.poetry.dev-dependencies]
 black = "22.6.0"
