@@ -6,3 +6,4 @@ deprecated.txt
 env/
 .env*
 csihu2/
+aliases*.sh
