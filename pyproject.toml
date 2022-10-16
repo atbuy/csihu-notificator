@@ -1,0 +1,40 @@
+[flake8]
+ignore = "E402"
+max-line-length = 88
+
+[tool.isort]
+profile = "black"
+
+[tool.poetry]
+name = "csihu"
+version = "2.0.0"
+description = "A bot that is used for the CompsSci Discord Server"
+authors = ["Vitaman02"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/Vitaman02/CS-IHU-NotifierBot"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+discord = "2.0.0"
+requests = "2.28.1"
+python-urbandict = "^0.2.3"
+beautifulsoup4 = "^4.11.1"
+lxml = "^4.9.1"
+SQLAlchemy = {extras = ["asyncio"], version = "^1.4.41"}
+asyncpg = "^0.26.0"
+pydantic = "^1.10.2"
+alembic = "^1.8.1"
+
+[tool.poetry.dev-dependencies]
+black = "22.6.0"
+flake8 = "5.0.4"
+pre-commit = "2.20.0"
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/Vitaman02/CS-IHU-NotifierBot/issues"
+"CI/CD" = "https://github.com/Vitaman02/CS-IHU-NotifierBot/actions"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,8 +1,9 @@
 .vscode
-*/__pycache__
+/**/**/__pycache__
 deprecated.txt
 .pytest_cache
 .venv/*
 env/
-.env
-csihu/
+.env*
+csihu2/
+aliases*.sh
