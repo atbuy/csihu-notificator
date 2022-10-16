@@ -10,7 +10,7 @@ ENV POETRY_CACHE_DIR=/opt/.cache
 
 # Install poetry separated from system interpreter
 RUN python3 -m venv $POETRY_VENV \
-    && $POETRY_VENV/bin/pip install -U pip setuptools \
+    && $POETRY_VENV/bin/pip install -U pip setuptools wheel \
     && $POETRY_VENV/bin/pip install poetry==${POETRY_VERSION}
 
 # Add `poetry` to PATH
@@ -23,4 +23,4 @@ WORKDIR /app
 # Install dependencies
 RUN poetry install
 
-ENTRYPOINT [ "poetry", "run", "python", "-m", "csihu.main" ]
+ENTRYPOINT [ "poetry", "run", "python", "csihu/main.py" ]

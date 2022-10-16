@@ -1,5 +1,6 @@
 import asyncio
 import os
+import urllib
 from dataclasses import dataclass
 
 import discord
@@ -158,6 +159,10 @@ async def parse_feed(current_id: int = -1) -> Announcement:
         description = description.replace("....", "").replace("...", "")
         link = item.find("link").text
         id = int(link.split("id=")[-1])
+
+        # URL Decode text
+        title = urllib.parse.unquote(title)
+        description = urllib.parse.unquote(description)
 
         # No need to parse announcements
         # that have already been sent

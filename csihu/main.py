@@ -1,19 +1,23 @@
 import asyncio
-import os
 from typing import Literal
 
 import discord
 from discord import Activity, ActivityType
 from discord.ext import commands
 
+import csihu.db.database as db
 from csihu.cogs import Announcements, Commands, Events, Links, Mod, Troll
-from csihu.helpers import Announcement  # noqa: E402
+from csihu.db import models
 from csihu.logger import setup_logger
+from csihu.settings import get_settings
 
-TOKEN = os.getenv("CSIHU_TOKEN")
+settings = get_settings()
 intents = discord.Intents.all()
 activity = Activity(type=ActivityType.listening, name="?help")
 bot = commands.Bot(command_prefix="?", intents=intents, activity=activity)
+
+bot.engine = models.get_engine()
+bot.settings = settings
 
 
 @bot.command()
@@ -69,10 +73,13 @@ async def sync(
 async def main(bot: commands.Bot) -> None:
     """Initializes the bot"""
 
-    # ! Temporary use of the last announcement.
-    # ! Will be replaced with a database.
-    # TODO Remove this
-    bot.last_announcement = Announcement(826, "nothing", "nothing", "nolink")
+    # Initialize logger
+    setup_logger()
+
+    # Initialize database tables if they don't exist
+    await models.create_all_tables()
+
+    bot.last_announcement = await db.get_latest_announcement(bot.engine)
 
     # Load cogs
     await bot.add_cog(Troll(bot))
@@ -82,11 +89,8 @@ async def main(bot: commands.Bot) -> None:
     await bot.add_cog(Commands(bot))
     await bot.add_cog(Announcements(bot))
 
-    # Initialize logger
-    setup_logger()
-
     # Run bot
-    await bot.start(TOKEN)
+    await bot.start(settings.csihu_token)
 
 
 if __name__ == "__main__":

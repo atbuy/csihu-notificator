@@ -30,9 +30,7 @@ def setup_logger(level: int | None = logging.INFO) -> None:
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(formatter)
 
-    # ! Setup discord.py logger.
-    # ! Not sure why this needs to be here,
-    # ! but without it not logs are thrown from errors.
+    # Set logging level to warning
     discord_logger = logging.getLogger("discord")
     discord_logger.setLevel(logging.WARNING)
 

@@ -21,6 +21,9 @@ requests = "2.28.1"
 python-urbandict = "^0.2.3"
 beautifulsoup4 = "^4.11.1"
 lxml = "^4.9.1"
+SQLAlchemy = {extras = ["asyncio"], version = "^1.4.41"}
+asyncpg = "^0.26.0"
+pydantic = "^1.10.2"
 
 [tool.poetry.dev-dependencies]
 black = "22.6.0"
