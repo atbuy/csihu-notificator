@@ -26,6 +26,12 @@ class Announcement:
     description: str
     link: str
 
+    def keys(self):
+        return self.__dict__.keys()
+
+    def __getitem__(self, key: str):
+        return getattr(self, key.lower())
+
 
 def can_execute(
     interaction: discord.Interaction,
