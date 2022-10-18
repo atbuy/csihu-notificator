@@ -70,3 +70,45 @@ class Mod(commands.Cog):
 
         send = interaction.response.send_message
         await send(f"{member.mention} has been unmuted.")
+
+    @slash_commands.command(name="slowmode", description="Set slowmode for a channel")
+    async def slowmode(self, interaction: discord.Interaction, seconds: int):
+        """Set slowmode for a channel"""
+
+        if seconds > 21600:
+            await interaction.response.send_message(
+                "Slowmode cannot be more than 6 hours.", ephemeral=True
+            )
+            return
+
+        if seconds < 0:
+            await interaction.response.send_message(
+                "Slowmode cannot be negative.", ephemeral=True
+            )
+            return
+
+        # Get channel
+        channel = interaction.channel
+
+        # Set slowmode
+        await channel.edit(slowmode_delay=seconds)
+        await interaction.response.send_message(
+            f"Slowmode set to {seconds} seconds for {channel.mention}",
+            ephemeral=True,
+        )
+
+    @slash_commands.command(
+        name="remove-reactions",
+        description="Remove all reactions from a message",
+    )
+    async def remove_reactions(
+        self,
+        interaction: discord.Interaction,
+        message: discord.Message,
+    ):
+        """Remove all reactions from a message"""
+        await message.clear_reactions()
+        await interaction.response.send_message(
+            f"Removed all reactions from {message.jump_url}",
+            ephemeral=True,
+        )
