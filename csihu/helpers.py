@@ -9,6 +9,7 @@ import urllib3
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 from discord import Colour
+from pygsearch import SearchResult
 
 from csihu import constants as const
 from csihu.logger import log
@@ -193,5 +194,25 @@ async def create_announcement_embed(ann: Announcement) -> discord.Embed:
         color=Colour.from_rgb(*const.ANNOUNCEMENT_EMBED_COLOR),
     )
     embed.set_footer(text=f"Announcement ID: {ann.id}")
+
+    return embed
+
+
+def get_google_search_embed(results: list[SearchResult]) -> discord.Embed:
+    """Add google search results to embed."""
+
+    # Initialize embed
+    embed = discord.Embed(
+        colour=Colour.from_rgb(*const.GOOGLE_SEARCH_EMBED_COLOR),
+        title="Google Search Results",
+    )
+
+    # Iterate over results and add them to the embed
+    for index, result in enumerate(results, start=1):
+        embed.add_field(
+            name=f"{index} :: {result.title}",
+            value=f"{result.description}\n{result.link}",
+            inline=False,
+        )
 
     return embed

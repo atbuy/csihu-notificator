@@ -1,6 +1,5 @@
-from csihu.cogs.announcements import Announcements  # noqa: F401
-from csihu.cogs.commands import Commands  # noqa: F401
-from csihu.cogs.events import Events  # noqa: F401
-from csihu.cogs.links import Links  # noqa: F401
-from csihu.cogs.mod import Mod  # noqa: F401
-from csihu.cogs.troll import Troll  # noqa: F401
+from csihu.cogs.announcements import AnnouncementsCog  # noqa: F401
+from csihu.cogs.commands import CommandsCog  # noqa: F401
+from csihu.cogs.events import EventsCog  # noqa: F401
+from csihu.cogs.links import LinksCog  # noqa: F401
+from csihu.cogs.mod import ModCog  # noqa: F401

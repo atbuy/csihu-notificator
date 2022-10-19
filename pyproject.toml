@@ -25,6 +25,7 @@ SQLAlchemy = {extras = ["asyncio"], version = "^1.4.41"}
 asyncpg = "^0.26.0"
 pydantic = "^1.10.2"
 alembic = "^1.8.1"
+pygsearch = "^0.5.1"
 
 [tool.poetry.dev-dependencies]
 black = "22.6.0"

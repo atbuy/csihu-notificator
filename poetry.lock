@@ -398,6 +398,19 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "pygsearch"
+version = "0.5.1"
+description = "Python library to get google search results."
+category = "main"
+optional = false
+python-versions = ">=3.6.0"
+
+[package.dependencies]
+beautifulsoup4 = ">=4.9.0"
+lxml = ">=4.4.3"
+requests = ">=2.23.0"
+
+[[package]]
 name = "python-urbandict"
 version = "0.2.3"
 description = "Python wrapper for the Urban Dictionary API."
@@ -543,7 +556,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "19b44249de7e4694482dcb50a83ac4f1b7f348f96fe358df0100ca5c116f154f"
+content-hash = "da96d36a7cfa6ec903f792a436b8af63846c9002a3159bd4589b44a6e30a6ff2"
 
 [metadata.files]
 aiohttp = [
@@ -1133,6 +1146,10 @@ pydantic = [
 pyflakes = [
     {file = "pyflakes-2.5.0-py2.py3-none-any.whl", hash = "sha256:4579f67d887f804e67edb544428f264b7b24f435b263c4614f384135cea553d2"},
     {file = "pyflakes-2.5.0.tar.gz", hash = "sha256:491feb020dca48ccc562a8c0cbe8df07ee13078df59813b83959cbdada312ea3"},
+]
+pygsearch = [
+    {file = "pygsearch-0.5.1-py3-none-any.whl", hash = "sha256:94a6c9acdf8606c6b81187a76eef142d010f299eda4baf49a1a7bf71ab5d1ba1"},
+    {file = "pygsearch-0.5.1.tar.gz", hash = "sha256:ba37ff3d49ba54f6b00a749073cedc767e41f2f25776a1982b78b38e0eb0d255"},
 ]
 python-urbandict = [
     {file = "python-urbandict-0.2.3.tar.gz", hash = "sha256:be981d35f76e2cee516fe0c80940bafc6986c63fbcf645cb62c015778900da24"},

@@ -15,6 +15,7 @@ ROLE_MUTED_ID = 773396782129348610
 
 # Commands
 HELPER_COMMANDS = ["mute", "unmute", "delete", "slowmode"]
+GOOGLE_SEARCH_EMBED_COLOR = 65, 195, 60
 
 # Announcements
 ANNOUNCEMENT_INTERVAL = 600  # 10 minutes

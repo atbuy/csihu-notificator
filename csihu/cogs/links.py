@@ -5,7 +5,7 @@ from discord import app_commands as slash_commands
 from discord.ext import commands
 
 
-class Links(commands.Cog):
+class LinksCog(commands.Cog):
     """This is a cog for University commands.
 
     University commands are used to help the discord members

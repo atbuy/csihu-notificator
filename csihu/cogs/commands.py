@@ -1,11 +1,14 @@
 import discord
 from discord import app_commands as slash_commands
 from discord.ext import commands
+from pygsearch import gsearch
 from pyurbandict import UrbanDict
 from pyurbandict.parse import Definition
 
+from csihu.helpers import get_google_search_embed
 
-class Commands(commands.Cog):
+
+class CommandsCog(commands.Cog):
     """This is a cog for general commands.
 
     This cog has commands that can be used
@@ -51,3 +54,11 @@ class Commands(commands.Cog):
 
         # Send the embed
         await send(embed=embed, ephemeral=True)
+
+    @slash_commands.command(name="google-search", description="Make a google search")
+    async def google_search(self, interaction: discord.Interaction, *, query: str):
+        """Make a google search."""
+
+        searches = gsearch(query, num=5)
+        embed = get_google_search_embed(searches)
+        await interaction.response.send_message(embed=embed)

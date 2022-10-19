@@ -9,7 +9,7 @@ from csihu.helpers import Announcement
 from csihu.logger import log
 
 
-class Announcements(commands.Cog):
+class AnnouncementsCog(commands.Cog):
     """This is a cog for announcements.
 
     Announcements are sent periodically to the server.

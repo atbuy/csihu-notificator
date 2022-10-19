@@ -41,7 +41,7 @@ metadata = sa.MetaData()
 Base = declarative_base(metadata=metadata)
 
 
-class Announcements(Base):
+class AnnouncementsORM(Base):
     __tablename__ = "announcement"
 
     id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)

@@ -6,7 +6,7 @@ from csihu import helpers
 from csihu.logger import log
 
 
-class Events(commands.Cog):
+class EventsCog(commands.Cog):
     """This is a cog for event listeners.
 
     Evnt listeners are executed automatically on a specific event.

@@ -6,7 +6,7 @@ from discord import Activity, ActivityType
 from discord.ext import commands
 
 import csihu.db.database as db
-from csihu.cogs import Announcements, Commands, Events, Links, Mod, Troll
+from csihu.cogs import AnnouncementsCog, CommandsCog, EventsCog, LinksCog, ModCog
 from csihu.db import models
 from csihu.logger import setup_logger
 from csihu.settings import get_settings
@@ -82,12 +82,11 @@ async def main(bot: commands.Bot) -> None:
     bot.last_announcement = await db.get_latest_announcement(bot.engine)
 
     # Load cogs
-    await bot.add_cog(Troll(bot))
-    await bot.add_cog(Events(bot))
-    await bot.add_cog(Links(bot))
-    await bot.add_cog(Mod(bot))
-    await bot.add_cog(Commands(bot))
-    await bot.add_cog(Announcements(bot))
+    await bot.add_cog(EventsCog(bot))
+    await bot.add_cog(LinksCog(bot))
+    await bot.add_cog(ModCog(bot))
+    await bot.add_cog(CommandsCog(bot))
+    await bot.add_cog(AnnouncementsCog(bot))
 
     # Run bot
     await bot.start(settings.csihu_token)
