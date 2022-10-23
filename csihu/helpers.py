@@ -216,3 +216,16 @@ def get_google_search_embed(results: list[SearchResult]) -> discord.Embed:
         )
 
     return embed
+
+
+def get_set_color_embed(color: discord.Colour) -> discord.Embed:
+    """Create embed for setcolor command."""
+
+    # Create embed
+    embed = discord.Embed(
+        title="Color Set",
+        description=f"Your color has been set to `{color}`.",
+        color=color,
+    )
+
+    return embed

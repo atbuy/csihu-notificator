@@ -1,3 +1,4 @@
+import logging
 from functools import lru_cache
 
 from pydantic import BaseSettings
@@ -14,8 +15,11 @@ class Settings(BaseSettings):
     postgres_host: str
     postgres_port: int
     postgres_db: str
+    command_prefix: str = "."
     announcement_base_url: str
     announcement_feed_url: str
+    log_level: int = logging.INFO
+    debug: bool = True
 
 
 @lru_cache

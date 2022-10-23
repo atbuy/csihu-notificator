@@ -1,5 +1,4 @@
 import asyncio
-import os
 from typing import Literal, Optional
 
 import discord
@@ -13,15 +12,15 @@ from csihu.db import models
 from csihu.logger import setup_logger
 from csihu.settings import get_settings
 
-PREFIX = os.getenv("COMMAND_PREFIX", ".")
 settings = get_settings()
+prefix = settings.command_prefix
 intents = discord.Intents.all()
-activity = Activity(type=ActivityType.listening, name=f"{PREFIX}help")
-bot = commands.Bot(command_prefix=PREFIX, intents=intents, activity=activity)
+activity = Activity(type=ActivityType.listening, name=f"{prefix}help")
+bot = commands.Bot(command_prefix=prefix, intents=intents, activity=activity)
 
 bot.engine = models.get_engine()
 bot.settings = settings
-bot.debug = os.getenv("DEBUG", True)
+bot.debug = settings.debug
 
 
 @bot.command()
