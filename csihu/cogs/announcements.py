@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import discord
 from discord import app_commands as slash_commands
 from discord.ext import commands, tasks
@@ -40,10 +42,11 @@ class AnnouncementsCog(commands.Cog):
 
         # Send all announcements found
         for ann in reversed(announcements):
-            # Send announcement to channel
-            embed = await helpers.create_announcement_embed(ann)
-            await channel.send(embed=embed)
-            log(f"Announcement sent: {ann.id}")
+            if not self.bot.debug:
+                # Send announcement to channel
+                embed = await helpers.create_announcement_embed(ann)
+                await channel.send(embed=embed)
+                log(f"Announcement sent: {ann.id}")
 
             # Save announcement to database
             await db.add_announcement(self.bot.engine, ann)

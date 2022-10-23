@@ -1,23 +1,27 @@
 import asyncio
-from typing import Literal
+import os
+from typing import Literal, Optional
 
 import discord
 from discord import Activity, ActivityType
 from discord.ext import commands
 
 import csihu.db.database as db
+from csihu import constants
 from csihu.cogs import AnnouncementsCog, CommandsCog, EventsCog, LinksCog, ModCog
 from csihu.db import models
 from csihu.logger import setup_logger
 from csihu.settings import get_settings
 
+PREFIX = os.getenv("COMMAND_PREFIX", ".")
 settings = get_settings()
 intents = discord.Intents.all()
-activity = Activity(type=ActivityType.listening, name="?help")
-bot = commands.Bot(command_prefix="?", intents=intents, activity=activity)
+activity = Activity(type=ActivityType.listening, name=f"{PREFIX}help")
+bot = commands.Bot(command_prefix=PREFIX, intents=intents, activity=activity)
 
 bot.engine = models.get_engine()
 bot.settings = settings
+bot.debug = os.getenv("DEBUG", True)
 
 
 @bot.command()
@@ -68,6 +72,36 @@ async def sync(
             ret += 1
 
     await ctx.send(f"Synced the tree to {ret}/{len(guilds)}.")
+
+
+@bot.command(name="react", brief="React text to a message")
+async def react(
+    ctx: commands.Context, msg: Optional[discord.Message], *, text: str
+) -> None:
+    """
+    React each character in `text` with emojis
+    :param msg: The message to add the reactions to
+    :param text: The text to add reactions to
+    """
+
+    # If the msg is a reply to a message, use that msg
+    if ctx.message.reference:
+        msg = await ctx.fetch_message(ctx.message.reference.message_id)
+
+    sent = ""
+    for char in text:
+        if char in sent:
+            continue
+
+        sent += char
+        if char.isalpha():
+            # The unicode value for each emoji characters
+            emoji = constants.REACTION_CHARACTERS[char.lower()]
+            character = emoji
+            await msg.add_reaction(character)
+        elif char.isdigit():
+            number_emoji = "\N{variation selector-16}\N{combining enclosing keycap}"
+            await msg.add_reaction(f"{char}{number_emoji}")
 
 
 async def main(bot: commands.Bot) -> None:
