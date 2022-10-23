@@ -1,3 +1,5 @@
+from typing import List, Optional, Union
+
 import discord
 from discord import app_commands as slash_commands
 from discord.ext import commands
@@ -120,3 +122,28 @@ class CommandsCog(commands.Cog):
         # Add the role to the user
         await interaction.user.add_roles(role)
         await interaction.response.send_message(embed=embed)
+
+    @commands.command(name="delete", aliases=["del"], brief="Delete messages")
+    async def delete(
+        self,
+        ctx: commands.Context,
+        amount: int,
+        *,
+        members: Optional[Union[discord.Member, List[discord.Member]]] = None,
+    ):
+        """Delete `amount` messages.
+
+        If `members` is given, then only the messages
+        that the specific members sent will be deleted.
+        """
+
+        # Add member in iterable in case there is only one
+        if isinstance(members, discord.Member):
+            members = [members]
+
+        # Delete amount messages + the command message
+        async for message in ctx.channel.history(limit=amount + 1):
+            if members and message.author not in members:
+                continue
+
+            await message.delete()
