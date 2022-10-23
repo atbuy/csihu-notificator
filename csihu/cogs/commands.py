@@ -68,16 +68,16 @@ class CommandsCog(commands.Cog):
     async def set_color(
         self,
         interaction: discord.Interaction,
-        hex_color: str,
+        hex: str,
     ):
         """Change your display color."""
 
         # Get color from hex string
         try:
-            color = discord.Colour.from_str(hex_color)
+            color = discord.Colour.from_str(hex)
         except Exception:
             await interaction.response.send_message(
-                f"Invalid color: {hex_color}", ephemeral=True
+                f"Invalid color: {hex}", ephemeral=True
             )
             return
 
