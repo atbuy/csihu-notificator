@@ -1,5 +1,3 @@
-from typing import List, Optional, Union
-
 import discord
 from discord import app_commands as slash_commands
 from discord.ext import commands
@@ -127,9 +125,9 @@ class CommandsCog(commands.Cog):
     async def delete(
         self,
         ctx: commands.Context,
-        amount: int,
+        amount: int = 1,
         *,
-        members: Optional[Union[discord.Member, List[discord.Member]]] = None,
+        member: discord.Member = None,
     ):
         """Delete `amount` messages.
 
@@ -137,13 +135,55 @@ class CommandsCog(commands.Cog):
         that the specific members sent will be deleted.
         """
 
-        # Add member in iterable in case there is only one
-        if isinstance(members, discord.Member):
-            members = [members]
+        # If the command was invoked with a reply,
+        # then delete the message that was replied to.
+        if ctx.message.reference:
+            message = ctx.message.reference.resolved
+            await message.delete()
+            return
 
         # Delete amount messages + the command message
+        messages = []
         async for message in ctx.channel.history(limit=amount + 1):
-            if members and message.author not in members:
+            if member and member == message.author:
                 continue
 
-            await message.delete()
+            messages.append(message)
+
+        # Delete the messages in one call
+        await ctx.channel.delete_messages(messages)
+
+    @commands.command(
+        name="bulk-delete", aliases=["bdel"], brief="Bulk delete messages"
+    )
+    async def bulk_delete(
+        self,
+        ctx: commands.Context,
+        start: discord.Message,
+        end: discord.Message,
+        member: discord.Member = None,
+    ):
+        """Bulk delete messages.
+
+        This command will delete all messages between
+        `start` and `end` messages.
+        """
+
+        # Swap start and end if start is after end
+        if start.created_at < end.created_at:
+            start, end = end, start
+
+        # Get message between `start` and `end`
+        messages = []
+        async for message in ctx.channel.history(limit=None):
+            if message.author != member:
+                continue
+
+            if message.id == end.id:
+                messages.append(message)
+                break
+
+            messages.append(message)
+
+        # Delete messages
+        await ctx.channel.delete_messages(messages)
