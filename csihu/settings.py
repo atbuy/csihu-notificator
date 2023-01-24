@@ -6,7 +6,6 @@ from pydantic import BaseSettings
 
 class Settings(BaseSettings):
     csihu_token: str
-    csihu_troll_url: str
     csihu_schedule_url: str
     csihu_moodle_url: str
     csihu_github_url: str
