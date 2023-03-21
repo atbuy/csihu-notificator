@@ -1,8 +1,8 @@
 version: "3.9"
 services:
   bot:
-    build: .
-    image: csihu-bot
+    build:
+      context: .
     env_file:
       - .env
     container_name: csihu
@@ -18,6 +18,9 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-    - 5434:5432
+      - 5434:5432
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
