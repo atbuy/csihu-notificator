@@ -1,26 +1,40 @@
-FROM python:3.10.8-alpine3.16 as python
+FROM python:3.10-alpine3.16 as python
 
-RUN apk add gcc g++ make
+# Python cofigurations
+ENV PYTHONBUFFERED=true
+WORKDIR /app
 
-# Poetry configuration
-ENV POETRY_VERSION=1.2.2
-ENV POETRY_HOME=/opt/poetry
-ENV POETRY_VENV=/opt/poetry-venv
-ENV POETRY_CACHE_DIR=/opt/.cache
 
-# Install poetry separated from system interpreter
-RUN python3 -m venv $POETRY_VENV \
-    && $POETRY_VENV/bin/pip install -U pip setuptools wheel \
-    && $POETRY_VENV/bin/pip install poetry==${POETRY_VERSION}
+# Install dependencies in the second stage
+FROM python as build
 
-# Add `poetry` to PATH
-ENV PATH="${PATH}:${POETRY_VENV}/bin"
+# Install headers
+RUN apk add gcc g++ curl
 
-# Copy app files
+# Copy source
 COPY . /app
 WORKDIR /app
 
-# Install dependencies
-RUN poetry install
+# Poetry configuration
+ENV POETRY_HOME=/opt/poetry
+ENV POETRY_VIRTUALENVS_IN_PROJECT=true
+ENV PATH="$POETRY_HOME/bin:${PATH}"
 
-ENTRYPOINT [ "poetry", "run", "python", "csihu/main.py" ]
+# Install poetry
+RUN curl -sSL https://install.python-poetry.org | python3 -
+
+# Install dependencies from poetry lock file
+RUN poetry install --no-dev --no-interaction --no-ansi -vvv
+
+
+# Run app in third stage
+FROM python as runtime
+
+# Add poetry virtual environment to PATH
+ENV PATH="/app/.venv/bin:${PATH}"
+
+# Copy source
+COPY --from=build /app /app
+WORKDIR /app
+
+ENTRYPOINT [ "python", "csihu/main.py" ]
