@@ -1,4 +1,4 @@
-FROM python:3.10-alpine3.16 as python
+FROM python:3.10-alpine3.17 as python
 
 # Python cofigurations
 ENV PYTHONBUFFERED=true
@@ -8,8 +8,8 @@ WORKDIR /app
 # Install dependencies in the second stage
 FROM python as build
 
-# Install headers
-RUN apk add gcc g++ curl
+# Install needed binaries and headers
+RUN apk add --no-cache --virtual gcc musl-dev curl
 
 # Copy source
 COPY . /app
@@ -20,11 +20,12 @@ ENV POETRY_HOME=/opt/poetry
 ENV POETRY_VIRTUALENVS_IN_PROJECT=true
 ENV PATH="$POETRY_HOME/bin:${PATH}"
 
-# Install poetry
-RUN curl -sSL https://install.python-poetry.org | python3 -
-
-# Install dependencies from poetry lock file
-RUN poetry install --no-dev --no-interaction --no-ansi -vvv
+# Upgrade pip and setuptools
+RUN pip install --upgrade pip setuptools wheel && \
+    # Install poetry
+    curl -sSL https://install.python-poetry.org | python3 - || cat /app/poetry*.log && \
+    # Install dependencies from poetry lock file
+    poetry install --no-dev --no-interaction --no-ansi -vvv
 
 
 # Run app in third stage
