@@ -9,7 +9,7 @@ WORKDIR /app
 FROM python as build
 
 # Install needed binaries and headers
-RUN apk add --no-cache --virtual gcc musl-dev curl
+RUN apk add --no-cache gcc musl-dev curl libffi-dev
 
 # Copy source
 COPY . /app
@@ -23,7 +23,7 @@ ENV PATH="$POETRY_HOME/bin:${PATH}"
 # Upgrade pip and setuptools
 RUN pip install --upgrade pip setuptools wheel && \
     # Install poetry
-    curl -sSL https://install.python-poetry.org | python3 - || cat /app/poetry*.log && \
+    curl -sSL https://install.python-poetry.org | python3 - && \
     # Install dependencies from poetry lock file
     poetry install --no-dev --no-interaction --no-ansi -vvv
 
