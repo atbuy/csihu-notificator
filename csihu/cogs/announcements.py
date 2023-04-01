@@ -33,12 +33,17 @@ class AnnouncementsCog(commands.Cog):
         channel = self.bot.get_channel(const.CHANNEL_ANNOUNCEMENTS_ID)
 
         current_id = self.bot.last_announcement.id
-        announcements: list[Announcement] = await helpers.parse_feed(current_id)
+        anns: list[Announcement] = await helpers.parse_feed(current_id)
 
         # If the found announcements have smaller IDs
         # than the last sent announcement, then the feed has not been updated.
-        if not announcements:
+        if not anns:
             return
+
+        # If there are announcements prased from the RSS feed,
+        # then parse those announcements from the website,
+        # since they have better quality than the RSS feed announcements.
+        announcements = await helpers.parse_announcements(self.bot, anns)
 
         # Send all announcements found
         for ann in reversed(announcements):

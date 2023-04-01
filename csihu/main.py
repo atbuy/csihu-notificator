@@ -2,25 +2,16 @@ import asyncio
 from typing import Literal, Optional
 
 import discord
-from discord import Activity, ActivityType
 from discord.ext import commands
 
 import csihu.db.database as db
-from csihu import constants
+from csihu import CSIHUBot, constants
 from csihu.cogs import AnnouncementsCog, CommandsCog, EventsCog, LinksCog, ModCog
 from csihu.db import models
 from csihu.logger import setup_logger
-from csihu.settings import get_settings
 
-settings = get_settings()
-prefix = settings.command_prefix
-intents = discord.Intents.all()
-activity = Activity(type=ActivityType.listening, name=f"{prefix}help")
-bot = commands.Bot(command_prefix=prefix, intents=intents, activity=activity)
-
-bot.engine = models.get_engine()
-bot.settings = settings
-bot.debug = settings.debug
+# Initialize custom bot class wrapper
+bot = CSIHUBot()
 
 
 @bot.command()
@@ -103,7 +94,7 @@ async def react(
             await msg.add_reaction(f"{char}{number_emoji}")
 
 
-async def main(bot: commands.Bot) -> None:
+async def main(bot: CSIHUBot) -> None:
     """Initializes the bot"""
 
     # Initialize logger
@@ -122,7 +113,7 @@ async def main(bot: commands.Bot) -> None:
     await bot.add_cog(AnnouncementsCog(bot))
 
     # Run bot
-    await bot.start(settings.csihu_token)
+    await bot.start(bot.settings.csihu_token)
 
 
 if __name__ == "__main__":

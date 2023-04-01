@@ -3,6 +3,7 @@ import os
 import urllib
 from dataclasses import dataclass
 
+import cchardet  # noqa: F401
 import discord
 import requests
 import urllib3
@@ -10,7 +11,9 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 from discord import Colour
 from pygsearch import SearchResult
+from selenium.webdriver.common.by import By
 
+from csihu import CSIHUBot
 from csihu import constants as const
 from csihu.logger import log
 
@@ -179,6 +182,35 @@ async def parse_feed(current_id: int = -1) -> Announcement:
         # Create object and append to output
         ann = Announcement(id, title, description, link)
         out.append(ann)
+
+    return out
+
+
+async def parse_announcements(
+    bot: CSIHUBot,
+    announcements: list[Announcement],
+) -> list[Announcement]:
+    """Parse announcements from their ID and update the object text."""
+
+    # Get announcement from the website
+    base_url = bot.settings.announcement_url
+    driver = bot.get_webdriver()
+
+    out = []
+    for ann in announcements:
+        url = f"{base_url}?id={ann.id}"
+
+        # Navigate to the page and wait for the javascript to load
+        driver.get(url)
+        await asyncio.sleep(1.5)
+
+        # Parse announcement text
+        element = driver.find_element(By.CLASS_NAME, "ql-editor")
+        text = element.get_attribute("innerText").replace("\n\n\n\n", "\n\n")
+
+        # Create new announcement object with updated text
+        new = Announcement(ann.id, ann.title, text, ann.link)
+        out.append(new)
 
     return out
 

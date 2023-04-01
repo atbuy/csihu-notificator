@@ -20,7 +20,6 @@ def can_execute(
     def decorator(func: callable) -> callable:
         @wraps(func)
         async def wrapper(*args, **kwargs) -> None:
-
             interaction: discord.Interaction = args[1]
             if helpers.can_execute(
                 interaction,
