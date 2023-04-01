@@ -9,7 +9,7 @@ WORKDIR /app
 FROM python as build
 
 # Install needed binaries and headers
-RUN apk add --no-cache gcc musl-dev curl libffi-dev
+RUN apk add --no-cache gcc g++ musl-dev curl libffi-dev
 
 # Copy source
 COPY . /app
