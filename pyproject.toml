@@ -7,7 +7,7 @@ profile = "black"
 
 [tool.poetry]
 name = "csihu"
-version = "2.0.0"
+version = "2.0.1"
 description = "A bot that is used for the CompsSci Discord Server"
 authors = ["Vitaman02"]
 license = "MIT"
@@ -18,15 +18,17 @@ homepage = "https://github.com/Vitaman02/CS-IHU-NotifierBot"
 python = "^3.10"
 discord = "2.0.0"
 requests = "2.28.1"
-python-urbandict = "^0.2.3"
-beautifulsoup4 = "^4.11.1"
-lxml = "^4.9.1"
-SQLAlchemy = {extras = ["asyncio"], version = "^1.4.41"}
-asyncpg = "^0.26.0"
-pydantic = "^1.10.2"
-alembic = "^1.8.1"
-pygsearch = "^0.5.1"
-cchardet = "^2.1.7"
+python-urbandict = "0.2.3"
+beautifulsoup4 = "4.11.1"
+lxml = "4.9.1"
+SQLAlchemy = {extras = ["asyncio"], version = "1.4.41"}
+asyncpg = "0.26.0"
+pydantic = "1.10.2"
+alembic = "1.8.1"
+pygsearch = "0.5.1"
+cchardet = "2.1.7"
+selenium = "4.8.3"
+webdriver-manager = "3.8.5"
 
 [tool.poetry.dev-dependencies]
 black = "22.6.0"
