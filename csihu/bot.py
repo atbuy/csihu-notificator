@@ -6,10 +6,6 @@ from selenium import webdriver
 from csihu.db import models
 from csihu.settings import get_settings
 
-# from selenium.webdriver.chrome.service import Service as ChromeService
-# from webdriver_manager.chrome import ChromeDriverManager
-# from webdriver_manager.core.utils import ChromeType
-
 
 class CSIHUBot(commands.Bot):
     def __init__(self, *args, **kwargs):
@@ -49,8 +45,6 @@ class CSIHUBot(commands.Bot):
         options.add_argument("--disable-gpu")
 
         # Initialize driver
-        # manager = ChromeDriverManager(chrome_type=ChromeType.CHROMIUM)
-        # service = ChromeService(manager.install())
         self.driver = webdriver.Chrome(options=options)
 
         return self.driver

@@ -28,7 +28,6 @@ alembic = "1.10.2"
 pygsearch = "0.5.1"
 cchardet = "2.1.7"
 selenium = "4.8.3"
-webdriver-manager = "3.8.5"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/Vitaman02/CS-IHU-NotifierBot/issues"
