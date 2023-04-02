@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 
 from csihu import constants as const
-from csihu import helpers
 from csihu.logger import log
 
 
@@ -26,12 +25,6 @@ class EventsCog(commands.Cog):
 
         # If the author is the bot return
         if message.author == self.bot.user:
-            return
-
-        # If there are attachements,
-        # delete the message if it contains unallowed file types.
-        if message.attachments:
-            await helpers.remove_unallowed_files(message)
             return
 
     @commands.Cog.listener()

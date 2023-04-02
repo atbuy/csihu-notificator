@@ -85,25 +85,6 @@ def can_execute(
     return False
 
 
-async def remove_unallowed_files(message: discord.Message) -> None:
-    """Removes the message if it contains unallowed file types."""
-
-    # Iterate over all the attachments in the message,
-    # and check for unallowed file types.
-    for attachment in message.attachments:
-        extension = attachment.filename.split(".")[-1].lower()
-        if extension not in const.ALLOWED_FILE_TYPES:
-            mention = message.author.mention
-            log(f"Removing message with unallowed file types. {mention}, {extension}")
-            await message.delete()
-            await message.channel.send(
-                f"{mention} you are not allowed to upload `.{extension}` files. "
-                "Use `.allowedfiles` to view all the allowed file types. "
-                "You might have to convert to a different file type."
-            )
-            return
-
-
 async def mute_timer(
     interaction: discord.Interaction,
     member: discord.Member,

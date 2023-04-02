@@ -1,11 +1,11 @@
 import asyncio
-from typing import Literal, Optional
+from typing import Literal
 
 import discord
 from discord.ext import commands
 
 import csihu.db.database as db
-from csihu import CSIHUBot, constants
+from csihu import CSIHUBot
 from csihu.cogs import AnnouncementsCog, CommandsCog, EventsCog, LinksCog, ModCog
 from csihu.db import models
 from csihu.logger import setup_logger
@@ -62,36 +62,6 @@ async def sync(
             ret += 1
 
     await ctx.send(f"Synced the tree to {ret}/{len(guilds)}.")
-
-
-@bot.command(name="react", brief="React text to a message")
-async def react(
-    ctx: commands.Context, msg: Optional[discord.Message], *, text: str
-) -> None:
-    """
-    React each character in `text` with emojis
-    :param msg: The message to add the reactions to
-    :param text: The text to add reactions to
-    """
-
-    # If the msg is a reply to a message, use that msg
-    if ctx.message.reference:
-        msg = await ctx.fetch_message(ctx.message.reference.message_id)
-
-    sent = ""
-    for char in text:
-        if char in sent:
-            continue
-
-        sent += char
-        if char.isalpha():
-            # The unicode value for each emoji characters
-            emoji = constants.REACTION_CHARACTERS[char.lower()]
-            character = emoji
-            await msg.add_reaction(character)
-        elif char.isdigit():
-            number_emoji = "\N{variation selector-16}\N{combining enclosing keycap}"
-            await msg.add_reaction(f"{char}{number_emoji}")
 
 
 async def main(bot: CSIHUBot) -> None:
