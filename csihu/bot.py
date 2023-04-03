@@ -31,11 +31,7 @@ class CSIHUBot(commands.Bot):
         self.last_announcement = None
 
     def get_webdriver(self):
-        """Initialize and install a webdriver if there isn't one already."""
-
-        # Returns the existing driver if there is one
-        if hasattr(self, "driver"):
-            return self.driver
+        """Initialize a new webdriver."""
 
         # Options to run in headless mode
         options = webdriver.ChromeOptions()
@@ -44,7 +40,4 @@ class CSIHUBot(commands.Bot):
         options.add_argument("--headless")
         options.add_argument("--disable-gpu")
 
-        # Initialize driver
-        self.driver = webdriver.Chrome(options=options)
-
-        return self.driver
+        return webdriver.Chrome(options=options)

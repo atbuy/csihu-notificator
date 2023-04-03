@@ -193,6 +193,11 @@ async def parse_announcements(
         new = Announcement(ann.id, ann.title, text, ann.link)
         out.append(new)
 
+    # Close and delete driver to free up some memory
+    driver.close()
+    driver.quit()
+    del driver
+
     return out
 
 
