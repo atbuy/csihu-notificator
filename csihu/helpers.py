@@ -187,7 +187,11 @@ async def parse_announcements(
 
         # Parse announcement text
         element = driver.find_element(By.CLASS_NAME, "ql-editor")
-        text = element.get_attribute("innerText").replace("\n\n\n\n", "\n\n")
+
+        # Remove multiple new lines
+        text = element.get_attribute("innerText")
+        for i in range(2, 5):
+            text = text.replace("\n" * i, "\n")
 
         # Create new announcement object with updated text
         new = Announcement(ann.id, ann.title, text, ann.link)
