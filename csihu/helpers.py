@@ -193,6 +193,10 @@ async def parse_announcements(
         for i in range(2, 5):
             text = text.replace("\n" * i, "\n")
 
+        # Make sure the title is not larger than 256 characters
+        if len(ann.title) > 256:
+            ann.title = ann.title[:253] + "..."
+
         # Create new announcement object with updated text
         new = Announcement(ann.id, ann.title, text, ann.link)
         out.append(new)
