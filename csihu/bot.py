@@ -36,8 +36,12 @@ class CSIHUBot(commands.Bot):
         # Options to run in headless mode
         options = webdriver.ChromeOptions()
         options.add_argument("--no-sandbox")
-        options.add_argument("--window-size=200,200")
+        options.add_argument("--window-size=10,10")
         options.add_argument("--headless")
         options.add_argument("--disable-gpu")
+        options.add_argument("--disable-mipmap-generation")
+        options.add_argument("--single-process")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-setuid-sandbox")
 
         return webdriver.Chrome(options=options)
