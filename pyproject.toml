@@ -9,10 +9,10 @@ profile = "black"
 name = "csihu"
 version = "3.0.2"
 description = "A bot that is used for the CompsSci Discord Server"
-authors = ["Vitaman02"]
+authors = ["atbuy"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/Vitaman02/CS-IHU-NotifierBot"
+homepage = "https://github.com/atbuy/CS-IHU-NotifierBot"
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -30,8 +30,8 @@ cchardet = "2.1.7"
 selenium = "4.8.3"
 
 [tool.poetry.urls]
-"Bug Tracker" = "https://github.com/Vitaman02/CS-IHU-NotifierBot/issues"
-"CI/CD" = "https://github.com/Vitaman02/CS-IHU-NotifierBot/actions"
+"Bug Tracker" = "https://github.com/atbuy/CS-IHU-NotifierBot/issues"
+"CI/CD" = "https://github.com/atbuy/CS-IHU-NotifierBot/actions"
 
 [tool.poetry.group.dev.dependencies]
 isort = "5.12.0"

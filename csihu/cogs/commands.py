@@ -187,3 +187,25 @@ class CommandsCog(commands.Cog):
 
         # Delete messages
         await ctx.channel.delete_messages(messages)
+
+    @commands.command(name="icon", brief="View the icon of a member")
+    async def icon(self, ctx: commands.Context, member: discord.Member = None):
+        """Respond with the icon of a member.
+
+        If the member is not given, then the icon
+        is the icon of the command invoker.
+        """
+
+        # If member is not given, then use the invoker
+        if not member:
+            member = ctx.author
+
+        # Create the embed
+        embed = discord.Embed(
+            title=f"Icon of {member.name}",
+            color=discord.Color.blurple(),
+        )
+        embed.set_image(url=member.avatar.url)
+
+        # Send the embed
+        await ctx.send(embed=embed)
