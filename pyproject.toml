@@ -7,12 +7,12 @@ profile = "black"
 
 [tool.poetry]
 name = "csihu"
-version = "3.0.2"
+version = "3.0.3"
 description = "A bot that is used for the CompsSci Discord Server"
 authors = ["atbuy"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/atbuy/CS-IHU-NotifierBot"
+homepage = "https://github.com/atbuy/csihu-notificator"
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -30,14 +30,14 @@ cchardet = "2.1.7"
 selenium = "4.8.3"
 
 [tool.poetry.urls]
-"Bug Tracker" = "https://github.com/atbuy/CS-IHU-NotifierBot/issues"
-"CI/CD" = "https://github.com/atbuy/CS-IHU-NotifierBot/actions"
+"Bug Tracker" = "https://github.com/atbuy/csihu-notificator/issues"
+"CI/CD" = "https://github.com/atbuy/csihu-notificator/actions"
 
 [tool.poetry.group.dev.dependencies]
-isort = "5.12.0"
-black = "23.3.0"
-flake8 = "6.0.0"
-pre-commit = "3.2.1"
+isort = "^5.12.0"
+black = "^23.3.0"
+flake8 = "^6.0.0"
+pre-commit = "^3.2.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
