@@ -1,4 +1,4 @@
-[flake8]
+[tool.flake8]
 ignore = "E402"
 max-line-length = 88
 
@@ -7,24 +7,24 @@ profile = "black"
 
 [tool.poetry]
 name = "csihu"
-version = "3.0.3"
+version = "3.0.4"
 description = "A bot that is used for the CompsSci Discord Server"
-authors = ["atbuy"]
+authors = ["atbuy <contact.atbuy@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/atbuy/csihu-notificator"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-discord = "2.0.0"
+discord = "2.3.2"
 requests = "^2.31.0"
-python-urbandict = "0.2.5"
+python-urbandict = "0.3.1"
 beautifulsoup4 = "4.12.0"
-lxml = "4.9.2"
+lxml = "4.9.3"
 SQLAlchemy = {extras = ["asyncio"], version = "1.4.47"}
 asyncpg = "0.26.0"
-pydantic = "1.10.7"
-alembic = "1.10.2"
+pydantic = "1.10.11"
+alembic = "1.11.3"
 pygsearch = "0.5.1"
 cchardet = "2.1.7"
 selenium = "4.8.3"
