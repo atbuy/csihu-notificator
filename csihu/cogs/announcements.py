@@ -6,6 +6,7 @@ from discord.ext import commands, tasks
 
 from csihu import constants as const
 from csihu import helpers
+from csihu.bot import CSIHUBot
 from csihu.db import database as db
 from csihu.helpers import Announcement
 from csihu.logger import log
@@ -17,7 +18,7 @@ class AnnouncementsCog(commands.Cog):
     Announcements are sent periodically to the server.
     """
 
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: CSIHUBot):
         self.bot = bot
         self.announcement.start()
 

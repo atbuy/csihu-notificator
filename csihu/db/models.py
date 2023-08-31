@@ -12,8 +12,8 @@ def get_engine_url() -> str:
     settings = get_settings()
     driver = "postgresql+asyncpg"
     url = (
-        f"{driver}://{settings.postgres_user}:{settings.postgres_pass}"
-        f"@{settings.postgres_host}:{settings.postgres_port}/{settings.postgres_db}"
+        f"{driver}://{settings.db.username}:{settings.db.password}"
+        f"@{settings.db.host}:{settings.db.port}/{settings.db.database}"
     )
     return url
 

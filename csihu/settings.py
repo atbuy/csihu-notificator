@@ -1,19 +1,30 @@
 import logging
 from functools import lru_cache
 
-from pydantic import BaseSettings
+from pydantic import BaseModel
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class CSIHU(BaseModel):
+    token: str
+    schedule_url: str
+    moodle_url: str
+    github_url: str
+
+
+class DB(BaseModel):
+    username: str
+    password: str
+    host: str
+    port: int
+    database: str
 
 
 class Settings(BaseSettings):
-    csihu_token: str
-    csihu_schedule_url: str
-    csihu_moodle_url: str
-    csihu_github_url: str
-    postgres_user: str
-    postgres_pass: str
-    postgres_host: str
-    postgres_port: int
-    postgres_db: str
+    model_config = SettingsConfigDict(env_prefix="CSIHU_", env_nested_delimiter="__")
+
+    csihu: CSIHU
+    db: DB
     command_prefix: str = "."
     announcement_url: str
     announcement_base_url: str
