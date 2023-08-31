@@ -6,6 +6,7 @@ from pyurbandict import UrbanDict
 from pyurbandict.parse import Definition
 
 from csihu import constants
+from csihu.bot import CSIHUBot
 from csihu.helpers import get_google_search_embed, get_set_color_embed
 
 
@@ -17,6 +18,9 @@ class CommandsCog(commands.Cog):
     If these commands pile up then they should be
     probably be moved to a different cog.
     """
+
+    def __init__(self, bot: CSIHUBot) -> None:
+        self.bot = bot
 
     @slash_commands.command(name="test", description="Test the bot")
     async def test(self, interaction: discord.Interaction, ephemeral: bool = True):

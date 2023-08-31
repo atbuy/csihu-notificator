@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 
 from csihu import constants as const
+from csihu.bot import CSIHUBot
 from csihu.logger import log
 
 
@@ -12,7 +13,7 @@ class EventsCog(commands.Cog):
     They can be used to handle errors, guild changes and more.
     """
 
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: CSIHUBot):
         self.bot = bot
 
     @commands.Cog.listener()
