@@ -4,6 +4,7 @@ from discord.ext import commands
 from selenium import webdriver
 
 from csihu.db import models
+from csihu.metrics import Metrics
 from csihu.settings import get_settings
 
 
@@ -29,6 +30,8 @@ class CSIHUBot(commands.Bot):
         self.debug = self.settings.debug
 
         self.last_announcement = None
+
+        self.metrics = Metrics()
 
     def get_webdriver(self):
         """Initialize a new webdriver."""

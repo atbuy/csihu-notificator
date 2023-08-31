@@ -4,6 +4,7 @@ from discord.ext import commands
 
 from csihu import constants as const
 from csihu import helpers
+from csihu.bot import CSIHUBot
 
 
 class ModCog(commands.Cog):
@@ -14,6 +15,9 @@ class ModCog(commands.Cog):
     Moderators also can skip command cooldowns.
     These commands are used to handle spam mostly.
     """
+
+    def __init__(self, bot: CSIHUBot) -> None:
+        self.bot = bot
 
     @slash_commands.command(name="mute", description="Mute a member")
     async def mute(

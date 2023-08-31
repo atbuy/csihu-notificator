@@ -5,10 +5,15 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+class Prometheus(BaseModel):
+    port: int
+
+
 class CSIHU(BaseModel):
     token: str
     schedule_url: str
     moodle_url: str
+    courses_url: str
     github_url: str
 
 
@@ -25,6 +30,7 @@ class Settings(BaseSettings):
 
     csihu: CSIHU
     db: DB
+    metrics: Prometheus
     command_prefix: str = "."
     announcement_url: str
     announcement_base_url: str

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import discord
 from discord import app_commands as slash_commands
 from discord.ext import commands, tasks

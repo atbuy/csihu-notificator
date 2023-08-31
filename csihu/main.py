@@ -75,6 +75,9 @@ async def main(bot: CSIHUBot) -> None:
 
     bot.last_announcement = await db.get_latest_announcement(bot.engine)
 
+    # Initialize metrics http server
+    await bot.metrics.start()
+
     # Load cogs
     await bot.add_cog(EventsCog(bot))
     await bot.add_cog(LinksCog(bot))
