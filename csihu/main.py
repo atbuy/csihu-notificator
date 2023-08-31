@@ -83,7 +83,7 @@ async def main(bot: CSIHUBot) -> None:
     await bot.add_cog(AnnouncementsCog(bot))
 
     # Run bot
-    await bot.start(bot.settings.csihu_token)
+    await bot.start(bot.settings.csihu.token)
 
 
 if __name__ == "__main__":
