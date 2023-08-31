@@ -1457,13 +1457,13 @@ cli = ["click (>=5.0)"]
 
 [[package]]
 name = "python-urbandict"
-version = "0.3.1"
+version = "0.3.2"
 description = "Python wrapper for the Urban Dictionary API."
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "python_urbandict-0.3.1-py3-none-any.whl", hash = "sha256:a597ab91f017a31bb355c6109bba92f718d0b4ebd1887593e4b215f860a2a374"},
-    {file = "python_urbandict-0.3.1.tar.gz", hash = "sha256:b11f1a04724f8543371e436aab687c4256755977fa0dc05b73ce84d06794fae9"},
+    {file = "python_urbandict-0.3.2-py3-none-any.whl", hash = "sha256:212deab2dc881a056eced32d38d36e206c252b7222fe97b2b72411a2154be5fc"},
+    {file = "python_urbandict-0.3.2.tar.gz", hash = "sha256:7ce434ed0dfaf48d8a309c09320ac3639c9ec5debfd333ae4caa2280967d1ae0"},
 ]
 
 [package.dependencies]
@@ -1964,4 +1964,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "0bfbe6bee79db0e8e21a9592e8355aa5952193a67bac78b9127966cfbe57cdb8"
+content-hash = "dbe941dd0b9213a937bc336874f929a7b3e8438d937bf9d16e68310459e6b66b"
