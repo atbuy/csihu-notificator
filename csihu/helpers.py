@@ -142,7 +142,6 @@ async def parse_feed(current_id: int = -1) -> Announcement:
     # Parse all announcements
     out = []
     items = soup.find_all("item")
-    log(f"Found announcement items: {items}")
     for item in items:
         item: Tag
 
