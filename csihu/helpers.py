@@ -1,5 +1,4 @@
 import asyncio
-import os
 import urllib
 from dataclasses import dataclass
 
@@ -16,6 +15,7 @@ from selenium.webdriver.common.by import By
 from csihu import CSIHUBot
 from csihu import constants as const
 from csihu.logger import log
+from csihu.settings import get_settings
 
 # Disable InsecureRequestWarning
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -133,14 +133,16 @@ async def parse_feed(current_id: int = -1) -> Announcement:
     """Parse RSS feed and return announcements."""
 
     # Get RSS feed
-    feed_url = os.getenv("ANNOUNCEMENT_FEED_URL")
-    headers = {"Referer": os.getenv("ANNOUNCEMENT_BASE_URL")}
+    settings = get_settings()
+    feed_url = settings.announcement_feed_url
+    headers = {"Referer": settings.announcement_base_url}
     feed = requests.get(feed_url, headers=headers, verify=False)
     soup = BeautifulSoup(feed.text, "xml")
 
     # Parse all announcements
     out = []
     items = soup.find_all("item")
+    log(f"Found announcement items: {items}")
     for item in items:
         item: Tag
 
