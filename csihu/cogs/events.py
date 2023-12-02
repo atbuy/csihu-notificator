@@ -28,6 +28,11 @@ class EventsCog(commands.Cog):
         if message.author == self.bot.user:
             return
 
+        # Delete any messages that contain discord invites
+        if "discord.gg" in message.content:
+            await message.delete()
+            return
+
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member) -> None:
         """Add a role to the new member that joined."""
