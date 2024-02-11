@@ -1,9 +1,12 @@
+# VSCode
 .vscode
-/**/**/__pycache__
-deprecated.txt
-.pytest_cache
-.venv/*
-env/
+
+# Pyenv
+.python-version
+
+# Python
+*.py[cod]
+pyrightconfig.json
+
+# Environment configuration
 .env*
-csihu2/
-aliases*.sh
