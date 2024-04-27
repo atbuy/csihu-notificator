@@ -27,6 +27,7 @@ services:
 
   chrome:
     image: selenium/standalone-chrome:latest
+    container_name: csihu-chrome
     hostname: chrome
     privileged: true
     shm_size: 2g
