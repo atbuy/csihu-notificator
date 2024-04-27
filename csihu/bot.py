@@ -37,7 +37,7 @@ class CSIHUBot(commands.Bot):
     def get_webdriver(self):
         """Initialize a new webdriver."""
 
-        # Options to run in headless moe
+        # Options to run in headless mode safely
         options = webdriver.ChromeOptions()
         options.headless = True
 
