@@ -30,21 +30,33 @@ class CSIHUBot(commands.Bot):
         self.debug = self.settings.debug
 
         self.last_announcement = None
+        self.driver = self.get_webdriver()
 
         self.metrics = Metrics()
 
     def get_webdriver(self):
         """Initialize a new webdriver."""
 
-        # Options to run in headless mode
+        # Options to run in headless moe
         options = webdriver.ChromeOptions()
+        options.headless = True
+
         options.add_argument("--no-sandbox")
-        options.add_argument("--window-size=10,10")
+        options.add_argument("--window-size=1920,1080")
         options.add_argument("--headless")
         options.add_argument("--disable-gpu")
         options.add_argument("--disable-mipmap-generation")
+        options.add_argument("--disable-extensions")
+        options.add_argument("--dns-prefetch-disable")
         options.add_argument("--single-process")
+        options.add_argument("--disable-infobars")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-setuid-sandbox")
+        options.add_argument("--remote-debugging-port=9222")
 
-        return webdriver.Chrome(options=options)
+        # Setup remote host path
+        host = self.settings.web_driver.host
+        port = self.settings.web_driver.port
+        remote = f"http://{host}:{port}/wd/hub"
+
+        return webdriver.Remote(remote, options=options)

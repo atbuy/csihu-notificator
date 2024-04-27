@@ -4,8 +4,8 @@ from dataclasses import dataclass
 
 import cchardet  # noqa: F401
 import discord
-import requests
 import urllib3
+from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 from discord import Colour
@@ -136,8 +136,12 @@ async def parse_feed(current_id: int = -1) -> Announcement:
     settings = get_settings()
     feed_url = settings.announcement_feed_url
     headers = {"Referer": settings.announcement_base_url}
-    feed = requests.get(feed_url, headers=headers, verify=False)
-    soup = BeautifulSoup(feed.text, "xml")
+
+    async with ClientSession(headers=headers) as session:
+        response = await session.get(feed_url, ssl=False)
+        text = await response.text()
+
+    soup = BeautifulSoup(text, "xml")
 
     # Parse all announcements
     out = []
@@ -176,7 +180,7 @@ async def parse_announcements(
 
     # Get announcement from the website
     base_url = bot.settings.announcement_url
-    driver = bot.get_webdriver()
+    driver = bot.driver
 
     out = []
     for ann in announcements:
@@ -201,11 +205,6 @@ async def parse_announcements(
         # Create new announcement object with updated text
         new = Announcement(ann.id, ann.title, text, ann.link)
         out.append(new)
-
-    # Close and delete driver to free up some memory
-    driver.close()
-    driver.quit()
-    del driver
 
     return out
 

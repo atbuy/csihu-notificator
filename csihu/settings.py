@@ -25,12 +25,18 @@ class DB(BaseModel):
     database: str
 
 
+class WebDriver(BaseModel):
+    host: str
+    port: str
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="CSIHU_", env_nested_delimiter="__")
 
     csihu: CSIHU
     db: DB
     metrics: Prometheus
+    web_driver: WebDriver
     command_prefix: str = "."
     announcement_url: str
     announcement_base_url: str

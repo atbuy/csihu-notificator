@@ -1,16 +1,17 @@
-version: "3.9"
 services:
   bot:
     build:
       context: .
+    restart: always
+    container_name: csihu
     env_file:
       - .env
-    container_name: csihu
-    restart: always
     depends_on:
       - db
+      - chrome
     ports:
       - "9952:9952"
+
   db:
     image: postgres:14.5-alpine3.16
     container_name: csihu-db
@@ -23,6 +24,15 @@ services:
       - 5434:5432
     volumes:
       - postgres-data:/var/lib/postgresql/data
+
+  chrome:
+    image: selenium/standalone-chrome:latest
+    hostname: chrome
+    privileged: true
+    shm_size: 2g
+    ports:
+      - "5900:5900"
+      - "4444:4444"
 
 volumes:
   postgres-data:

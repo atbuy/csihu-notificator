@@ -1,22 +1,19 @@
-FROM python:3.10-alpine3.17 as python
+FROM python:3.10-alpine as python
 
 # Python cofigurations
 ENV PYTHONBUFFERED=true
 WORKDIR /app
 
 # Install binaries and headers needed at runtime
-
-RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" > /etc/apk/repositories && \
-    echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
-    apk update && \
-    apk add --no-cache g++ chromium chromium-chromedriver
+RUN apk update && \
+    apk add --no-cache g++
 
 
 # Install dependencies in the second stage
 FROM python as build
 
 # Install needed binaries and headers
-RUN apk add --no-cache gcc musl-dev curl libffi-dev
+RUN apk add --no-cache gcc musl-dev curl curl-dev libffi-dev libssl3 libcrypto3
 
 # Copy source
 COPY . /app
@@ -32,7 +29,7 @@ RUN pip install --upgrade pip setuptools wheel && \
     # Install poetry
     curl -sSL https://install.python-poetry.org | python3 - && \
     # Install dependencies from poetry lock file
-    poetry install --no-dev --no-interaction --no-ansi -vvv
+    poetry install --no-dev --no-interaction --no-ansi
 
 
 # Run app in third stage
