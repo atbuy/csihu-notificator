@@ -1394,17 +1394,17 @@ cli = ["click (>=5.0)"]
 
 [[package]]
 name = "python-urbandict"
-version = "0.3.5"
+version = "0.3.8"
 description = "Python wrapper for the Urban Dictionary API."
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "python_urbandict-0.3.5-py3-none-any.whl", hash = "sha256:798b931d53f591c4007cb0bc0bf64eba8ba71995a75c466a6f0114ecd0a83db4"},
-    {file = "python_urbandict-0.3.5.tar.gz", hash = "sha256:540400e464e4f226a6b637d6bf949f88579fd9b79451ee4d58d3005091709493"},
+    {file = "python_urbandict-0.3.8-py3-none-any.whl", hash = "sha256:471bb29f4c3c4e070e332b7be01f5d92f8cf8a85bc44324296af7db70f68a02f"},
+    {file = "python_urbandict-0.3.8.tar.gz", hash = "sha256:c2cc1a45fefc9b48cff1f134873a8b617b9f5cf417afe0de4a16cb7561c51546"},
 ]
 
 [package.dependencies]
-requests = ">=2.31.0,<3.0.0"
+requests = ">=2.32.0,<3.0.0"
 
 [[package]]
 name = "pyyaml"
@@ -1928,4 +1928,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "231c9087478d59892e773bf668f44bd155767f29ff1722ed13bdda85d4a3b1ba"
+content-hash = "232dde1f73e9c8ce44f12c0b82bfb8da0ba794c0f89e0dce3fafad0525422263"

@@ -13,7 +13,7 @@ homepage = "https://github.com/atbuy/csihu-notificator"
 [tool.poetry.dependencies]
 python = "^3.10"
 discord = "^2.3.2"
-python-urbandict = "^0.3.5"
+python-urbandict = "^0.3.8"
 beautifulsoup4 = "4.12.3"
 lxml = "5.2.1"
 SQLAlchemy = {extras = ["asyncio"], version = "1.4.47"}
