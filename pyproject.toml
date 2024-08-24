@@ -3,7 +3,7 @@ profile = "black"
 
 [tool.poetry]
 name = "csihu"
-version = "3.2.4"
+version = "3.2.5"
 description = "A bot that is used for the CompsSci Discord Server"
 authors = ["atbuy <buy@atbuy.dev>"]
 license = "MIT"
@@ -25,16 +25,15 @@ cchardet = "^2.1.7"
 selenium = "4.20.0"
 pydantic-settings = "^2.0.3"
 prometheus-async = "^22.2.0"
-aiohttp = "^3.9.5"
+aiohttp = "^3.10.2"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/atbuy/csihu-notificator/issues"
 "CI/CD" = "https://github.com/atbuy/csihu-notificator/actions"
 
 [tool.poetry.group.dev.dependencies]
-isort = "^5.12.0"
-pre-commit = "^3.5.0"
-ruff = "^0.4.8"
+pre-commit = "^3.8.0"
+ruff = "^0.6.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
