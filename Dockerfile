@@ -1,4 +1,4 @@
-FROM python:3.10-alpine as python
+FROM python:3.12-alpine AS python
 
 # Python cofigurations
 ENV PYTHONBUFFERED=true
@@ -10,7 +10,7 @@ RUN apk update && \
 
 
 # Install dependencies in the second stage
-FROM python as build
+FROM python AS build
 
 # Install needed binaries and headers
 RUN apk add --no-cache gcc musl-dev curl curl-dev libffi-dev libssl3 libcrypto3
@@ -29,11 +29,11 @@ RUN pip install --upgrade pip setuptools wheel && \
     # Install poetry
     curl -sSL https://install.python-poetry.org | python3 - && \
     # Install dependencies from poetry lock file
-    poetry install --no-dev --no-interaction --no-ansi
+    poetry install --only main --no-interaction --no-ansi
 
 
 # Run app in third stage
-FROM python as runtime
+FROM python AS runtime
 
 # Add poetry virtual environment to PATH
 ENV PATH="/app/.venv/bin:${PATH}"
