@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Install binaries and headers needed at runtime
 RUN apk update && \
-    apk add --no-cache g++
+  apk add --no-cache g++
 
 
 # Install dependencies in the second stage
@@ -26,10 +26,10 @@ ENV PATH="$POETRY_HOME/bin:${PATH}"
 
 # Upgrade pip and setuptools
 RUN pip install --upgrade pip setuptools wheel && \
-    # Install poetry
-    curl -sSL https://install.python-poetry.org | python3 - && \
-    # Install dependencies from poetry lock file
-    poetry install --only main --no-interaction --no-ansi
+  # Install poetry
+  curl -sSL https://install.python-poetry.org | python3 - && \
+  # Install dependencies from poetry lock file
+  poetry install --only main --no-interaction --no-ansi
 
 
 # Run app in third stage

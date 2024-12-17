@@ -255,3 +255,25 @@ def get_set_color_embed(color: discord.Colour) -> discord.Embed:
     )
 
     return embed
+
+
+async def gotify_notification(ann: Announcement) -> None:
+    """Send a gotify notification if it is defined."""
+
+    settings = get_settings()
+
+    # Setup request payload
+    payload = {
+        "title": ann.title,
+        "message": ann.description,
+        "priority": settings.gotify.priority,
+    }
+
+    url = (
+        "http://"
+        f"{settings.gotify.host}:{settings.gotify.port}/message?"
+        f"token={settings.gotify.token}"
+    )
+
+    async with ClientSession() as session:
+        await session.post(url, json=payload)

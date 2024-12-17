@@ -30,12 +30,20 @@ class WebDriver(BaseModel):
     port: str
 
 
+class Gotify(BaseModel):
+    host: str
+    port: int
+    priority: int
+    token: str
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="CSIHU_", env_nested_delimiter="__")
 
     csihu: CSIHU
     db: DB
     metrics: Prometheus
+    gotify: Gotify
     web_driver: WebDriver
     command_prefix: str = "."
     announcement_url: str

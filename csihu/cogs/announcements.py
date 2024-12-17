@@ -50,6 +50,7 @@ class AnnouncementsCog(commands.Cog):
                 # Send announcement to channel
                 embed = await helpers.create_announcement_embed(ann)
                 await channel.send(embed=embed)
+                await helpers.gotify_notification(ann)
                 log(f"Announcement sent: {ann.id}")
 
             # Save announcement to database
