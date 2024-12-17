@@ -2,7 +2,7 @@ services:
   bot:
     build:
       context: .
-    restart: always
+    restart: unless-stopped
     container_name: csihu
     env_file:
       - .env
@@ -15,7 +15,7 @@ services:
   db:
     image: postgres:14.5-alpine
     container_name: csihu-db
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASS}
       POSTGRES_USER: ${POSTGRES_USER}
