@@ -32,8 +32,8 @@ aiohttp = "^3.11.10"
 "CI/CD" = "https://github.com/atbuy/csihu-notificator/actions"
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^3.8.0"
-ruff = "^0.6.2"
+pre-commit = "^4.0.1"
+ruff = "^0.8.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
