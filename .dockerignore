@@ -4,7 +4,6 @@ csihu2/*
 __pycache__/*
 *.egg-info/*
 LICENSE.md
-README.md
 pyrightconfig.json
 .python-version
 .gitignore
