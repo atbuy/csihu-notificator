@@ -3,7 +3,7 @@ profile = "black"
 
 [tool.poetry]
 name = "csihu"
-version = "3.3.2"
+version = "3.3.3"
 description = "A bot that is used for the CompsSci Discord Server"
 authors = ["atbuy <buy@atbuy.dev>"]
 license = "MIT"
@@ -12,20 +12,20 @@ homepage = "https://github.com/atbuy/csihu-notificator"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-python-urbandict = "^0.3.10"
+python-urbandict = "^0.3.11"
 discord-py = "^2.4.0"
 beautifulsoup4 = "4.12.3"
 lxml = "5.3.0"
 SQLAlchemy = {extras = ["asyncio"], version = "1.4.47"}
 asyncpg = "0.30.0"
-pydantic = "2.10.3"
+pydantic = "2.10.5"
 alembic = "1.14.0"
 pygsearch = "0.5.1"
 cchardet = "2.2.0a2"
 selenium = "4.27.1"
-pydantic-settings = "^2.7.0"
+pydantic-settings = "^2.7.1"
 prometheus-async = "^22.2.0"
-aiohttp = "^3.11.10"
+aiohttp = "^3.11.11"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/atbuy/csihu-notificator/issues"
@@ -33,7 +33,7 @@ aiohttp = "^3.11.10"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^4.0.1"
-ruff = "^0.8.3"
+ruff = "^0.9.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

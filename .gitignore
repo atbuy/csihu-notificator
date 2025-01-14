@@ -1,11 +1,10 @@
 # VSCode
 .vscode
 
-# Pyenv
-.python-version
-
 # Python
 *.py[cod]
+*.egg-info
+.python-version
 pyrightconfig.json
 
 # Environment configuration

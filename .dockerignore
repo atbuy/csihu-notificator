@@ -2,3 +2,10 @@ csihu2/*
 .vscode/*
 .github/*
 __pycache__/*
+*.egg-info/*
+LICENSE.md
+README.md
+pyrightconfig.json
+.python-version
+.gitignore
+.pre-commit-config.yaml
