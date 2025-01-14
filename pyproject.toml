@@ -3,7 +3,7 @@ profile = "black"
 
 [tool.poetry]
 name = "csihu"
-version = "3.3.3"
+version = "3.3.4"
 description = "A bot that is used for the CompsSci Discord Server"
 authors = ["atbuy <buy@atbuy.dev>"]
 license = "MIT"
