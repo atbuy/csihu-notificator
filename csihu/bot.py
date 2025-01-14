@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 import discord
 from discord import Activity, ActivityType
 from discord.ext import commands
@@ -6,6 +8,9 @@ from selenium import webdriver
 from csihu.db import models
 from csihu.metrics import Metrics
 from csihu.settings import get_settings
+
+if TYPE_CHECKING:
+    from csihu.helpers import Announcement
 
 
 class CSIHUBot(commands.Bot):
@@ -29,7 +34,7 @@ class CSIHUBot(commands.Bot):
         self.engine = models.get_engine()
         self.debug = self.settings.debug
 
-        self.last_announcement = None
+        self.last_announcement: Announcement | None = None
         self.driver = self.get_webdriver()
 
         self.metrics = Metrics()

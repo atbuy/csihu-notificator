@@ -23,4 +23,12 @@ async def get_latest_announcement(engine: AsyncEngine) -> Announcement:
         row = result.first()
         if not row:
             return Announcement(id=-1, title="", description="", link="")
-        return Announcement(**dict(row))
+
+        ann = Announcement(
+            id=row.id,
+            title=row.title,
+            description=row.description,
+            link=row.link,
+        )
+
+        return ann
