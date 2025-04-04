@@ -4,16 +4,9 @@ FROM python:3.12-alpine AS python
 ENV PYTHONBUFFERED=true
 WORKDIR /app
 
-# Install binaries and headers needed at runtime
-RUN apk update && \
-  apk add --no-cache g++
-
 
 # Install dependencies in the second stage
 FROM python AS build
-
-# Install needed binaries and headers
-RUN apk add --no-cache gcc musl-dev curl curl-dev libffi-dev libssl3 libcrypto3
 
 # Copy source
 COPY . /app
@@ -24,12 +17,15 @@ ENV POETRY_HOME=/opt/poetry
 ENV POETRY_VIRTUALENVS_IN_PROJECT=true
 ENV PATH="$POETRY_HOME/bin:${PATH}"
 
-# Upgrade pip and setuptools
-RUN pip install --upgrade pip setuptools wheel && \
+# Install needed binaries and headers
+RUN apk add --no-cache gcc musl-dev curl curl-dev libffi-dev libssl3 libcrypto3 && \
+  # Upgrade pip and setuptools
+  pip install --no-cache-dir --upgrade pip setuptools wheel && \
   # Install poetry
-  curl -sSL https://install.python-poetry.org | python3 - && \
+  pip install --no-cache-dir poetry==2.1.2 && \
   # Install dependencies from poetry lock file
-  poetry install --only main --no-interaction --no-ansi
+  poetry install --no-cache --only main --no-interaction --no-ansi && \
+  pip uninstall --no-cache-dir --yes pip setuptools wheel
 
 
 # Run app in third stage
