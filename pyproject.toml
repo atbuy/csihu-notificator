@@ -3,7 +3,7 @@ name = "csihu"
 version = "3.4.1"
 description = "A bot that is used for the CompSci Discord Server"
 authors = [{ name = "atbuy", email = "buy@atbuy.dev" }]
-license = { file = "LICENSE.md" }
+license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.12,<4"
 dependencies = [
