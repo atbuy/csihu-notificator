@@ -1,40 +1,36 @@
-[tool.isort]
-profile = "black"
-
-[tool.poetry]
+[project]
 name = "csihu"
-version = "3.4.0"
-description = "A bot that is used for the CompsSci Discord Server"
-authors = ["atbuy <buy@atbuy.dev>"]
-license = "MIT"
+version = "3.4.1"
+description = "A bot that is used for the CompSci Discord Server"
+authors = [{ name = "atbuy", email = "buy@atbuy.dev" }]
+license = { file = "LICENSE.md" }
 readme = "README.md"
-homepage = "https://github.com/atbuy/csihu-notificator"
+requires-python = ">=3.12,<4"
+dependencies = [
+  "python-urbandict==0.3.11",
+  "discord.py==2.5.2",
+  "beautifulsoup4==4.12.3",
+  "lxml==5.3.1",
+  "sqlalchemy[asyncio]==2.0.40",
+  "asyncpg==0.30.0",
+  "pydantic==2.11.2",
+  "alembic==1.15.2",
+  "pygsearch==0.6.0",
+  "cchardet==2.2.0a2",
+  "selenium==4.30.0",
+  "pydantic-settings==2.8.1",
+  "prometheus-async==25.1.0",
+  "aiohttp==3.11.16",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-python-urbandict = "^0.3.11"
-discord-py = "^2.4.0"
-beautifulsoup4 = "4.12.3"
-lxml = "5.3.0"
-SQLAlchemy = {extras = ["asyncio"], version = "2.0.37"}
-asyncpg = "0.30.0"
-pydantic = "2.10.5"
-alembic = "1.14.0"
-pygsearch = "0.5.1"
-cchardet = "2.2.0a2"
-selenium = "4.27.1"
-pydantic-settings = "^2.7.1"
-prometheus-async = "^22.2.0"
-aiohttp = "^3.11.11"
+[project.optional-dependencies]
+dev = ["pre-commit==4.2.0", "ruff==0.11.3"]
 
-[tool.poetry.urls]
+[project.urls]
+"Homepage" = "https://github.com/atbuy/csihu-notificator"
 "Bug Tracker" = "https://github.com/atbuy/csihu-notificator/issues"
 "CI/CD" = "https://github.com/atbuy/csihu-notificator/actions"
 
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^4.0.1"
-ruff = "^0.9.1"
-
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=2.0"]
 build-backend = "poetry.core.masonry.api"
