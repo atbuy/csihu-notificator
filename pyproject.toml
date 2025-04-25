@@ -1,6 +1,6 @@
 [project]
 name = "csihu"
-version = "3.4.1"
+version = "3.4.2"
 description = "A bot that is used for the CompSci Discord Server"
 authors = [{ name = "atbuy", email = "buy@atbuy.dev" }]
 license = { text = "MIT" }
