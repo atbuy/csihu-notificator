@@ -1,4 +1,4 @@
-FROM python:3.12-alpine AS python
+FROM python:3.13-alpine AS python
 
 # Python cofigurations
 ENV PYTHONBUFFERED=true
@@ -18,7 +18,7 @@ ENV POETRY_VIRTUALENVS_IN_PROJECT=true
 ENV PATH="$POETRY_HOME/bin:${PATH}"
 
 # Install needed binaries and headers
-RUN apk add --no-cache gcc musl-dev curl curl-dev libffi-dev libssl3 libcrypto3 && \
+RUN apk add --no-cache gcc g++ musl-dev libffi-dev libssl3 libcrypto3 && \
   # Upgrade pip and setuptools
   pip install --no-cache-dir --upgrade pip setuptools wheel && \
   # Install poetry
@@ -37,5 +37,7 @@ ENV PATH="/app/.venv/bin:${PATH}"
 # Copy source
 COPY --from=build /app /app
 WORKDIR /app
+
+RUN apk add --no-cache libstdc++
 
 ENTRYPOINT [ "python", "csihu/main.py" ]
