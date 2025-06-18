@@ -62,13 +62,8 @@ def can_execute(
     # to find if the user has a mod role.
     for role in roles:
         # Mods, owner and bots can execute all commands at any time
-        if role.id in (const.ROLE_MOD_ID, const.ROLE_OWNER_ID, const.ROLE_BOT_ID):
+        if role.id in (const.ROLE_BOT_ID,):
             return True
-
-        # Helpers can only execute certain commands at any time
-        if role.id == const.ROLE_HELPER_ID:
-            if interaction.command.name in const.HELPER_COMMANDS:
-                return True
 
     if allowed_channels:
         # Check if the user is in the allowed channels
