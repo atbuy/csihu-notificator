@@ -1,13 +1,12 @@
 import discord
 from discord import app_commands as slash_commands
 from discord.ext import commands
-from pygsearch import gsearch
 from pyurbandict import UrbanDict
 from pyurbandict.parse import Definition
 
 from csihu import constants
 from csihu.bot import CSIHUBot
-from csihu.helpers import get_google_search_embed, get_set_color_embed
+from csihu.helpers import get_set_color_embed
 
 
 class CommandsCog(commands.Cog):
@@ -59,14 +58,6 @@ class CommandsCog(commands.Cog):
 
         # Send the embed
         await send(embed=embed, ephemeral=True)
-
-    @slash_commands.command(name="google-search", description="Make a google search")
-    async def google_search(self, interaction: discord.Interaction, *, query: str):
-        """Make a google search."""
-
-        searches = gsearch(query, num=5)
-        embed = get_google_search_embed(searches)
-        await interaction.response.send_message(embed=embed)
 
     @slash_commands.command(name="set-color", description="Change your display color!")
     async def set_color(

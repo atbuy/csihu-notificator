@@ -15,7 +15,6 @@ dependencies = [
   "asyncpg==0.30.0",
   "pydantic==2.11.3",
   "alembic==1.15.2",
-  "pygsearch==0.6.0",
   "cchardet==2.2.0a2",
   "selenium==4.31.0",
   "pydantic-settings==2.9.1",
