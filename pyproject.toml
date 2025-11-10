@@ -7,23 +7,23 @@ license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.12,<4"
 dependencies = [
-  "python-urbandict==0.3.11",
-  "discord.py==2.5.2",
-  "beautifulsoup4==4.13.4",
-  "lxml==5.4.0",
-  "sqlalchemy[asyncio]==2.0.40",
+  "python-urbandict==0.3.12",
+  "discord.py==2.6.4",
+  "beautifulsoup4==4.14.2",
+  "lxml==6.0.2",
+  "sqlalchemy[asyncio]==2.0.44",
   "asyncpg==0.30.0",
-  "pydantic==2.11.3",
-  "alembic==1.15.2",
+  "pydantic==2.12.4",
+  "alembic==1.17.1",
   "cchardet==2.2.0a2",
-  "selenium==4.31.0",
-  "pydantic-settings==2.9.1",
+  "selenium==4.38.0",
+  "pydantic-settings==2.12.0",
   "prometheus-async==25.1.0",
-  "aiohttp==3.12.14",
+  "aiohttp==3.13.2",
 ]
 
 [project.optional-dependencies]
-dev = ["pre-commit==4.2.0", "ruff==0.11.7"]
+dev = ["pre-commit==4.4.0", "ruff==0.14.4"]
 
 [project.urls]
 "Homepage" = "https://github.com/atbuy/csihu-notificator"
