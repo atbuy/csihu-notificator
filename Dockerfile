@@ -1,7 +1,7 @@
-FROM python:3.13-alpine AS python
+FROM python:3.14-alpine AS python
 
 # Python cofigurations
-ENV PYTHONBUFFERED=true
+ENV PYTHONUNBUFFERED=true
 WORKDIR /app
 
 
