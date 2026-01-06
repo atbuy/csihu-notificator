@@ -1,3 +1,4 @@
-from csihu.bot import CSIHUBot  # noqa: F401
+from csihu.bot import CSIHUBot
 
-__version__ = (3, 4, 9)
+__version__ = (3, 4, 10)
+__all__ = ("CSIHUBot",)
