@@ -1,9 +1,9 @@
 [project]
 name = "csihu"
-version = "3.4.10"
+version = "3.4.11"
 description = "A bot that is used for the CompSci Discord Server"
 authors = [{ name = "atbuy", email = "buy@atbuy.dev" }]
-license = { text = "MIT" }
+license = "MIT"
 readme = "README.md"
 requires-python = ">=3.12,<4"
 dependencies = [
@@ -30,6 +30,9 @@ dev = ["pre-commit==4.5.1", "ruff==0.14.10"]
 "Bug Tracker" = "https://github.com/atbuy/csihu-notificator/issues"
 "CI/CD" = "https://github.com/atbuy/csihu-notificator/actions"
 
+[tool.setuptools]
+packages = ["csihu"]
+
 [build-system]
-requires = ["poetry-core>=2.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
