@@ -20,7 +20,7 @@ ENV PATH="$POETRY_HOME/bin:${PATH}"
 # Install needed binaries and headers
 RUN apk add --no-cache gcc g++ musl-dev libffi-dev libssl3 libcrypto3 && \
   # Upgrade pip and setuptools
-  pip install --no-cache-dir --upgrade pip setuptools wheel && \
+  pip install --no-cache-dir --upgrade pip setuptools && \
   # Install poetry
   pip install --no-cache-dir poetry==2.1.2 && \
   # Install dependencies from poetry lock file
