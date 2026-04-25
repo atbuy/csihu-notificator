@@ -1,29 +1,29 @@
 [project]
 name = "csihu"
-version = "3.4.11"
+version = "3.4.12"
 description = "A bot that is used for the CompSci Discord Server"
 authors = [{ name = "atbuy", email = "buy@atbuy.dev" }]
 license = "MIT"
 readme = "README.md"
-requires-python = ">=3.12,<4"
+requires-python = ">=3.12"
 dependencies = [
-  "python-urbandict==0.3.12",
-  "discord.py==2.6.4",
-  "beautifulsoup4==4.14.2",
-  "lxml==6.0.2",
-  "sqlalchemy[asyncio]==2.0.44",
-  "asyncpg==0.30.0",
-  "pydantic==2.12.4",
-  "alembic==1.17.1",
+  "python-urbandict==0.3.15",
+  "discord.py==2.7.1",
+  "beautifulsoup4==4.14.3",
+  "lxml==6.1.0",
+  "sqlalchemy[asyncio]==2.0.49",
+  "asyncpg==0.31.0",
+  "pydantic==2.13.3",
+  "alembic==1.18.4",
   "cchardet==2.2.0a2",
-  "selenium==4.38.0",
-  "pydantic-settings==2.12.0",
-  "prometheus-async==25.1.0",
-  "aiohttp==3.13.3",
+  "selenium==4.43.0",
+  "pydantic-settings==2.14.0",
+  "prometheus-async==26.1.0",
+  "aiohttp==3.13.5",
 ]
 
 [project.optional-dependencies]
-dev = ["pre-commit==4.5.1", "ruff==0.14.10"]
+dev = ["pre-commit==4.6.0", "ruff==0.15.12"]
 
 [project.urls]
 "Homepage" = "https://github.com/atbuy/csihu-notificator"
