@@ -2,7 +2,6 @@ import asyncio
 import urllib
 from dataclasses import dataclass
 
-import cchardet  # noqa: F401
 import discord
 import urllib3
 from aiohttp import ClientSession

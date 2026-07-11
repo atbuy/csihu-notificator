@@ -30,6 +30,4 @@ WORKDIR /app
 
 ENV PATH="/app/.venv/bin:${PATH}"
 
-RUN apk add --no-cache libstdc++
-
 ENTRYPOINT [ "python", "-m", "csihu.main" ]

@@ -270,25 +270,6 @@ wheels = [
 ]
 
 [[package]]
-name = "cchardet"
-version = "2.2.0a2"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/4c/c2/0e4364a4d6ce1a67f46bbce0731dee4d910ae1ee4467bd36ee68bd0cdd8b/cchardet-2.2.0a2.tar.gz", hash = "sha256:dd72bb1872eca9d279055bc7c3491a62ce1db7bfd330b7d48d7239a59c2f9823", size = 1111020, upload-time = "2024-06-06T18:53:35.251Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/6a/a7/cd9525ef542c45fc0fa9bc31d49251fabfcd4c81b559c78165a294587b62/cchardet-2.2.0a2-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:e9e215140963abd978f2e8ebd09c9644f2f17c032a7040880fbb28aea2fd7db2", size = 297727, upload-time = "2024-06-06T18:51:59.945Z" },
-    { url = "https://files.pythonhosted.org/packages/66/0b/59f24303c3c3a40d0849a44b1fde3189a25cd05a7d2bb3827c9140137bdd/cchardet-2.2.0a2-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:516f8c81e6ac703aa192f4c79adc42c78fc450bd61f1fb271348b227a9535515", size = 187600, upload-time = "2024-06-06T18:52:34.265Z" },
-    { url = "https://files.pythonhosted.org/packages/6c/3d/1075acd057536f2b8e7e407b1f8b246e1fcedc53334b6107bc3ebfb65740/cchardet-2.2.0a2-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:4761d842377c924f2f58a5cabaadd317dc74b3a4c04b56e389c1901ff766854e", size = 187924, upload-time = "2024-06-06T18:52:29.903Z" },
-    { url = "https://files.pythonhosted.org/packages/54/9d/a9e76a95dc41b30dcd824a3d2b50e80b40bc9e93533a8cc8691f3f64b85e/cchardet-2.2.0a2-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f1e2ac0b6ecfcb5600a92d6f1aa05c8b8c0d86ff3525b32bac938138a2028de4", size = 372806, upload-time = "2024-06-06T18:52:36.691Z" },
-    { url = "https://files.pythonhosted.org/packages/a9/e7/d73c8fda038787fee8c950177d9e443a3ee750fce714692fa9c93953b151/cchardet-2.2.0a2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5a78c4fcf431c0629c25dd605c2eca7e6c553d919ac39301485c44b3cacba6c1", size = 371474, upload-time = "2024-06-06T18:53:22.967Z" },
-    { url = "https://files.pythonhosted.org/packages/23/79/b1121699a5b95ae35109ad800011868a4d8c7dbb27ff35ad24637c8d74b5/cchardet-2.2.0a2-cp312-cp312-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:c5ecc5b9ffba2f5cb262d62155b46b742b0bdc79abfd9cc5d2892e2d7748da4e", size = 360435, upload-time = "2024-06-06T18:52:42.305Z" },
-    { url = "https://files.pythonhosted.org/packages/76/d5/91e15cfae72133d1a150f99250ae15747572695a19e82b2e246c80331c4e/cchardet-2.2.0a2-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:a8bc49d95ecaf1a70c03885bc990bfed320ffc3edeabd0d8f614a2a83b4ccc3b", size = 1308710, upload-time = "2024-06-06T18:53:09.341Z" },
-    { url = "https://files.pythonhosted.org/packages/16/90/0f6a1ed14f95d2e9a208c15efeacffa34795cf35895007b0028ccead4bb3/cchardet-2.2.0a2-cp312-cp312-musllinux_1_2_i686.whl", hash = "sha256:40d8046004bd4ca9a3ed20ac4862a75740729daecc44ffa78e3fa2f402a32835", size = 1436432, upload-time = "2024-06-06T18:51:54.868Z" },
-    { url = "https://files.pythonhosted.org/packages/46/db/91197ea5ffdb38c48fcafb2097b697bdff87e3ef74958d1ea8fbffb20579/cchardet-2.2.0a2-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:39c8f33c277080836fd7dfd47fbfcf8641d2ee2af6db460a92877a7742868427", size = 1353181, upload-time = "2024-06-06T18:52:45.019Z" },
-    { url = "https://files.pythonhosted.org/packages/ba/79/d6e5ffd6f690756e40d1df916621acd0ef153b827fba0b1297449a6e49b9/cchardet-2.2.0a2-cp312-cp312-win32.whl", hash = "sha256:2efddfe92a2f74dce18b783962dc8b4bf36ed2b42137ad4aa792635dcd3be73b", size = 170561, upload-time = "2024-06-06T18:53:06.732Z" },
-    { url = "https://files.pythonhosted.org/packages/9d/60/71625d4838ebb4aaa9730875e3672b45061bf41538e9f9e6961422078de0/cchardet-2.2.0a2-cp312-cp312-win_amd64.whl", hash = "sha256:677aa6ff5f69ba899ba0ab40080d3e60503240cd8b4de4de44985a627b8d5f76", size = 173804, upload-time = "2024-06-06T18:52:15.137Z" },
-]
-
-[[package]]
 name = "certifi"
 version = "2026.1.4"
 source = { registry = "https://pypi.org/simple" }
@@ -388,14 +369,13 @@ wheels = [
 
 [[package]]
 name = "csihu"
-version = "3.4.15"
+version = "3.4.17"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
     { name = "alembic" },
     { name = "asyncpg" },
     { name = "beautifulsoup4" },
-    { name = "cchardet" },
     { name = "discord-py" },
     { name = "lxml" },
     { name = "prometheus-async" },
@@ -418,7 +398,6 @@ requires-dist = [
     { name = "alembic", specifier = "==1.18.4" },
     { name = "asyncpg", specifier = "==0.31.0" },
     { name = "beautifulsoup4", specifier = "==4.14.3" },
-    { name = "cchardet", specifier = "==2.2.0a2" },
     { name = "discord-py", specifier = "==2.7.1" },
     { name = "lxml", specifier = "==6.1.0" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = "==4.6.0" },

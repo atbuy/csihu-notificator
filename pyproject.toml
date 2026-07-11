@@ -1,6 +1,6 @@
 [project]
 name = "csihu"
-version = "3.4.15"
+version = "3.4.17"
 description = "A bot that is used for the CompSci Discord Server"
 authors = [{ name = "atbuy", email = "buy@atbuy.dev" }]
 license = "MIT"
@@ -15,7 +15,6 @@ dependencies = [
   "asyncpg==0.31.0",
   "pydantic==2.13.3",
   "alembic==1.18.4",
-  "cchardet==2.2.0a2",
   "selenium==4.43.0",
   "pydantic-settings==2.14.2",
   "prometheus-async==26.1.0",
