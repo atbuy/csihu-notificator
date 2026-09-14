@@ -65,15 +65,11 @@ def can_execute(
 
     if allowed_channels:
         # Check if the user is in the allowed channels
-        if interaction.channel.id in allowed_channels:
-            return True
-        return False
+        return interaction.channel.id in allowed_channels
 
     if unallowed_channels:
         # Check if the user is in the unallowed channels
-        if interaction.channel.id in unallowed_channels:
-            return False
-        return True
+        return interaction.channel.id in unallowed_channels
 
     return False
 

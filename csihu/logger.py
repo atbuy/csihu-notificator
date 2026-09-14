@@ -13,7 +13,6 @@ def log(message: str, level: int | None = None) -> None:
 
     # Log message and save previous log
     logger.log(level, message)
-    message = message
 
 
 def setup_logger(level: int | None = logging.INFO) -> None:

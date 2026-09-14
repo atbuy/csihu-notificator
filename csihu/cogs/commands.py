@@ -67,10 +67,10 @@ class CommandsCog(commands.Cog):
     ):
         """Change your display color."""
 
-        # Get color from hex string
         try:
+            # Get color from hex string
             color = discord.Colour.from_str(hex)
-        except Exception:
+        except ValueError:
             await interaction.response.send_message(
                 f"Invalid color: {hex}", ephemeral=True
             )
