@@ -1,6 +1,6 @@
 [project]
 name = "csihu"
-version = "3.4.20"
+version = "3.4.21"
 description = "A bot that is used for the CompSci Discord Server"
 authors = [{ name = "atbuy", email = "buy@atbuy.dev" }]
 license = "MIT"
@@ -18,11 +18,11 @@ dependencies = [
   "selenium==4.43.0",
   "pydantic-settings==2.14.2",
   "prometheus-async==26.1.0",
-  "aiohttp==3.14.3",
+  "aiohttp==3.14.4",
 ]
 
 [project.optional-dependencies]
-dev = ["pre-commit==4.6.0", "ruff==0.15.12"]
+dev = ["prek==0.5.7", "ruff==0.17.2"]
 
 [project.urls]
 "Homepage" = "https://github.com/atbuy/csihu-notificator"
