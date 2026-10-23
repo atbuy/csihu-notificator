@@ -25,6 +25,8 @@ RUN apk add --no-cache gcc g++ musl-dev libffi-dev libssl3 libcrypto3 && \
 
 FROM python AS runtime
 
+RUN pip uninstall --no-cache-dir --yes pip setuptools
+
 COPY --from=build /app /app
 WORKDIR /app
 
